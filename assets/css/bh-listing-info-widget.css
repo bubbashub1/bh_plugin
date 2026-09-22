@@ -1,0 +1,6 @@
+.bh-listing-info-widget{display:grid;gap:8px}
+.bh-listing-info-widget__item{display:grid;grid-template-columns:minmax(70px,.7fr) minmax(0,1.3fr);gap:12px;padding:8px 0;border-bottom:1px solid rgba(0,0,0,.07)}
+.bh-listing-info-widget__item:last-child{border-bottom:0}
+.bh-listing-info-widget__label{font-size:.82rem;font-weight:600;opacity:.72}
+.bh-listing-info-widget__value{font-size:.92rem;font-weight:500}
+@media(max-width:600px){.bh-listing-info-widget__item{grid-template-columns:1fr}.bh-listing-info-widget__value{margin-top:-4px}}
