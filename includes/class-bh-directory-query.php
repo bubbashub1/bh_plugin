@@ -27,15 +27,6 @@ final class DirectoryQuery {
         $tax_query = [];
         $meta_query = [];
 
-        if (!empty($filters['category'])) {        ];
-
-        if (!empty($filters['search'])) {
-            $args['s'] = sanitize_text_field((string) $filters['search']);
-        }
-
-        $tax_query = [];
-        $meta_query = [];
-
         if (!empty($filters['category'])) {
             $tax_query[] = [
                 'taxonomy' => 'at_biz_dir-category',
