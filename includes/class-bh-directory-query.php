@@ -21,6 +21,11 @@ final class DirectoryQuery {
             'order' => 'DESC',
         ];
 
+        if (!empty($filters['all_results'])) {
+            $args['posts_per_page'] = -1;
+            $args['paged'] = 1;
+        }
+
         $search = trim(sanitize_text_field((string) ($filters['search'] ?? '')));
         $post_in = null;
 
