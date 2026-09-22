@@ -39,12 +39,23 @@ final class DirectoryQuery {
             ];
         }
 
-        if (!empty($filters['location'])) {
+        $location_taxonomy = defined('ATBDP_LOCATION') ? ATBDP_LOCATION : 'at_biz_dir-location';
+
+        if (!empty($filters['region'])) {
             $tax_query[] = [
-                'taxonomy' => defined('ATBDP_LOCATION') ? ATBDP_LOCATION : 'at_biz_dir-location',
+                'taxonomy' => $location_taxonomy,
                 'field' => 'slug',
-                'terms' => array_map('sanitize_title', (array) $filters['location']),
+                'terms' => array_map('sanitize_title', (array) $filters['region']),
                 'include_children' => true,
+            ];
+        }
+
+        if (!empty($filters['town'])) {
+            $tax_query[] = [
+                'taxonomy' => $location_taxonomy,
+                'field' => 'slug',
+                'terms' => array_map('sanitize_title', (array) $filters['town']),
+                'include_children' => false,
             ];
         }
 
