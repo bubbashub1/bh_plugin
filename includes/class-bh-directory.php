@@ -13,6 +13,7 @@ final class Directory {
         $atts = shortcode_atts([
             'posts_per_page' => 12,
             'title' => 'Find Family Activities',
+            'posts_per_page' => 12,
         ], $atts, 'bh_directory');
 
         if (!Listing::is_available()) {
@@ -22,6 +23,10 @@ final class Directory {
         $query = DirectoryQuery::run([
             'posts_per_page' => (int) $atts['posts_per_page'],
             'paged' => max(1, (int) ($_GET['bh_page'] ?? 1)),
+            'age_range' => isset($_GET['bh_age_range']) ? sanitize_text_field(wp_unslash($_GET['bh_age_range'])) : '',
+            'category' => isset($_GET['bh_category']) ? sanitize_title(wp_unslash($_GET['bh_category'])) : '',
+            'region' => isset($_GET['bh_region']) ? sanitize_title(wp_unslash($_GET['bh_region'])) : '',
+            'price' => isset($_GET['bh_price']) ? sanitize_text_field(wp_unslash($_GET['bh_price'])) : '',
         ]);
 
         ob_start();
