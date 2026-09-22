@@ -42,57 +42,63 @@ final class DirectorySearch {
                     <label for="bh-search">Search</label>
                     <input id="bh-search" name="bh_search" type="search" value="<?php echo esc_attr($values['search']); ?>" placeholder="Search activities, categories or locations">
                 </div>
-                <div class="bh-directory-search__field">
-                    <label for="bh-age-range">Age Range</label>
-                    <select id="bh-age-range" name="bh_age_range">
-                        <option value="">Any age</option>
-                        <?php foreach (DirectoryFields::definitions()['age_range']['values'] as $age) : ?>
-                            <option value="<?php echo esc_attr($age); ?>" <?php selected($values['age_range'], $age); ?>><?php echo esc_html($age === 'all' ? 'All ages' : $age); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="bh-directory-search__field">
-                    <label for="bh-region">Region</label>
-                    <select id="bh-region" name="bh_region">
-                        <option value="">All regions</option>
-                        <?php foreach ($regions as $term) : ?>
-                            <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['region'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="bh-directory-search__field">
-                    <label for="bh-town">Town</label>
-                    <select id="bh-town" name="bh_town" <?php disabled($values['region'], ''); ?>>
-                        <option value=""><?php echo $values['region'] === '' ? 'Select a region first' : 'All towns'; ?></option>
-                        <?php foreach ($towns as $term) : ?>
-                            <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['town'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="bh-directory-search__field">
-                    <label for="bh-day">Day</label>
-                    <select id="bh-day" name="bh_day">
-                        <option value="">Any day</option>
-                        <?php foreach (['monday','tuesday','wednesday','thursday','friday','saturday','sunday'] as $day) : ?>
-                            <option value="<?php echo esc_attr($day); ?>" <?php selected($values['day'], $day); ?>><?php echo esc_html(ucfirst($day)); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="bh-directory-search__field">
-                    <label for="bh-term-time">Term Time</label>
-                    <select id="bh-term-time" name="bh_term_time">
-                        <option value="">Any timetable</option>
-                        <option value="term" <?php selected($values['term_time'], 'term'); ?>>Term time only</option>
-                    </select>
-                </div>
-                <div class="bh-directory-search__field">
-                    <label for="bh-price">Price</label>
-                    <input id="bh-price" name="bh_price" type="text" value="<?php echo esc_attr($values['price']); ?>" placeholder="e.g. £5">
-                </div>
-                <div class="bh-directory-search__actions">
-                    <button type="submit">Search</button>
-                    <a href="<?php echo esc_url(remove_query_arg(['bh_search','bh_age_range','bh_region','bh_town','bh_day','bh_term_time','bh_price','bh_page'])); ?>">Clear</a>
-                </div>
+
+                <details class="bh-directory-search__advanced" <?php echo ($values['age_range'] !== '' || $values['region'] !== '' || $values['town'] !== '' || $values['day'] !== '' || $values['term_time'] !== '' || $values['price'] !== '') ? 'open' : ''; ?>>
+                    <summary>Advanced Search</summary>
+                    <div class="bh-directory-search__advanced-grid">
+                        <div class="bh-directory-search__field">
+                            <label for="bh-age-range">Age Range</label>
+                            <select id="bh-age-range" name="bh_age_range">
+                                <option value="">Any age</option>
+                                <?php foreach (DirectoryFields::definitions()['age_range']['values'] as $age) : ?>
+                                    <option value="<?php echo esc_attr($age); ?>" <?php selected($values['age_range'], $age); ?>><?php echo esc_html($age === 'all' ? 'All ages' : $age); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="bh-directory-search__field">
+                            <label for="bh-region">Region</label>
+                            <select id="bh-region" name="bh_region">
+                                <option value="">All regions</option>
+                                <?php foreach ($regions as $term) : ?>
+                                    <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['region'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="bh-directory-search__field">
+                            <label for="bh-town">Town</label>
+                            <select id="bh-town" name="bh_town" <?php disabled($values['region'], ''); ?>>
+                                <option value=""><?php echo $values['region'] === '' ? 'Select a region first' : 'All towns'; ?></option>
+                                <?php foreach ($towns as $term) : ?>
+                                    <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['town'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="bh-directory-search__field">
+                            <label for="bh-day">Day</label>
+                            <select id="bh-day" name="bh_day">
+                                <option value="">Any day</option>
+                                <?php foreach (['monday','tuesday','wednesday','thursday','friday','saturday','sunday'] as $day) : ?>
+                                    <option value="<?php echo esc_attr($day); ?>" <?php selected($values['day'], $day); ?>><?php echo esc_html(ucfirst($day)); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="bh-directory-search__field">
+                            <label for="bh-term-time">Term Time</label>
+                            <select id="bh-term-time" name="bh_term_time">
+                                <option value="">Any timetable</option>
+                                <option value="term" <?php selected($values['term_time'], 'term'); ?>>Term time only</option>
+                            </select>
+                        </div>
+                        <div class="bh-directory-search__field">
+                            <label for="bh-price">Price</label>
+                            <input id="bh-price" name="bh_price" type="text" value="<?php echo esc_attr($values['price']); ?>" placeholder="e.g. £5">
+                        </div>
+                        <div class="bh-directory-search__actions">
+                            <button type="submit">Search</button>
+                            <a href="<?php echo esc_url(remove_query_arg(['bh_search','bh_age_range','bh_region','bh_town','bh_day','bh_term_time','bh_price','bh_page'])); ?>">Clear</a>
+                        </div>
+                    </div>
+                </details>
             </form>
         </section>
         <?php
