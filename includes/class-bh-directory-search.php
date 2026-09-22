@@ -27,10 +27,12 @@ final class DirectorySearch {
         ];
 
         foreach ($values as $key => $value) {
-            if ($value !== '') $args[$key] = $value;
+            if ($value !== '') {
+                $args[$key] = $value;
+            }
         }
 
-        $query = DirectoryQuery::run($args);
+        DirectoryQuery::run($args);
         $categories = self::categories();
         $locations = self::locations();
         $age_options = DirectoristFields::options('age_range');
@@ -56,21 +58,11 @@ final class DirectorySearch {
                 </div>
 
                 <div class="bh-directory-search__field">
-                    <label for="bh-region-main">Region</label>
-                    <select id="bh-region-main" name="bh_region">
-                        <option value="">All regions</option>
-                        <?php foreach ($regions as $term) : ?>
-                            <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['region'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <div class="bh-directory-search__field">
-                    <label for="bh-town-main">Town</label>
-                    <select id="bh-town-main" name="bh_town" <?php disabled($values['region'], ''); ?>>
-                        <option value=""><?php echo $values['region'] === '' ? 'Select a region first' : 'All towns'; ?></option>
-                        <?php foreach ($towns as $term) : ?>
-                            <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['town'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
+                    <label for="bh-location-main">Location</label>
+                    <select id="bh-location-main" name="bh_location">
+                        <option value="">All locations</option>
+                        <?php foreach ($locations as $term) : ?>
+                            <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['location'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -107,7 +99,7 @@ final class DirectorySearch {
                             </select>
                         </div>
 
-                                        <div class="bh-directory-search__field">
+                        <div class="bh-directory-search__field">
                             <label for="bh-price">Price</label>
                             <input id="bh-price" name="bh_price" type="text" value="<?php echo esc_attr($values['price']); ?>" placeholder="e.g. £5">
                         </div>
@@ -145,4 +137,4 @@ final class DirectorySearch {
 
         return is_wp_error($terms) ? [] : $terms;
     }
-
+}
