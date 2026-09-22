@@ -46,6 +46,20 @@ The target site currently uses:
 - ACF OpenStreetMap Field
 - Add to Home Screen & Progressive Web App
 
+## Directory migration baseline
+
+The existing Directorist JSON is the source baseline for the directory field and search configuration.
+
+The ownership map is documented in `docs/directorist-field-map.md`.
+
+Key rules:
+- Directorist remains the single directory/listing engine.
+- ACF may provide structured timetable data attached to Directorist listings.
+- Bubba Hub must not create a duplicate listing/location engine.
+- Directorist booking/payment is not a dependency.
+- Target timezone is Europe/London.
+- Existing age values should be preserved during migration.
+
 ## Stability rules
 
 1. No modification of Directorist core files.
@@ -55,3 +69,4 @@ The target site currently uses:
 5. Staging first.
 6. One logical change per deployment.
 7. Existing site functionality must not be removed as part of the foundation migration.
+8. Configuration/data migrations must be backed up and tested before application.
