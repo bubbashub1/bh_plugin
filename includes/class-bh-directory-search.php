@@ -44,7 +44,8 @@ final class DirectorySearch {
                     <label for="bh-category">Category</label>
                     <select id="bh-category" name="bh_category">
                         <option value="">All categories</option>
-                        <?php foreach (get_terms(['taxonomy' => 'at_biz_dir-category', 'hide_empty' => true]) as $term) : ?>
+                        <?php $categories = get_terms(['taxonomy' => 'at_biz_dir-category', 'hide_empty' => true]); ?>
+                        <?php if (!is_wp_error($categories)) foreach ($categories as $term) : ?>
                             <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['category'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
                         <?php endforeach; ?>
                     </select>
@@ -53,7 +54,8 @@ final class DirectorySearch {
                     <label for="bh-region">Region</label>
                     <select id="bh-region" name="bh_region">
                         <option value="">All locations</option>
-                        <?php foreach (get_terms(['taxonomy' => 'at_biz_dir-location', 'hide_empty' => true]) as $term) : ?>
+                        <?php $regions = get_terms(['taxonomy' => 'at_biz_dir-location', 'hide_empty' => true]); ?>
+                        <?php if (!is_wp_error($regions)) foreach ($regions as $term) : ?>
                             <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['region'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
                         <?php endforeach; ?>
                     </select>
