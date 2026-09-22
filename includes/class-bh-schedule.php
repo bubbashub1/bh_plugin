@@ -37,8 +37,8 @@ final class Schedule {
                 if (!is_array($session)) {
                     continue;
                 }
-                $start = self::time($session['start'] ?? '');
-                $end = self::time($session['end'] ?? '');
+                $start = self::time($session['start_time'] ?? $session['start'] ?? '');
+                $end = self::time($session['end_time'] ?? $session['end'] ?? '');
                 if ($start && $end) {
                     $times[] = $start . '–' . $end;
                 } elseif ($start) {
