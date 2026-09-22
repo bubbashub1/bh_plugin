@@ -34,6 +34,7 @@ final class Directory {
 
         ob_start();
         ?>
+        <?php echo DirectorySearch::shortcode(); ?>
         <section class="bh-directory" aria-label="<?php echo esc_attr($atts['title']); ?>">
             <header class="bh-directory__header">
                 <h2><?php echo esc_html($atts['title']); ?></h2>
