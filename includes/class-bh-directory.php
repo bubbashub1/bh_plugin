@@ -105,5 +105,7 @@ final class Directory {
         wp_enqueue_style('bh-directory-card');
         wp_register_style('bh-listing-info-widget', BH_PLUGIN_URL . 'assets/css/bh-listing-info-widget.css', ['bh-directory'], BH_PLUGIN_VERSION);
         wp_enqueue_style('bh-listing-info-widget');
+        wp_register_script('bh-weekly-schedule', BH_PLUGIN_URL . 'assets/js/bh-weekly-schedule.js', [], BH_PLUGIN_VERSION, true);
+        wp_enqueue_script('bh-weekly-schedule');
     }
 }
