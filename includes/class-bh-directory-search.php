@@ -15,7 +15,8 @@ final class DirectorySearch {
             'search' => isset($_GET['bh_search']) ? sanitize_text_field(wp_unslash($_GET['bh_search'])) : '',
             'category' => isset($_GET['bh_category']) ? sanitize_title(wp_unslash($_GET['bh_category'])) : '',
             'age_range' => isset($_GET['bh_age_range']) ? sanitize_text_field(wp_unslash($_GET['bh_age_range'])) : '',
-            'location' => isset($_GET['bh_location']) ? sanitize_title(wp_unslash($_GET['bh_location'])) : '',
+            'region' => isset($_GET['bh_region']) ? sanitize_title(wp_unslash($_GET['bh_region'])) : '',
+            'town' => isset($_GET['bh_town']) ? sanitize_title(wp_unslash($_GET['bh_town'])) : '',
             'day' => isset($_GET['bh_day']) ? sanitize_title(wp_unslash($_GET['bh_day'])) : '',
             'price' => isset($_GET['bh_price']) ? sanitize_text_field(wp_unslash($_GET['bh_price'])) : '',
             'free_activity' => isset($_GET['bh_free_activity']) ? sanitize_text_field(wp_unslash($_GET['bh_free_activity'])) : '',
@@ -34,7 +35,8 @@ final class DirectorySearch {
 
         DirectoryQuery::run($args);
         $categories = self::categories();
-        $locations = self::locations();
+        $regions = self::regions();
+        $towns = self::towns();
         $age_options = DirectoristFields::options('age_range');
         $free_activity_option = DirectoristFields::free_activity_option();
 
@@ -58,11 +60,21 @@ final class DirectorySearch {
                 </div>
 
                 <div class="bh-directory-search__field">
-                    <label for="bh-location-main">Location</label>
-                    <select id="bh-location-main" name="bh_location">
-                        <option value="">All locations</option>
-                        <?php foreach ($locations as $term) : ?>
-                            <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['location'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
+                    <label for="bh-region">Region</label>
+                    <select id="bh-region" name="bh_region">
+                        <option value="">All regions</option>
+                        <?php foreach ($regions as $term) : ?>
+                            <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['region'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="bh-directory-search__field">
+                    <label for="bh-town">Town</label>
+                    <select id="bh-town" name="bh_town">
+                        <option value="">All towns</option>
+                        <?php foreach ($towns as $term) : ?>
+                            <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['town'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -106,7 +118,7 @@ final class DirectorySearch {
 
                         <div class="bh-directory-search__actions">
                             <button type="submit">Search</button>
-                            <a href="<?php echo esc_url(remove_query_arg(['bh_search','bh_category','bh_age_range','bh_location','bh_day','bh_price','bh_free_activity','bh_page'])); ?>">Clear</a>
+                            <a href="<?php echo esc_url(remove_query_arg(['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_day','bh_price','bh_free_activity','bh_page'])); ?>">Clear</a>
                         </div>
                     </div>
                 </details>
@@ -127,10 +139,23 @@ final class DirectorySearch {
         return is_wp_error($terms) ? [] : $terms;
     }
 
-    private static function locations(): array {
+    private static function regions(): array {
         $terms = get_terms([
             'taxonomy' => self::LOCATION_TAXONOMY,
             'hide_empty' => false,
+            'parent' => 0,
+            'orderby' => 'name',
+            'order' => 'ASC',
+        ]);
+
+        return is_wp_error($terms) ? [] : $terms;
+    }
+
+    private static function towns(): array {
+        $terms = get_terms([
+            'taxonomy' => self::LOCATION_TAXONOMY,
+            'hide_empty' => false,
+            'parent__not_in' => [0],
             'orderby' => 'name',
             'order' => 'ASC',
         ]);
