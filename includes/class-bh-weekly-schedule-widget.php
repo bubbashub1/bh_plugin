@@ -7,9 +7,9 @@ final class WeeklyScheduleWidget extends \WP_Widget {
     public function __construct() {
         parent::__construct(
             'bh_weekly_schedule',
-            __('Bubba Hub – Weekly Schedule', 'bubba-hub'),
+            __('Bubba Hub – Sessions', 'bubba-hub'),
             [
-                'description' => __('Displays the current Directorist listing weekly schedule.', 'bubba-hub'),
+                'description' => __('Displays the current Directorist listing sessions.', 'bubba-hub'),
             ]
         );
     }
@@ -27,7 +27,7 @@ final class WeeklyScheduleWidget extends \WP_Widget {
         $current_minutes = ((int) $current->format('G') * 60) + (int) $current->format('i');
 
         echo $args['before_widget'];
-        echo $args['before_title'] . esc_html__('Weekly Schedule', 'bubba-hub') . $args['after_title'];
+        echo $args['before_title'] . esc_html__('Sessions', 'bubba-hub') . $args['after_title'];
         echo '<div class="bh-weekly-schedule-widget">';
 
         foreach ($rows as $row) {
