@@ -19,8 +19,6 @@ This plugin is responsible for Bubba Hub-specific functionality:
 - family and child profiles
 - favourites and saved activities
 - family planner
-- venues
-- classes/sessions
 - booking workflow
 - payment integration
 - Leader Space
@@ -46,6 +44,20 @@ The target site currently uses:
 - ACF OpenStreetMap Field
 - Add to Home Screen & Progressive Web App
 
+## Directory migration baseline
+
+The existing Directorist JSON is the source baseline for the directory field and search configuration.
+
+The ownership map is documented in `docs/directorist-field-map.md`.
+
+Key rules:
+- Directorist remains the single directory/listing engine.
+- ACF may provide structured timetable data attached to Directorist listings.
+- Bubba Hub must not create a duplicate listing/location engine.
+- Directorist booking/payment is not a dependency.
+- Target timezone is Europe/London.
+- Existing age values should be preserved during migration.
+
 ## Stability rules
 
 1. No modification of Directorist core files.
@@ -55,3 +67,14 @@ The target site currently uses:
 5. Staging first.
 6. One logical change per deployment.
 7. Existing site functionality must not be removed as part of the foundation migration.
+8. Configuration/data migrations must be backed up and tested before application.
+
+## Stability Step 2
+
+The `Listing` bridge is deliberately read-only. It:
+- recognises Directorist listings through the native `at_biz_dir` post type;
+- reads optional ACF values without making ACF a hard dependency;
+- supports both `weekly_schedule` and the existing `group_business_hours_repeater` timetable field names;
+- provides field aliases for the original directory data model.
+
+No listings, taxonomies, fields, or Directorist settings are created or rewritten by this step.
