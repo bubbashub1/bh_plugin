@@ -18,7 +18,6 @@ final class DirectorySearch {
             'town' => isset($_GET['bh_town']) ? sanitize_title(wp_unslash($_GET['bh_town'])) : '',
             'day' => isset($_GET['bh_day']) ? sanitize_title(wp_unslash($_GET['bh_day'])) : '',
             'term_time' => isset($_GET['bh_term_time']) ? sanitize_key(wp_unslash($_GET['bh_term_time'])) : '',
-            'category' => isset($_GET['bh_category']) ? sanitize_title(wp_unslash($_GET['bh_category'])) : '',
             'price' => isset($_GET['bh_price']) ? sanitize_text_field(wp_unslash($_GET['bh_price'])) : '',
         ];
 
@@ -41,7 +40,7 @@ final class DirectorySearch {
             <form class="bh-directory-search__form" method="get">
                 <div class="bh-directory-search__field bh-directory-search__field--search">
                     <label for="bh-search">Search</label>
-                    <input id="bh-search" name="bh_search" type="search" value="<?php echo esc_attr($values['search']); ?>" placeholder="Search activities">
+                    <input id="bh-search" name="bh_search" type="search" value="<?php echo esc_attr($values['search']); ?>" placeholder="Search activities, categories or locations">
                 </div>
                 <div class="bh-directory-search__field">
                     <label for="bh-age-range">Age Range</label>
@@ -49,16 +48,6 @@ final class DirectorySearch {
                         <option value="">Any age</option>
                         <?php foreach (DirectoryFields::definitions()['age_range']['values'] as $age) : ?>
                             <option value="<?php echo esc_attr($age); ?>" <?php selected($values['age_range'], $age); ?>><?php echo esc_html($age === 'all' ? 'All ages' : $age); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="bh-directory-search__field">
-                    <label for="bh-category">Category</label>
-                    <select id="bh-category" name="bh_category">
-                        <option value="">All categories</option>
-                        <?php $categories = get_terms(['taxonomy' => 'at_biz_dir-category', 'hide_empty' => true]); ?>
-                        <?php if (!is_wp_error($categories)) foreach ($categories as $term) : ?>
-                            <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['category'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -102,7 +91,7 @@ final class DirectorySearch {
                 </div>
                 <div class="bh-directory-search__actions">
                     <button type="submit">Search</button>
-                    <a href="<?php echo esc_url(remove_query_arg(['bh_search','bh_age_range','bh_category','bh_region','bh_town','bh_day','bh_term_time','bh_price','bh_page'])); ?>">Clear</a>
+                    <a href="<?php echo esc_url(remove_query_arg(['bh_search','bh_age_range','bh_region','bh_town','bh_day','bh_term_time','bh_price','bh_page'])); ?>">Clear</a>
                 </div>
             </form>
         </section>
