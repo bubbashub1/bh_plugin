@@ -77,5 +77,7 @@ final class Directory {
         }
         wp_register_style('bh-directory', BH_PLUGIN_URL . 'assets/css/bh-directory.css', [], BH_PLUGIN_VERSION);
         wp_enqueue_style('bh-directory');
+        wp_register_style('bh-directory-search', BH_PLUGIN_URL . 'assets/css/bh-directory-search.css', ['bh-directory'], BH_PLUGIN_VERSION);
+        wp_enqueue_style('bh-directory-search');
     }
 }
