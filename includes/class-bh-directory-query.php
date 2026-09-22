@@ -31,6 +31,22 @@ final class DirectoryQuery {
         $tax_query = [];
         $meta_query = [];
 
+        // Bubba Hub's directory is the Directorist "groups-classes" type.
+        // Keep the weekly schedule and all directory filters scoped to these listings.
+        $directory_type_id = Listing::directory_type_id();
+        if ($directory_type_id > 0) {
+            $meta_query[] = [
+                'key' => '_directory_type',
+                'value' => (string) $directory_type_id,
+                'compare' => '=',
+                'type' => 'NUMERIC',
+            ];
+        } else {
+            // Do not accidentally show listings from another directory type if
+            // the expected Directorist type has not been configured yet.
+            $args['post__in'] = [0];
+        }
+
         if (!empty($filters['category'])) {
             $tax_query[] = [
                 'taxonomy' => 'at_biz_dir-category',
