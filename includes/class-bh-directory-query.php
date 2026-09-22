@@ -7,8 +7,8 @@ defined('ABSPATH') || exit;
  * Read-only directory query helpers.
  *
  * Directorist remains the single source of truth for listings, location,
- * category, age range, term time and price. ACF is used only for timetable
- * day matching and timetable presentation.
+ * category, age range, term time, price and Free Activity. ACF is used only
+ * for timetable day matching and timetable presentation.
  */
 final class DirectoryQuery {
     public static function args(array $filters = []): array {
@@ -70,11 +70,14 @@ final class DirectoryQuery {
 
         $age_range = sanitize_text_field((string) ($filters['age_range'] ?? ''));
         if ($age_range !== '') {
-            $meta_query[] = [
-                'key' => DirectoristFields::meta_key('age_range'),
-                'value' => $age_range,
-                'compare' => '=',
-            ];
+            $age_key = DirectoristFields::meta_key('age_range');
+            if ($age_key !== '') {
+                $meta_query[] = [
+                    'key' => $age_key,
+                    'value' => $age_range,
+                    'compare' => '=',
+                ];
+            }
         }
 
         $price = DirectoristFields::price_value($filters['price'] ?? '');
@@ -87,13 +90,28 @@ final class DirectoryQuery {
             ];
         }
 
-        $term_time = sanitize_key((string) ($filters['term_time'] ?? ''));
+        $term_time = sanitize_text_field((string) ($filters['term_time'] ?? ''));
         if ($term_time !== '') {
-            $meta_query[] = [
-                'key' => DirectoristFields::meta_key('term_time'),
-                'value' => DirectoristFields::term_time_values(),
-                'compare' => 'IN',
-            ];
+            $term_key = DirectoristFields::meta_key('term_time');
+            if ($term_key !== '') {
+                $meta_query[] = [
+                    'key' => $term_key,
+                    'value' => $term_time,
+                    'compare' => '=',
+                ];
+            }
+        }
+
+        $free_activity = sanitize_text_field((string) ($filters['free_activity'] ?? ''));
+        if ($free_activity !== '') {
+            $free_key = DirectoristFields::meta_key('free_activity');
+            if ($free_key !== '') {
+                $meta_query[] = [
+                    'key' => $free_key,
+                    'value' => $free_activity,
+                    'compare' => 'LIKE',
+                ];
+            }
         }
 
         if ($tax_query) {
