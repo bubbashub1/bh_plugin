@@ -20,8 +20,11 @@ final class DirectoryQuery {
             'order' => 'DESC',
         ];
 
-        if (!empty($filters['search'])) {
-            $args['s'] = sanitize_text_field((string) $filters['search']);
+        $search = trim(sanitize_text_field((string) ($filters['search'] ?? '')));
+        $post_in = null;
+
+        if ($search !== '') {
+            $post_in = self::search_listing_ids($search);
         }
 
         $tax_query = [];
@@ -55,7 +58,13 @@ final class DirectoryQuery {
 
         $schedule_ids = self::schedule_matches($filters);
         if ($schedule_ids !== null) {
-            $args['post__in'] = $schedule_ids ?: [0];
+            $post_in = $post_in === null
+                ? $schedule_ids
+                : array_values(array_intersect($post_in, $schedule_ids));
+        }
+
+        if ($post_in !== null) {
+            $args['post__in'] = $post_in ?: [0];
         }
 
         foreach (['age_range', 'price'] as $key) {
@@ -76,6 +85,57 @@ final class DirectoryQuery {
         }
 
         return $args;
+    }
+
+    /**
+     * Broad search across listing title/content/excerpt plus Directorist
+     * category and location terms. Directorist remains the source of truth.
+     */
+    private static function search_listing_ids(string $search): array {
+        $ids = get_posts([
+            'post_type' => Listing::POST_TYPE,
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'fields' => 'ids',
+            's' => $search,
+            'no_found_rows' => true,
+        ]);
+
+        foreach (['at_biz_dir-category', 'at_biz_dir-location'] as $taxonomy) {
+            $terms = get_terms([
+                'taxonomy' => $taxonomy,
+                'hide_empty' => false,
+                'search' => $search,
+                'number' => 50,
+            ]);
+
+            if (is_wp_error($terms) || !$terms) {
+                continue;
+            }
+
+            $term_ids = array_map('intval', wp_list_pluck($terms, 'term_id'));
+            if (!$term_ids) {
+                continue;
+            }
+
+            $term_ids_posts = get_posts([
+                'post_type' => Listing::POST_TYPE,
+                'post_status' => 'publish',
+                'posts_per_page' => -1,
+                'fields' => 'ids',
+                'no_found_rows' => true,
+                'tax_query' => [[
+                    'taxonomy' => $taxonomy,
+                    'field' => 'term_id',
+                    'terms' => $term_ids,
+                    'include_children' => true,
+                ]],
+            ]);
+
+            $ids = array_merge($ids, $term_ids_posts);
+        }
+
+        return array_values(array_unique(array_map('intval', $ids)));
     }
 
     private static function schedule_matches(array $filters): ?array {
