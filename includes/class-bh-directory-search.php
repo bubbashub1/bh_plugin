@@ -155,7 +155,7 @@ final class DirectorySearch {
         $terms = get_terms([
             'taxonomy' => self::LOCATION_TAXONOMY,
             'hide_empty' => false,
-            'parent__not_in' => [0],
+            'parent' => 376,
             'orderby' => 'name',
             'order' => 'ASC',
         ]);
