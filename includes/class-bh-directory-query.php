@@ -37,7 +37,7 @@ final class DirectoryQuery {
         }
 
         foreach (['age_range','price'] as $key) {
-            if ($filters[$key] ?? null !== null && $filters[$key] !== '') {
+            if (isset($filters[$key]) && $filters[$key] !== '') {
                 $meta_query[] = [
                     'key' => sanitize_key($key),
                     'value' => sanitize_text_field((string) $filters[$key]),
