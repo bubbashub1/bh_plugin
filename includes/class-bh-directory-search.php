@@ -83,7 +83,7 @@ final class DirectorySearch {
                     <div class="bh-directory-search__field bh-directory-search__field--checkbox">
                         <label for="bh-free-activity">
                             <input id="bh-free-activity" name="bh_free_activity" type="checkbox" value="<?php echo esc_attr($free_activity_option['value']); ?>" <?php checked($values['free_activity'], $free_activity_option['value']); ?>>
-                            <?php echo esc_html($free_activity_option['label']); ?>
+                            Free Activity
                         </label>
                     </div>
                 <?php endif; ?>
