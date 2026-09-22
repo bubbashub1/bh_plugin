@@ -63,6 +63,28 @@ final class Schedule {
         return '<div class="bh-directory-card__schedule"><strong>Sessions</strong><ul>' . $items . '</ul></div>';
     }
 
+    public static function matches(int $post_id, string $day = '', string $term_time = ''): bool {
+        if ($day === '' && $term_time === '') return true;
+        foreach (Listing::get_schedule($post_id) as $row) {
+            if (!is_array($row) || !empty($row['is_closed'])) continue;
+            $row_day = strtolower(trim((string) ($row['day_name'] ?? $row['day'] ?? '')));
+            if ($day !== '' && sanitize_title($row_day) !== sanitize_title($day)) continue;
+            if ($term_time === '') return true;
+            $values = [];
+            if (array_key_exists('term_time_only', $row)) $values[] = $row['term_time_only'];
+            if (array_key_exists('term_time', $row)) $values[] = $row['term_time'];
+            foreach ((array) ($row['sessions'] ?? []) as $session) {
+                if (!is_array($session)) continue;
+                if (array_key_exists('term_time_only', $session)) $values[] = $session['term_time_only'];
+                if (array_key_exists('term_time', $session)) $values[] = $session['term_time'];
+            }
+            foreach ($values as $value) {
+                if ($term_time === 'term' && in_array($value, [true, 1, '1', 'true', 'yes', 'on'], true)) return true;
+            }
+        }
+        return false;
+    }
+
     private static function time(mixed $value): string {
         if (!is_string($value) && !is_numeric($value)) {
             return '';

@@ -15,6 +15,8 @@ final class DirectorySearch {
             'age_range' => isset($_GET['bh_age_range']) ? sanitize_text_field(wp_unslash($_GET['bh_age_range'])) : '',
             'region' => isset($_GET['bh_region']) ? sanitize_title(wp_unslash($_GET['bh_region'])) : '',
             'town' => isset($_GET['bh_town']) ? sanitize_title(wp_unslash($_GET['bh_town'])) : '',
+            'day' => isset($_GET['bh_day']) ? sanitize_title(wp_unslash($_GET['bh_day'])) : '',
+            'term_time' => isset($_GET['bh_term_time']) ? sanitize_key(wp_unslash($_GET['bh_term_time'])) : '',
             'category' => isset($_GET['bh_category']) ? sanitize_title(wp_unslash($_GET['bh_category'])) : '',
             'price' => isset($_GET['bh_price']) ? sanitize_text_field(wp_unslash($_GET['bh_price'])) : '',
         ];
@@ -74,12 +76,28 @@ final class DirectorySearch {
                     </select>
                 </div>
                 <div class="bh-directory-search__field">
+                    <label for="bh-day">Day</label>
+                    <select id="bh-day" name="bh_day">
+                        <option value="">Any day</option>
+                        <?php foreach (['monday','tuesday','wednesday','thursday','friday','saturday','sunday'] as $day) : ?>
+                            <option value="<?php echo esc_attr($day); ?>" <?php selected($values['day'], $day); ?>><?php echo esc_html(ucfirst($day)); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="bh-directory-search__field">
+                    <label for="bh-term-time">Term Time</label>
+                    <select id="bh-term-time" name="bh_term_time">
+                        <option value="">Any timetable</option>
+                        <option value="term" <?php selected($values['term_time'], 'term'); ?>>Term time only</option>
+                    </select>
+                </div>
+                <div class="bh-directory-search__field">
                     <label for="bh-price">Price</label>
                     <input id="bh-price" name="bh_price" type="text" value="<?php echo esc_attr($values['price']); ?>" placeholder="e.g. £5">
                 </div>
                 <div class="bh-directory-search__actions">
                     <button type="submit">Search</button>
-                    <a href="<?php echo esc_url(remove_query_arg(['bh_age_range','bh_category','bh_region','bh_town','bh_price','bh_page'])); ?>">Clear</a>
+                    <a href="<?php echo esc_url(remove_query_arg(['bh_age_range','bh_category','bh_region','bh_town','bh_day','bh_term_time','bh_price','bh_page'])); ?>">Clear</a>
                 </div>
             </form>
         </section>
