@@ -33,6 +33,7 @@ require_once BH_PLUGIN_DIR . 'includes/class-bh-directory-search.php';
 require_once BH_PLUGIN_DIR . 'includes/class-bh-directorist-search-config.php';
 require_once BH_PLUGIN_DIR . 'includes/class-bh-schedule.php';
 require_once BH_PLUGIN_DIR . 'includes/class-bh-weekly-schedule-widget.php';
+require_once BH_PLUGIN_DIR . 'includes/class-bh-listing-info-widget.php';
 require_once BH_PLUGIN_DIR . 'includes/class-bh-directory-card.php';
 require_once BH_PLUGIN_DIR . 'includes/class-bh-plugin.php';
 
@@ -42,5 +43,6 @@ add_action('plugins_loaded', static function (): void {
     \BubbaHub\DirectorySearch::register();
     add_action('widgets_init', static function (): void {
         register_widget(\BubbaHub\WeeklyScheduleWidget::class);
+        register_widget(\BubbaHub\ListingInfoWidget::class);
     });
 }, 20);
