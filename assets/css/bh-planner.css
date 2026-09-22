@@ -1,0 +1,65 @@
+.bh-directory-views{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px;padding:0;border-bottom:1px solid rgba(0,0,0,.08)}
+.bh-directory-views__item{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:7px 14px;border:1px solid transparent;border-radius:10px 10px 0 0;text-decoration:none;font-weight:600;color:inherit;background:transparent}
+.bh-directory-views__item:hover,.bh-directory-views__item.is-active{background:#fff;border-color:rgba(0,0,0,.1);text-decoration:none}
+.bh-directory__grid--list{grid-template-columns:1fr}
+.bh-directory__grid--list .bh-directory-card__link{display:grid;grid-template-columns:180px minmax(0,1fr)}
+.bh-directory__grid--list .bh-directory-card__image img{height:100%;min-height:180px}
+.bh-directory-map{width:100%;min-height:420px}
+.bh-planner-shell{width:100%;box-sizing:border-box}
+.bh-planner-shell__heading{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin:0 0 18px}
+.bh-planner-shell__heading h3{margin:0 0 4px;font-size:1.35rem}
+.bh-planner-shell__date{margin:0 0 3px;font-weight:600}
+.bh-planner-shell__heading .bh-directory__count{margin:0;font-size:.92rem;opacity:.72}
+.bh-planner-shell__navigation{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.bh-planner-shell__navigation a{display:inline-flex;align-items:center;justify-content:center;min-width:42px;min-height:40px;padding:6px 10px;border:1px solid rgba(0,0,0,.12);border-radius:10px;text-decoration:none;background:#fff;color:inherit;font-weight:600}
+.bh-planner-shell__navigation a:first-child,.bh-planner-shell__navigation a:last-child{font-size:1.35rem;padding-inline:8px}
+.bh-planner{width:100%;overflow:auto;border:1px solid rgba(0,0,0,.1);border-radius:14px;background:#fff}
+.bh-planner--daily,.bh-planner--weekly{min-width:640px}
+.bh-planner__week-head{display:grid;grid-template-columns:64px repeat(var(--bh-columns),minmax(130px,1fr));border-bottom:1px solid rgba(0,0,0,.1);position:sticky;top:0;z-index:3;background:#fff}
+.bh-planner__time-head{border-right:1px solid rgba(0,0,0,.07)}
+.bh-planner__day-head{min-height:58px;padding:9px 10px;text-align:center;border-right:1px solid rgba(0,0,0,.07);display:flex;flex-direction:column;justify-content:center;gap:1px}
+.bh-planner__day-head span{font-size:.78rem;font-weight:600;opacity:.7;text-transform:uppercase}
+.bh-planner__day-head strong{font-size:1.15rem}
+.bh-planner__day-head.is-today strong{display:inline-flex;align-self:center;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:currentColor;color:#fff}
+.bh-planner__time-grid{display:grid;grid-template-columns:64px repeat(var(--bh-columns),minmax(130px,1fr));height:960px;position:relative}
+.bh-planner__time-axis{position:relative;border-right:1px solid rgba(0,0,0,.1);font-size:.7rem;opacity:.65}
+.bh-planner__time-axis span{position:absolute;right:8px;top:calc(var(--bh-time-position) * (100% / var(--bh-slots)) - 7px);white-space:nowrap}
+.bh-planner__day-column{position:relative;border-right:1px solid rgba(0,0,0,.07);background-image:linear-gradient(to bottom,rgba(0,0,0,.07) 1px,transparent 1px),linear-gradient(to bottom,rgba(0,0,0,.035) 1px,transparent 1px);background-size:100% calc(100% / 16),100% calc(100% / 32);background-position:0 0}
+.bh-planner__day-column.is-today{background-color:rgba(250,235,245,.25)}
+.bh-planner__slot-line{display:none}
+.bh-planner__event{position:absolute;left:4px;right:4px;top:var(--bh-event-top);height:var(--bh-event-height);box-sizing:border-box;padding:7px 8px;border-radius:9px;background:rgba(214,174,204,.92);color:inherit;text-decoration:none;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08);z-index:2;display:flex;flex-direction:column;gap:2px}
+.bh-planner__event:hover{box-shadow:0 3px 10px rgba(0,0,0,.13);text-decoration:none}
+.bh-planner__event strong{font-size:.78rem;line-height:1.2}
+.bh-planner__event span,.bh-planner__event small{font-size:.68rem;line-height:1.2}
+.bh-planner__event small{opacity:.8}
+.bh-planner__month-head{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-bottom:1px solid rgba(0,0,0,.1);background:#fff}
+.bh-planner__month-head span{text-align:center;padding:10px 6px;font-size:.78rem;font-weight:700;opacity:.7;text-transform:uppercase}
+.bh-planner__month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:minmax(130px,1fr)}
+.bh-planner__month-day{min-width:0;padding:7px;border-right:1px solid rgba(0,0,0,.07);border-bottom:1px solid rgba(0,0,0,.07);background:#fff}
+.bh-planner__month-day.is-outside{opacity:.42;background:rgba(0,0,0,.015)}
+.bh-planner__month-day.is-today{background:rgba(250,235,245,.3)}
+.bh-planner__month-number{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:28px;font-size:.82rem;font-weight:700}
+.bh-planner__month-day.is-today .bh-planner__month-number{border-radius:50%;background:currentColor;color:#fff}
+.bh-planner__month-events{display:grid;gap:4px;margin-top:4px}
+.bh-planner__month-event{display:block;padding:5px 6px;border-radius:7px;background:rgba(214,174,204,.82);color:inherit;text-decoration:none;overflow:hidden}
+.bh-planner__month-event strong,.bh-planner__month-event span{display:block;font-size:.68rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bh-planner__month-event span{opacity:.75;margin-top:2px}
+.bh-planner__more{font-size:.68rem;font-weight:600;opacity:.7;padding:2px 5px}
+@media (max-width:700px){
+ .bh-planner-shell__heading{align-items:flex-start;flex-direction:column}
+ .bh-planner-shell__navigation{width:100%;justify-content:flex-start}
+ .bh-directory-views{gap:5px}
+ .bh-directory-views__item{flex:1 1 calc(33.333% - 5px);padding-inline:8px}
+ .bh-directory__grid--list .bh-directory-card__link{grid-template-columns:1fr}
+ .bh-directory__grid--list .bh-directory-card__image img{min-height:170px;height:170px}
+ .bh-planner--daily,.bh-planner--weekly{min-width:560px}
+ .bh-planner__week-head{grid-template-columns:52px repeat(var(--bh-columns),minmax(105px,1fr))}
+ .bh-planner__time-grid{grid-template-columns:52px repeat(var(--bh-columns),minmax(105px,1fr));height:900px}
+ .bh-planner__time-axis span{right:5px;font-size:.64rem}
+ .bh-planner__event{padding:5px 6px}
+ .bh-planner__event strong{font-size:.7rem}
+ .bh-planner__event span,.bh-planner__event small{font-size:.62rem}
+ .bh-planner__month-grid{grid-auto-rows:minmax(100px,1fr);min-width:620px}
+ .bh-planner--monthly{overflow-x:auto}
+ .bh-planner__month-head{min-width:620px}
+}
