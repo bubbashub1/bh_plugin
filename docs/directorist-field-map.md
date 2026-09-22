@@ -1,102 +1,63 @@
-# Bubba Hub Directorist Field Map
+# Directorist / Bubba Hub migration map
 
-This document records the ownership boundary for the existing Bubba Hub directory configuration.
+This is the controlled mapping used by the `bh_plugin` foundation.
 
-## Core Directorist fields
+| Original directory data | Owner | Migration treatment |
+|---|---|---|
+| title, content | Directorist | Native listing title/description |
+| category, tags | Directorist | Native taxonomy fields |
+| address, postcode, map, lat, long | Directorist | Native location/map data |
+| price | Directorist | Native listing field |
+| email, phone, website | Directorist | Native contact fields |
+| facebook, instagram | Directorist | Native/social fields where configured |
+| image_url / image | Directorist | Native listing image/featured image |
+| age_range | Directorist | Preserve existing values |
+| region / town | Directorist | Use existing Directorist location/taxonomy configuration; do not create a duplicate BH location engine |
+| day / term_time / session_length | Directorist where available; ACF for structured timetable | Preserve searchable listing values; keep detailed repeating timetable in ACF |
+| weekly_schedule | ACF attached to Directorist listing | Read through the BH Listing bridge |
+| group_business_hours_repeater | ACF legacy/compatibility field | Read during migration; do not duplicate data automatically |
+| booking records | Bubba Hub | Later integration with GetPaid/Stripe/Wallet |
+| child/bump/family profiles | Bubba Hub | Separate family data |
+| planner/saved items | Bubba Hub | Separate family data |
 
-Keep these in Directorist because they describe and locate a directory listing:
+## Existing age values
 
-- Listing title
-- Description/content
-- Category
-- Tags
-- Location
-- Address
-- Postcode
-- Map / coordinates
-- Price
-- Image / featured image
-- Email
-- Phone
-- Website
-- Facebook
-- Instagram
-- Age Range
-- Days
-- Session Length
-- Term Time Only
-- SEN Friendly
-- Search/filter configuration
-- Radius/location search
-- Listing archive and single-listing presentation
-- Listing submission/editing
-- Reviews
-- Favourites/bookmarks
-- Claim listing
+Preserve the existing values, including:
+- 0-3
+- 3-6
+- 6-9
+- 9-12
+- 1-3
+- 2-4
+- 3-5
+- 5-plus
+- all
 
-## ACF / structured data
+Pregnancy/Postnatal should not be silently converted into an age value. If a separate family-stage field is introduced, that is a later controlled migration.
 
-Use ACF only where structured data is needed that should not become a second directory engine.
+## Timetable structure
 
-Primary candidate:
+The preferred ACF structure remains:
 
-### Weekly schedule / timetable
+- day
+- closed/open
+- session name (optional)
+- start time
+- end time
+- frequency
+- term-time-only
+- optional notes
 
-Recommended structure:
+The timetable remains attached to the Directorist listing and must not become a separate post type.
 
-- Day
-- Closed/open
-- Session name (optional)
-- Start time
-- End time
-- Frequency
-- Term-time-only
-- Optional notes
+## Step 2 safety boundary
 
-The schedule should remain attached to the Directorist listing. It must not create a second listing post type.
+Step 2 is a read-only compatibility layer. It does not:
+- edit Directorist core;
+- create a second listing post type;
+- create a second location system;
+- bulk rewrite existing listings;
+- change Directorist settings;
+- require Directorist Pro.
 
-## Bubba Hub-owned data
-
-The following belongs to the family platform rather than the directory listing itself:
-
-- Child profiles
-- Bump profiles
-- Family preferences
-- Saved family planner items
-- Personal calendar selections
-- Booking records/workflow
-- Booking consent
-- Payment state
-- Leader Space workflows
-- Notifications
-- Family-specific recommendations/preferences
-
-## Location rule
-
-Directorist remains the single source of truth for directory location, address, map and radius search.
-
-Do not create a second Bubba Hub location taxonomy for the same directory listings.
-
-## Booking rule
-
-Do not depend on Directorist Booking or paid Directorist booking/payment extensions.
-
-Bubba Hub booking/payment will integrate with the existing GetPaid, Stripe and Wallet stack.
-
-## Timezone
-
-The supplied baseline contains America/New_York. Bubba Hub is UK-based, so the target configuration should be Europe/London.
-
-This is a configuration change only; it is not being applied by this plugin yet.
-
-## Age/family-stage note
-
-The existing age values should be preserved during migration.
-
-Pregnancy/Postnatal is conceptually different from an age range. If this is split later, it should be done as a controlled data migration rather than silently changing existing listings.
-
-## Migration rule
-
-Do not bulk rewrite or import the supplied configuration until the live/staging Directorist configuration has been backed up and verified.
-
-One configuration change or migration step should be tested at a time.
+Any data migration is a later, separately tested step.
