@@ -98,3 +98,7 @@ Adds the optional `[bh_directory_search]` filter bar for age range, category, re
 ## Stability Step 7
 
 Adds a read-only timetable renderer for Directorist listings. It reads the existing ACF `weekly_schedule` field, with the legacy `group_business_hours_repeater` fallback provided by the listing bridge, and displays day/time sessions on Bubba Hub directory cards. It does not write or duplicate timetable data.
+
+## Stability Step 8
+
+Improves directory cards with Directorist category/location terms plus Bubba Hub age and price metadata. Cards also include a safe image placeholder and a clear activity CTA. No listing data is duplicated or written.
