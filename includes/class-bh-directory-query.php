@@ -39,21 +39,12 @@ final class DirectoryQuery {
             ];
         }
 
-        if (!empty($filters['region'])) {
+        if (!empty($filters['location'])) {
             $tax_query[] = [
-                'taxonomy' => 'at_biz_dir-location',
+                'taxonomy' => defined('ATBDP_LOCATION') ? ATBDP_LOCATION : 'at_biz_dir-location',
                 'field' => 'slug',
-                'terms' => array_map('sanitize_title', (array) $filters['region']),
+                'terms' => array_map('sanitize_title', (array) $filters['location']),
                 'include_children' => true,
-            ];
-        }
-
-        if (!empty($filters['town'])) {
-            $tax_query[] = [
-                'taxonomy' => 'at_biz_dir-location',
-                'field' => 'slug',
-                'terms' => array_map('sanitize_title', (array) $filters['town']),
-                'include_children' => false,
             ];
         }
 

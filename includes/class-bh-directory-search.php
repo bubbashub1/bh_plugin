@@ -15,8 +15,7 @@ final class DirectorySearch {
             'search' => isset($_GET['bh_search']) ? sanitize_text_field(wp_unslash($_GET['bh_search'])) : '',
             'category' => isset($_GET['bh_category']) ? sanitize_title(wp_unslash($_GET['bh_category'])) : '',
             'age_range' => isset($_GET['bh_age_range']) ? sanitize_text_field(wp_unslash($_GET['bh_age_range'])) : '',
-            'region' => isset($_GET['bh_region']) ? sanitize_title(wp_unslash($_GET['bh_region'])) : '',
-            'town' => isset($_GET['bh_town']) ? sanitize_title(wp_unslash($_GET['bh_town'])) : '',
+            'location' => isset($_GET['bh_location']) ? sanitize_title(wp_unslash($_GET['bh_location'])) : '',
             'day' => isset($_GET['bh_day']) ? sanitize_title(wp_unslash($_GET['bh_day'])) : '',
             'price' => isset($_GET['bh_price']) ? sanitize_text_field(wp_unslash($_GET['bh_price'])) : '',
             'free_activity' => isset($_GET['bh_free_activity']) ? sanitize_text_field(wp_unslash($_GET['bh_free_activity'])) : '',
@@ -28,13 +27,14 @@ final class DirectorySearch {
         ];
 
         foreach ($values as $key => $value) {
-            if ($value !== '') $args[$key] = $value;
+            if ($value !== '') {
+                $args[$key] = $value;
+            }
         }
 
-        $query = DirectoryQuery::run($args);
+        DirectoryQuery::run($args);
         $categories = self::categories();
-        $regions = self::top_level_locations();
-        $towns = $values['region'] !== '' ? self::child_locations($values['region']) : [];
+        $locations = self::locations();
         $age_options = DirectoristFields::options('age_range');
         $free_activity_option = DirectoristFields::free_activity_option();
 
@@ -58,21 +58,11 @@ final class DirectorySearch {
                 </div>
 
                 <div class="bh-directory-search__field">
-                    <label for="bh-region-main">Region</label>
-                    <select id="bh-region-main" name="bh_region">
-                        <option value="">All regions</option>
-                        <?php foreach ($regions as $term) : ?>
-                            <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['region'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <div class="bh-directory-search__field">
-                    <label for="bh-town-main">Town</label>
-                    <select id="bh-town-main" name="bh_town" <?php disabled($values['region'], ''); ?>>
-                        <option value=""><?php echo $values['region'] === '' ? 'Select a region first' : 'All towns'; ?></option>
-                        <?php foreach ($towns as $term) : ?>
-                            <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['town'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
+                    <label for="bh-location-main">Location</label>
+                    <select id="bh-location-main" name="bh_location">
+                        <option value="">All locations</option>
+                        <?php foreach ($locations as $term) : ?>
+                            <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['location'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -109,14 +99,14 @@ final class DirectorySearch {
                             </select>
                         </div>
 
-                                        <div class="bh-directory-search__field">
+                        <div class="bh-directory-search__field">
                             <label for="bh-price">Price</label>
                             <input id="bh-price" name="bh_price" type="text" value="<?php echo esc_attr($values['price']); ?>" placeholder="e.g. £5">
                         </div>
 
                         <div class="bh-directory-search__actions">
                             <button type="submit">Search</button>
-                            <a href="<?php echo esc_url(remove_query_arg(['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_day','bh_price','bh_free_activity','bh_page'])); ?>">Clear</a>
+                            <a href="<?php echo esc_url(remove_query_arg(['bh_search','bh_category','bh_age_range','bh_location','bh_day','bh_price','bh_free_activity','bh_page'])); ?>">Clear</a>
                         </div>
                     </div>
                 </details>
@@ -137,26 +127,10 @@ final class DirectorySearch {
         return is_wp_error($terms) ? [] : $terms;
     }
 
-    private static function top_level_locations(): array {
+    private static function locations(): array {
         $terms = get_terms([
             'taxonomy' => self::LOCATION_TAXONOMY,
             'hide_empty' => true,
-            'parent' => 0,
-            'orderby' => 'name',
-            'order' => 'ASC',
-        ]);
-
-        return is_wp_error($terms) ? [] : $terms;
-    }
-
-    private static function child_locations(string $region_slug): array {
-        $region = get_term_by('slug', sanitize_title($region_slug), self::LOCATION_TAXONOMY);
-        if (!$region || is_wp_error($region)) return [];
-
-        $terms = get_terms([
-            'taxonomy' => self::LOCATION_TAXONOMY,
-            'hide_empty' => true,
-            'parent' => (int) $region->term_id,
             'orderby' => 'name',
             'order' => 'ASC',
         ]);
