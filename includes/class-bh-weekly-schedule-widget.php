@@ -3,7 +3,7 @@ namespace BubbaHub;
 
 defined('ABSPATH') || exit;
 
-final class WeeklyScheduleWidget extends \WP_Widget {
+final class WeeklyScheduleWidget extends \\WP_Widget {
     public function __construct() {
         parent::__construct(
             'bh_weekly_schedule',
@@ -61,17 +61,18 @@ final class WeeklyScheduleWidget extends \WP_Widget {
                 }
             }
 
-            echo '<div class="bh-weekly-schedule-widget__day' . ($is_today ? ' is-today' : '') . '">';
-            echo '<div class="bh-weekly-schedule-widget__day-heading">';
-            echo '<div class="bh-weekly-schedule-widget__day-name">' . esc_html($day) . '</div>';
+            echo '<details class="bh-weekly-schedule-widget__day' . ($is_today ? ' is-today' : '') . '" open>';
+            echo '<summary class="bh-weekly-schedule-widget__day-heading">';
+            echo '<span class="bh-weekly-schedule-widget__day-name">' . esc_html($day) . '</span>';
             if ($is_today) {
                 echo '<span class="bh-weekly-schedule-widget__status ' . ($is_open_now ? 'is-open' : 'is-closed') . '">';
                 echo '<span class="bh-weekly-schedule-widget__status-dot" aria-hidden="true"></span>';
                 echo esc_html($is_open_now ? __('Open now', 'bubba-hub') : __('Closed now', 'bubba-hub'));
                 echo '</span>';
             }
-            echo '</div>';
+            echo '</summary>';
 
+            echo '<div class="bh-weekly-schedule-widget__content">';
             if ($closed) {
                 echo '<div class="bh-weekly-schedule-widget__closed">' . esc_html__('Closed', 'bubba-hub') . '</div>';
             } elseif ($sessions) {
@@ -100,8 +101,8 @@ final class WeeklyScheduleWidget extends \WP_Widget {
 
                 echo '</div>';
             }
-
             echo '</div>';
+            echo '</details>';
         }
 
         echo '</div>';
