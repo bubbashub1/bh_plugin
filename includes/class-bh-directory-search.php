@@ -130,7 +130,7 @@ final class DirectorySearch {
     private static function locations(): array {
         $terms = get_terms([
             'taxonomy' => self::LOCATION_TAXONOMY,
-            'hide_empty' => true,
+            'hide_empty' => false,
             'orderby' => 'name',
             'order' => 'ASC',
         ]);
