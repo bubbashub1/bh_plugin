@@ -49,6 +49,11 @@ final class DirectoryQuery {
             ];
         }
 
+        $schedule_ids = self::schedule_matches($filters);
+        if ($schedule_ids !== null) {
+            $args['post__in'] = $schedule_ids ?: [0];
+        }
+
         foreach (['age_range', 'price'] as $key) {
             if (isset($filters[$key]) && $filters[$key] !== '') {
                 $meta_query[] = [
@@ -67,6 +72,25 @@ final class DirectoryQuery {
         }
 
         return $args;
+    }
+
+    private static function schedule_matches(array $filters): ?array {
+        $day = sanitize_text_field((string) ($filters['day'] ?? ''));
+        $term = sanitize_key((string) ($filters['term_time'] ?? ''));
+        if ($day === '' && $term === '') return null;
+        if (!in_array($term, ['', 'term'], true)) return null;
+        $ids = get_posts([
+            'post_type' => Listing::POST_TYPE,
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'fields' => 'ids',
+            'no_found_rows' => true,
+        ]);
+        $matches = [];
+        foreach ($ids as $id) {
+            if (Schedule::matches((int) $id, $day, $term)) $matches[] = (int) $id;
+        }
+        return $matches;
     }
 
     public static function run(array $filters = []): \WP_Query {
