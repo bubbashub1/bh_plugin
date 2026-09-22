@@ -12,6 +12,8 @@ defined('ABSPATH') || exit;
  */
 final class Listing {
     public const POST_TYPE = 'at_biz_dir';
+    public const DIRECTORY_TYPE_SLUG = 'groups-classes';
+    public const DIRECTORY_TYPE_TAXONOMY = 'atbdp_listing_types';
 
     public static function is_available(): bool {
         return post_type_exists(self::POST_TYPE);
@@ -19,6 +21,19 @@ final class Listing {
 
     public static function is_listing(int $post_id): bool {
         return $post_id > 0 && get_post_type($post_id) === self::POST_TYPE;
+    }
+
+    /**
+     * Return the Directorist directory-type term ID for a slug.
+     */
+    public static function directory_type_id(string $slug = self::DIRECTORY_TYPE_SLUG): int {
+        $slug = sanitize_title($slug);
+        if ($slug === '' || !taxonomy_exists(self::DIRECTORY_TYPE_TAXONOMY)) {
+            return 0;
+        }
+
+        $term = get_term_by('slug', $slug, self::DIRECTORY_TYPE_TAXONOMY);
+        return ($term && !is_wp_error($term)) ? (int) $term->term_id : 0;
     }
 
     /**
