@@ -19,9 +19,120 @@ final class Directory {
             return '<div class="bh-directory bh-directory--notice"><p>Directory temporarily unavailable. Please activate Directorist.</p></div>';
         }
 
-        $query = DirectoryQuery::run([
-            'posts_per_page' => (int) $atts['posts_per_page'],
-            'paged' => max(1, (int) ($_GET['bh_page'] ?? 1)),
+        $view = Planner::view();
+        $filters = self::filters();
+        $filters['posts_per_page'] = (int) $atts['posts_per_page'];
+        $filters['paged'] = max(1, (int) ($_GET['bh_page'] ?? 1));
+
+        if (Planner::is_calendar_view($view)) {
+            $filters['all_results'] = true;
+            $filters['paged'] = 1;
+        }
+
+        $query = DirectoryQuery::run($filters);
+
+        ob_start();
+        ?>
+        <section class="bh-directory bh-directory--view-<?php echo esc_attr($view); ?>" aria-label="<?php echo esc_attr($atts['title']); ?>">
+            <header class="bh-directory__header">
+                <h2><?php echo esc_html($atts['title']); ?></h2>
+            </header>
+
+            <?php echo DirectorySearch::shortcode(); ?>
+
+            <nav class="bh-directory-views" aria-label="Activity views">
+                <?php foreach ([
+                    'list' => 'List',
+                    'map' => 'Map',
+                    'grid' => 'Grid',
+                    'daily' => 'Daily',
+                    'weekly' => 'Weekly',
+                    'monthly' => 'Monthly',
+                ] as $key => $label) : ?>
+                    <a class="bh-directory-views__item<?php echo $view === $key ? ' is-active' : ''; ?>" href="<?php echo esc_url(Planner::view_url($key)); ?>"<?php echo $view === $key ? ' aria-current="page"' : ''; ?>>
+                        <?php echo esc_html($label); ?>
+                    </a>
+                <?php endforeach; ?>
+            </nav>
+
+            <?php if (Planner::is_calendar_view($view)) : ?>
+                <section class="bh-planner-shell" aria-label="<?php echo esc_attr(ucfirst($view)); ?> activity planner">
+                    <div class="bh-planner-shell__heading">
+                        <div>
+                            <h3><?php echo esc_html(ucfirst($view)); ?> planner</h3>
+                            <p class="bh-planner-shell__date"><?php echo esc_html(Planner::title($view, Planner::date())); ?></p>
+                            <p class="bh-directory__count"><?php echo esc_html(number_format_i18n((int) $query->found_posts)); ?> <?php echo esc_html((int) $query->found_posts === 1 ? 'activity' : 'activities'); ?> found</p>
+                        </div>
+                        <div class="bh-planner-shell__navigation" aria-label="Calendar navigation">
+                            <a href="<?php echo esc_url(Planner::navigation_url($view, Planner::date(), -1)); ?>" aria-label="Previous <?php echo esc_attr($view); ?>">‹</a>
+                            <a href="<?php echo esc_url(Planner::navigation_url($view, current_datetime()->setTime(0, 0), 0)); ?>">Today</a>
+                            <a href="<?php echo esc_url(Planner::navigation_url($view, Planner::date(), 1)); ?>" aria-label="Next <?php echo esc_attr($view); ?>">›</a>
+                        </div>
+                    </div>
+                    <?php echo Planner::render($view, $query); ?>
+                </section>
+            <?php else : ?>
+                <div class="bh-directory__header">
+                    <p class="bh-directory__count"><?php echo esc_html(number_format_i18n((int) $query->found_posts)); ?> <?php echo esc_html((int) $query->found_posts === 1 ? 'activity' : 'activities'); ?> found</p>
+                </div>
+
+                <?php if ($view === 'map') : ?>
+                    <?php echo self::render_map($query); ?>
+                <?php elseif ($query->have_posts()) : ?>
+                    <div class="bh-directory__grid<?php echo $view === 'list' ? ' bh-directory__grid--list' : ''; ?>">
+                        <?php while ($query->have_posts()) : $query->the_post(); ?>
+                            <?php $card = DirectoryCard::meta((int) get_the_ID()); ?>
+                            <article class="bh-directory-card">
+                                <a class="bh-directory-card__link" href="<?php the_permalink(); ?>">
+                                    <?php if (has_post_thumbnail()) : ?>
+                                        <div class="bh-directory-card__image"><?php the_post_thumbnail('medium'); ?></div>
+                                    <?php else : ?>
+                                        <div class="bh-directory-card__image bh-directory-card__image--placeholder" aria-hidden="true">Bubba Hub</div>
+                                    <?php endif; ?>
+                                    <div class="bh-directory-card__body">
+                                        <div class="bh-directory-card__meta">
+                                            <?php if ($card['category']) : ?><span class="bh-directory-card__badge"><?php echo esc_html($card['category']); ?></span><?php endif; ?>
+                                        </div>
+                                        <h3><?php the_title(); ?></h3>
+                                        <div class="bh-directory-card__details">
+                                            <?php if ($card['location']) : ?><div class="bh-directory-card__detail"><span class="bh-directory-card__detail-label">Location:</span><span><?php echo esc_html($card['location']); ?></span></div><?php endif; ?>
+                                            <?php if ($card['age_range']) : ?><div class="bh-directory-card__detail"><span class="bh-directory-card__detail-label">Age:</span><span><?php echo esc_html(DirectoryCard::age_label($card['age_range'])); ?></span></div><?php endif; ?>
+                                            <?php if ($card['price']) : ?><div class="bh-directory-card__detail"><span class="bh-directory-card__detail-label">Price:</span><span><?php echo esc_html($card['price']); ?></span></div><?php endif; ?>
+                                        </div>
+                                        <?php echo Schedule::summary((int) get_the_ID()); ?>
+                                        <span class="bh-directory-card__cta">View activity</span>
+                                    </div>
+                                </a>
+                            </article>
+                        <?php endwhile; ?>
+                    </div>
+
+                    <?php
+                    $current_page = max(1, (int) ($_GET['bh_page'] ?? 1));
+                    $base_url = remove_query_arg('bh_page');
+                    $pagination = paginate_links([
+                        'base' => esc_url_raw(add_query_arg('bh_page', '%#%', $base_url)),
+                        'format' => '',
+                        'current' => $current_page,
+                        'total' => max(1, (int) $query->max_num_pages),
+                        'type' => 'list',
+                    ]);
+                    if ($pagination) {
+                        echo '<nav class="bh-directory__pagination" aria-label="Directory pages">' . wp_kses_post($pagination) . '</nav>';
+                    }
+                    ?>
+                <?php else : ?>
+                    <p class="bh-directory__empty">No family activities found.</p>
+                <?php endif; ?>
+            <?php endif; ?>
+        </section>
+        <?php
+        wp_reset_postdata();
+        return (string) ob_get_clean();
+    }
+
+    private static function filters(): array {
+        return [
             'search' => isset($_GET['bh_search']) ? sanitize_text_field(wp_unslash($_GET['bh_search'])) : '',
             'category' => isset($_GET['bh_category']) ? sanitize_title(wp_unslash($_GET['bh_category'])) : '',
             'age_range' => isset($_GET['bh_age_range']) ? sanitize_text_field(wp_unslash($_GET['bh_age_range'])) : '',
@@ -30,65 +141,31 @@ final class Directory {
             'day' => isset($_GET['bh_day']) ? sanitize_title(wp_unslash($_GET['bh_day'])) : '',
             'price' => isset($_GET['bh_price']) ? sanitize_text_field(wp_unslash($_GET['bh_price'])) : '',
             'free_activity' => isset($_GET['bh_free_activity']) ? sanitize_text_field(wp_unslash($_GET['bh_free_activity'])) : '',
-        ]);
+        ];
+    }
 
-        ob_start();
-        ?>
-        <section class="bh-directory" aria-label="<?php echo esc_attr($atts['title']); ?>">
-            <header class="bh-directory__header">
-                <h2><?php echo esc_html($atts['title']); ?></h2>
-            </header>
-            <?php echo DirectorySearch::shortcode(); ?>
-            <div class="bh-directory__header">
-                <p class="bh-directory__count"><?php echo esc_html(number_format_i18n((int) $query->found_posts)); ?> <?php echo esc_html((int) $query->found_posts === 1 ? 'activity' : 'activities'); ?> found</p>
-            </div>
-            <?php if ($query->have_posts()) : ?>
-                <div class="bh-directory__grid">
-                    <?php while ($query->have_posts()) : $query->the_post(); ?>
-                        <?php $card = DirectoryCard::meta((int) get_the_ID()); ?>
-                        <article class="bh-directory-card">
-                            <a class="bh-directory-card__link" href="<?php the_permalink(); ?>">
-                                <?php if (has_post_thumbnail()) : ?>
-                                    <div class="bh-directory-card__image"><?php the_post_thumbnail('medium'); ?></div>
-                                <?php else : ?>
-                                    <div class="bh-directory-card__image bh-directory-card__image--placeholder" aria-hidden="true">Bubba Hub</div>
-                                <?php endif; ?>
-                                <div class="bh-directory-card__body">
-                                    <div class="bh-directory-card__meta">
-                                        <?php if ($card['category']) : ?><span class="bh-directory-card__badge"><?php echo esc_html($card['category']); ?></span><?php endif; ?>
-                                    </div>
-                                    <h3><?php the_title(); ?></h3>
-                                    <div class="bh-directory-card__details">
-                                        <?php if ($card['location']) : ?><div class="bh-directory-card__detail"><span class="bh-directory-card__detail-label">Location:</span><span><?php echo esc_html($card['location']); ?></span></div><?php endif; ?>
-                                        <?php if ($card['age_range']) : ?><div class="bh-directory-card__detail"><span class="bh-directory-card__detail-label">Age:</span><span><?php echo esc_html(DirectoryCard::age_label($card['age_range'])); ?></span></div><?php endif; ?>
-                                        <?php if ($card['price']) : ?><div class="bh-directory-card__detail"><span class="bh-directory-card__detail-label">Price:</span><span><?php echo esc_html($card['price']); ?></span></div><?php endif; ?>
-                                    </div>
-                                    <?php echo Schedule::summary((int) get_the_ID()); ?>
-                                    <span class="bh-directory-card__cta">View activity</span>
-                                </div>
-                            </a>
-                        </article>
-                    <?php endwhile; ?>
-                </div>
-                <?php
-                $current_page = max(1, (int) ($_GET['bh_page'] ?? 1));
-                $base_url = remove_query_arg('bh_page');
-                $pagination = paginate_links([
-                    'base' => esc_url_raw(add_query_arg('bh_page', '%#%', $base_url)),
-                    'format' => '',
-                    'current' => $current_page,
-                    'total' => max(1, (int) $query->max_num_pages),
-                    'type' => 'list',
-                ]);
-                if ($pagination) echo '<nav class="bh-directory__pagination" aria-label="Directory pages">' . wp_kses_post($pagination) . '</nav>';
-                ?>
-            <?php else : ?>
-                <p class="bh-directory__empty">No family activities found.</p>
-            <?php endif; ?>
-        </section>
-        <?php
-        wp_reset_postdata();
-        return (string) ob_get_clean();
+    private static function render_map(\WP_Query $query): string {
+        if (!$query->have_posts()) {
+            return '<p class="bh-directory__empty">No family activities found.</p>';
+        }
+
+        if (!shortcode_exists('directorist_all_listing')) {
+            return '<div class="bh-directory--notice"><p>Map view is not available from Directorist on this site.</p></div>';
+        }
+
+        $ids = wp_list_pluck($query->posts, 'ID');
+        $ids = array_filter(array_map('absint', $ids));
+        if (!$ids) {
+            return '<p class="bh-directory__empty">No family activities found.</p>';
+        }
+
+        $output = do_shortcode(sprintf(
+            '[directorist_all_listing view="map" ids="%s" header="no" show_pagination="no" listings_per_page="%d"]',
+            esc_attr(implode(',', $ids)),
+            count($ids)
+        ));
+
+        return $output !== '' ? '<div class="bh-directory-map">' . $output . '</div>' : '<div class="bh-directory--notice"><p>Map view is not available from Directorist on this site.</p></div>';
     }
 
     public static function assets(): void {
@@ -105,6 +182,8 @@ final class Directory {
         wp_enqueue_style('bh-directory-card');
         wp_register_style('bh-listing-info-widget', BH_PLUGIN_URL . 'assets/css/bh-listing-info-widget.css', ['bh-directory'], BH_PLUGIN_VERSION);
         wp_enqueue_style('bh-listing-info-widget');
+        wp_register_style('bh-planner', BH_PLUGIN_URL . 'assets/css/bh-planner.css', ['bh-directory', 'bh-directory-search'], BH_PLUGIN_VERSION);
+        wp_enqueue_style('bh-planner');
         wp_register_script('bh-weekly-schedule', BH_PLUGIN_URL . 'assets/js/bh-weekly-schedule.js', [], BH_PLUGIN_VERSION, true);
         wp_enqueue_script('bh-weekly-schedule');
     }
