@@ -70,7 +70,7 @@ final class DirectorySearch {
                     </div>
                 <?php endif; ?>
 
-                <details class="bh-directory-search__advanced" <?php echo ($values['age_range'] !== '' || $values['region'] !== '' || $values['town'] !== '' || $values['day'] !== '' || $values['term_time'] !== '' || $values['price'] !== '') ? 'open' : ''; ?>>
+                <details class="bh-directory-search__advanced" <?php echo ($values['age_range'] !== '' || (!$show_location && $values['region'] !== '') || $values['town'] !== '' || $values['day'] !== '' || $values['term_time'] !== '' || $values['price'] !== '') ? 'open' : ''; ?>>
                     <summary>Advanced Search</summary>
                     <div class="bh-directory-search__advanced-grid">
                         <div class="bh-directory-search__field">
