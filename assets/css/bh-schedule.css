@@ -25,3 +25,61 @@
 .bh-weekly-schedule-widget__time{font-size:.88rem;white-space:nowrap;font-weight:600}
 .bh-weekly-schedule-widget__closed{font-size:.88rem;opacity:.7}
 @media(max-width:600px){.bh-weekly-schedule-widget__day-heading{align-items:flex-start;flex-direction:column;gap:5px}.bh-weekly-schedule-widget__session{grid-template-columns:1fr}.bh-weekly-schedule-widget__time{font-size:.84rem}}
+
+
+/* Mobile weekly schedule accordion */
+.bh-weekly-schedule-widget__day {
+    margin: 0;
+    border-bottom: 1px solid rgba(0,0,0,.08);
+}
+.bh-weekly-schedule-widget__day > summary {
+    list-style: none;
+    cursor: pointer;
+}
+.bh-weekly-schedule-widget__day > summary::-webkit-details-marker {
+    display: none;
+}
+.bh-weekly-schedule-widget__day-heading::after {
+    content: '+';
+    flex: 0 0 auto;
+    font-size: 1.15rem;
+    font-weight: 400;
+    line-height: 1;
+    opacity: .6;
+    transition: transform .2s ease;
+}
+.bh-weekly-schedule-widget__day[open] > .bh-weekly-schedule-widget__day-heading::after {
+    content: '−';
+}
+.bh-weekly-schedule-widget__content {
+    padding: 0 0 4px;
+}
+@media (min-width:601px) {
+    .bh-weekly-schedule-widget__day > summary {
+        cursor: default;
+    }
+    .bh-weekly-schedule-widget__day-heading::after {
+        display: none;
+    }
+}
+@media (max-width:600px) {
+    .bh-weekly-schedule-widget__day {
+        padding: 0;
+    }
+    .bh-weekly-schedule-widget__day.is-today {
+        padding: 0 10px;
+        margin: 2px 0;
+    }
+    .bh-weekly-schedule-widget__day-heading {
+        margin: 0;
+        padding: 12px 0;
+        flex-direction: row;
+        align-items: center;
+    }
+    .bh-weekly-schedule-widget__day.is-today .bh-weekly-schedule-widget__day-heading {
+        padding: 12px 0;
+    }
+    .bh-weekly-schedule-widget__content {
+        padding: 0 0 10px;
+    }
+}
