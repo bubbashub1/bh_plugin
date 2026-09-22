@@ -94,3 +94,7 @@ Adds the optional `[bh_directory]` presentation shortcode. It reads published Di
 ## Stability Step 6
 
 Adds the optional `[bh_directory_search]` filter bar for age range, category, region and price. Filters use native Directorist taxonomy/meta mappings and submit with standard WordPress GET parameters; no AJAX or duplicate search engine is introduced yet.
+
+## Stability Step 7
+
+Adds a read-only timetable renderer for Directorist listings. It reads the existing ACF `weekly_schedule` field, with the legacy `group_business_hours_repeater` fallback provided by the listing bridge, and displays day/time sessions on Bubba Hub directory cards. It does not write or duplicate timetable data.
