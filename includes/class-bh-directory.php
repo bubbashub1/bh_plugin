@@ -38,10 +38,9 @@ final class Directory {
                 <h2><?php echo esc_html($atts['title']); ?></h2>
             </header>
             <?php echo DirectorySearch::shortcode(); ?>
-            <header class="bh-directory__header">
-                <h2><?php echo esc_html($atts['title']); ?></h2>
+            <div class="bh-directory__header">
                 <p class="bh-directory__count"><?php echo esc_html(number_format_i18n((int) $query->found_posts)); ?> <?php echo esc_html((int) $query->found_posts === 1 ? 'activity' : 'activities'); ?> found</p>
-            </header>
+            </div>
             <?php if ($query->have_posts()) : ?>
                 <div class="bh-directory__grid">
                     <?php while ($query->have_posts()) : $query->the_post(); ?>
