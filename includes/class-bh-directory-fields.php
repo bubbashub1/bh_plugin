@@ -8,17 +8,18 @@ final class DirectoryFields {
         return [
             'age_range' => [
                 'label' => 'Age Range',
+                'source' => 'directorist',
                 'aliases' => ['age_range'],
                 'values' => ['0-3','3-6','6-9','9-12','1-3','2-4','3-5','5-plus','all'],
             ],
-            'region' => ['label'=>'Region','aliases'=>['region']],
-            'town' => ['label'=>'Town','aliases'=>['town','location']],
-            'category' => ['label'=>'Category','aliases'=>['category']],
-            'day' => ['label'=>'Day','aliases'=>['day','day_name']],
-            'term_time' => ['label'=>'Term Time','aliases'=>['term_time','term_time_only']],
-            'price' => ['label'=>'Price','aliases'=>['price']],
-            'session_length' => ['label'=>'Session Length','aliases'=>['session_length']],
-            'location' => ['label'=>'Location','aliases'=>['location','address']],
+            'region' => ['label'=>'Region','source'=>'directorist','aliases'=>['region']],
+            'town' => ['label'=>'Town','source'=>'directorist','aliases'=>['town','location']],
+            'category' => ['label'=>'Category','source'=>'directorist','aliases'=>['category']],
+            'day' => ['label'=>'Day','source'=>'acf_weekly_schedule','aliases'=>['day','day_name']],
+            'term_time' => ['label'=>'Term Time','source'=>'directorist','aliases'=>['term_time']],
+            'price' => ['label'=>'Price','source'=>'directorist','aliases'=>['_price']],
+            'session_length' => ['label'=>'Session Length','source'=>'acf_weekly_schedule','aliases'=>['session_length']],
+            'location' => ['label'=>'Location','source'=>'directorist','aliases'=>['location','address']],
         ];
     }
 
@@ -26,12 +27,19 @@ final class DirectoryFields {
         if (!Listing::is_listing($post_id) || !isset(self::definitions()[$key])) {
             return $default;
         }
+
+        $source = self::definitions()[$key]['source'] ?? '';
+        if ($source === 'directorist' && in_array($key, ['age_range', 'term_time', 'price'], true)) {
+            return DirectoristFields::get($post_id, $key, $default);
+        }
+
         foreach (self::definitions()[$key]['aliases'] as $field) {
             $value = self::get_meta_or_acf($post_id, $field);
             if ($value !== null && $value !== false && $value !== '') {
                 return $value;
             }
         }
+
         return $default;
     }
 
