@@ -27,8 +27,10 @@ require_once BH_PLUGIN_DIR . 'includes/class-bh-directorist.php';
 require_once BH_PLUGIN_DIR . 'includes/class-bh-listing.php';
 require_once BH_PLUGIN_DIR . 'includes/class-bh-directory-fields.php';
 require_once BH_PLUGIN_DIR . 'includes/class-bh-directory-query.php';
+require_once BH_PLUGIN_DIR . 'includes/class-bh-directory.php';
 require_once BH_PLUGIN_DIR . 'includes/class-bh-plugin.php';
 
 add_action('plugins_loaded', static function (): void {
     \BubbaHub\Plugin::boot();
+    \BubbaHub\Directory::register();
 }, 20);
