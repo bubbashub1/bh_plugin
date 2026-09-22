@@ -225,7 +225,7 @@ final class Planner {
                 <div class="bh-planner__time-axis">
                     <?php for ($hour = $start_hour; $hour <= $end_hour; $hour++) : ?>
                         <?php if ($hour < $end_hour) : ?>
-                            <span style="--bh-time-position:<?php echo esc_attr((string) (($hour - $start_hour) * 2)); ?>"><?php echo esc_html(wp_date('g a', mktime($hour, 0, 0))); ?></span>
+                            <span style="--bh-time-position:<?php echo esc_attr((string) (($hour - $start_hour) * 2)); ?>"><?php echo esc_html(wp_date('g a', current_datetime()->setTime($hour, 0)->getTimestamp(), wp_timezone())); ?></span>
                         <?php endif; ?>
                     <?php endfor; ?>
                 </div>
