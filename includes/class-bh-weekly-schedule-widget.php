@@ -3,7 +3,7 @@ namespace BubbaHub;
 
 defined('ABSPATH') || exit;
 
-final class WeeklyScheduleWidget extends \\WP_Widget {
+final class WeeklyScheduleWidget extends \WP_Widget {
     public function __construct() {
         parent::__construct(
             'bh_weekly_schedule',
