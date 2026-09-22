@@ -40,16 +40,18 @@
     display: none;
 }
 .bh-weekly-schedule-widget__day-heading::after {
-    content: '+';
+    content: '';
     flex: 0 0 auto;
-    font-size: 1.15rem;
-    font-weight: 400;
-    line-height: 1;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
     opacity: .6;
     transition: transform .2s ease;
 }
 .bh-weekly-schedule-widget__day[open] > .bh-weekly-schedule-widget__day-heading::after {
-    content: '−';
+    transform: rotate(225deg);
 }
 .bh-weekly-schedule-widget__content {
     padding: 0 0 4px;
