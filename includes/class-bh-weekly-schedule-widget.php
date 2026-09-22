@@ -22,6 +22,9 @@ final class WeeklyScheduleWidget extends \WP_Widget {
         }
 
         $rows = Listing::get_schedule((int) $post_id);
+        $current = current_datetime();
+        $current_day = strtolower($current->format('l'));
+        $current_minutes = ((int) $current->format('G') * 60) + (int) $current->format('i');
 
         echo $args['before_widget'];
         echo $args['before_title'] . esc_html__('Weekly Schedule', 'bubba-hub') . $args['after_title'];
@@ -40,9 +43,34 @@ final class WeeklyScheduleWidget extends \WP_Widget {
             $day = ucwords(strtolower(sanitize_text_field($day)));
             $closed = !empty($row['is_closed']);
             $sessions = isset($row['sessions']) && is_array($row['sessions']) ? $row['sessions'] : [];
+            $day_slug = strtolower(sanitize_title($day));
+            $is_today = ($day_slug === $current_day);
+            $is_open_now = false;
 
-            echo '<div class="bh-weekly-schedule-widget__day">';
+            if ($is_today && !$closed) {
+                foreach ($sessions as $session_check) {
+                    if (!is_array($session_check)) {
+                        continue;
+                    }
+                    $check_start = self::minutes($session_check['start_time'] ?? $session_check['start'] ?? '');
+                    $check_end = self::minutes($session_check['end_time'] ?? $session_check['end'] ?? '');
+                    if ($check_start !== null && $check_end !== null && $current_minutes >= $check_start && $current_minutes < $check_end) {
+                        $is_open_now = true;
+                        break;
+                    }
+                }
+            }
+
+            echo '<div class="bh-weekly-schedule-widget__day' . ($is_today ? ' is-today' : '') . '">';
+            echo '<div class="bh-weekly-schedule-widget__day-heading">';
             echo '<div class="bh-weekly-schedule-widget__day-name">' . esc_html($day) . '</div>';
+            if ($is_today) {
+                echo '<span class="bh-weekly-schedule-widget__status ' . ($is_open_now ? 'is-open' : 'is-closed') . '">';
+                echo '<span class="bh-weekly-schedule-widget__status-dot" aria-hidden="true"></span>';
+                echo esc_html($is_open_now ? __('Open now', 'bubba-hub') : __('Closed now', 'bubba-hub'));
+                echo '</span>';
+            }
+            echo '</div>';
 
             if ($closed) {
                 echo '<div class="bh-weekly-schedule-widget__closed">' . esc_html__('Closed', 'bubba-hub') . '</div>';
@@ -86,6 +114,19 @@ final class WeeklyScheduleWidget extends \WP_Widget {
 
     public function update($new_instance, $old_instance): array {
         return [];
+    }
+
+    private static function minutes(mixed $value): ?int {
+        if (!is_string($value) && !is_numeric($value)) {
+            return null;
+        }
+
+        $value = trim((string) $value);
+        if ($value === '' || !preg_match('/^(\d{1,2}):(\d{2})/', $value, $matches)) {
+            return null;
+        }
+
+        return ((int) $matches[1] * 60) + (int) $matches[2];
     }
 
     private static function format_time(mixed $value): string {
