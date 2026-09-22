@@ -18,7 +18,6 @@ final class DirectorySearch {
             'region' => isset($_GET['bh_region']) ? sanitize_title(wp_unslash($_GET['bh_region'])) : '',
             'town' => isset($_GET['bh_town']) ? sanitize_title(wp_unslash($_GET['bh_town'])) : '',
             'day' => isset($_GET['bh_day']) ? sanitize_title(wp_unslash($_GET['bh_day'])) : '',
-            'term_time' => isset($_GET['bh_term_time']) ? sanitize_text_field(wp_unslash($_GET['bh_term_time'])) : '',
             'price' => isset($_GET['bh_price']) ? sanitize_text_field(wp_unslash($_GET['bh_price'])) : '',
             'free_activity' => isset($_GET['bh_free_activity']) ? sanitize_text_field(wp_unslash($_GET['bh_free_activity'])) : '',
         ];
@@ -37,7 +36,6 @@ final class DirectorySearch {
         $regions = self::top_level_locations();
         $towns = $values['region'] !== '' ? self::child_locations($values['region']) : [];
         $age_options = DirectoristFields::options('age_range');
-        $term_time_options = DirectoristFields::options('term_time');
         $free_activity_option = DirectoristFields::free_activity_option();
 
         ob_start();
@@ -88,7 +86,7 @@ final class DirectorySearch {
                     </div>
                 <?php endif; ?>
 
-                <details class="bh-directory-search__advanced" <?php echo ($values['age_range'] !== '' || $values['day'] !== '' || $values['term_time'] !== '' || $values['price'] !== '') ? 'open' : ''; ?>>
+                <details class="bh-directory-search__advanced" <?php echo ($values['age_range'] !== '' || $values['day'] !== '' || $values['price'] !== '') ? 'open' : ''; ?>>
                     <summary>Advanced Search</summary>
                     <div class="bh-directory-search__advanced-grid">
                         <div class="bh-directory-search__field">
@@ -111,24 +109,14 @@ final class DirectorySearch {
                             </select>
                         </div>
 
-                        <div class="bh-directory-search__field">
-                            <label for="bh-term-time">Term Time</label>
-                            <select id="bh-term-time" name="bh_term_time">
-                                <option value="">Any timetable</option>
-                                <?php foreach ($term_time_options as $option) : ?>
-                                    <option value="<?php echo esc_attr($option['value']); ?>" <?php selected($values['term_time'], $option['value']); ?>><?php echo esc_html($option['label']); ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-
-                        <div class="bh-directory-search__field">
+                                        <div class="bh-directory-search__field">
                             <label for="bh-price">Price</label>
                             <input id="bh-price" name="bh_price" type="text" value="<?php echo esc_attr($values['price']); ?>" placeholder="e.g. £5">
                         </div>
 
                         <div class="bh-directory-search__actions">
                             <button type="submit">Search</button>
-                            <a href="<?php echo esc_url(remove_query_arg(['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_day','bh_term_time','bh_price','bh_free_activity','bh_page'])); ?>">Clear</a>
+                            <a href="<?php echo esc_url(remove_query_arg(['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_day','bh_price','bh_free_activity','bh_page'])); ?>">Clear</a>
                         </div>
                     </div>
                 </details>
