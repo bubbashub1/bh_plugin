@@ -40,7 +40,7 @@ final class DirectorySearch {
             <form class="bh-directory-search__form" method="get">
                 <div class="bh-directory-search__field bh-directory-search__field--search">
                     <label for="bh-search">Search</label>
-                    <input id="bh-search" name="bh_search" type="search" value="<?php echo esc_attr($values['search']); ?>" placeholder="Search activities, categories or locations">
+                    <input id="bh-search" name="bh_search" type="search" value="<?php echo esc_attr($values['search']); ?>" placeholder="Search activities, categories or regions">
                 </div>
 
                 <details class="bh-directory-search__advanced" <?php echo ($values['age_range'] !== '' || $values['region'] !== '' || $values['town'] !== '' || $values['day'] !== '' || $values['term_time'] !== '' || $values['price'] !== '') ? 'open' : ''; ?>>
