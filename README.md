@@ -90,3 +90,7 @@ Adds a read-only directory query helper targeting Directorist's native listing p
 ## Stability Step 5
 
 Adds the optional `[bh_directory]` presentation shortcode. It reads published Directorist listings through the existing query bridge and renders lightweight responsive cards. It does not replace Directorist's archive or create a second listing system.
+
+## Stability Step 6
+
+Adds the optional `[bh_directory_search]` filter bar for age range, category, region and price. Filters use native Directorist taxonomy/meta mappings and submit with standard WordPress GET parameters; no AJAX or duplicate search engine is introduced yet.
