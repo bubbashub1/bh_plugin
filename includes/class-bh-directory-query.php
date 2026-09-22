@@ -6,8 +6,9 @@ defined('ABSPATH') || exit;
 /**
  * Read-only directory query helpers.
  *
- * Directorist remains the single source of truth for listings and location.
- * Location filtering uses Directorist's hierarchical location taxonomy.
+ * Directorist remains the single source of truth for listings, location,
+ * category, age range, term time and price. ACF is used only for timetable
+ * day matching and timetable presentation.
  */
 final class DirectoryQuery {
     public static function args(array $filters = []): array {
@@ -56,41 +57,55 @@ final class DirectoryQuery {
             ];
         }
 
-        $schedule_ids = self::schedule_matches($filters);
-        if ($schedule_ids !== null) {
+        $day_ids = self::schedule_day_matches($filters);
+        if ($day_ids !== null) {
             $post_in = $post_in === null
-                ? $schedule_ids
-                : array_values(array_intersect($post_in, $schedule_ids));
+                ? $day_ids
+                : array_values(array_intersect($post_in, $day_ids));
         }
 
         if ($post_in !== null) {
             $args['post__in'] = $post_in ?: [0];
         }
 
-        foreach (['age_range', 'price'] as $key) {
-            if (isset($filters[$key]) && $filters[$key] !== '') {
-                $meta_query[] = [
-                    'key' => sanitize_key($key),
-                    'value' => sanitize_text_field((string) $filters[$key]),
-                    'compare' => '=',
-                ];
-            }
+        $age_range = sanitize_text_field((string) ($filters['age_range'] ?? ''));
+        if ($age_range !== '') {
+            $meta_query[] = [
+                'key' => DirectoristFields::meta_key('age_range'),
+                'value' => $age_range,
+                'compare' => '=',
+            ];
+        }
+
+        $price = DirectoristFields::price_value($filters['price'] ?? '');
+        if ($price !== null) {
+            $meta_query[] = [
+                'key' => DirectoristFields::meta_key('price'),
+                'value' => (string) $price,
+                'compare' => '=',
+                'type' => 'DECIMAL',
+            ];
+        }
+
+        $term_time = sanitize_key((string) ($filters['term_time'] ?? ''));
+        if ($term_time !== '') {
+            $meta_query[] = [
+                'key' => DirectoristFields::meta_key('term_time'),
+                'value' => DirectoristFields::term_time_values(),
+                'compare' => 'IN',
+            ];
         }
 
         if ($tax_query) {
             $args['tax_query'] = ['relation' => 'AND', ...$tax_query];
         }
         if ($meta_query) {
-            $args['meta_query'] = $meta_query;
+            $args['meta_query'] = ['relation' => 'AND', ...$meta_query];
         }
 
         return $args;
     }
 
-    /**
-     * Broad search across listing title/content/excerpt plus Directorist
-     * category and location terms. Directorist remains the source of truth.
-     */
     private static function search_listing_ids(string $search): array {
         $ids = get_posts([
             'post_type' => Listing::POST_TYPE,
@@ -138,11 +153,12 @@ final class DirectoryQuery {
         return array_values(array_unique(array_map('intval', $ids)));
     }
 
-    private static function schedule_matches(array $filters): ?array {
+    private static function schedule_day_matches(array $filters): ?array {
         $day = sanitize_text_field((string) ($filters['day'] ?? ''));
-        $term = sanitize_key((string) ($filters['term_time'] ?? ''));
-        if ($day === '' && $term === '') return null;
-        if (!in_array($term, ['', 'term'], true)) return null;
+        if ($day === '') {
+            return null;
+        }
+
         $ids = get_posts([
             'post_type' => Listing::POST_TYPE,
             'post_status' => 'publish',
@@ -150,10 +166,14 @@ final class DirectoryQuery {
             'fields' => 'ids',
             'no_found_rows' => true,
         ]);
+
         $matches = [];
         foreach ($ids as $id) {
-            if (Schedule::matches((int) $id, $day, $term)) $matches[] = (int) $id;
+            if (Schedule::matches_day((int) $id, $day)) {
+                $matches[] = (int) $id;
+            }
         }
+
         return $matches;
     }
 
