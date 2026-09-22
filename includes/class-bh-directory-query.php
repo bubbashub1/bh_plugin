@@ -90,18 +90,6 @@ final class DirectoryQuery {
             ];
         }
 
-        $term_time = sanitize_text_field((string) ($filters['term_time'] ?? ''));
-        if ($term_time !== '') {
-            $term_key = DirectoristFields::meta_key('term_time');
-            if ($term_key !== '') {
-                $meta_query[] = [
-                    'key' => $term_key,
-                    'value' => $term_time,
-                    'compare' => '=',
-                ];
-            }
-        }
-
         $free_activity = sanitize_text_field((string) ($filters['free_activity'] ?? ''));
         if ($free_activity !== '') {
             $free_key = DirectoristFields::meta_key('free_activity');
