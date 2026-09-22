@@ -1,12 +1,12 @@
 .bh-directory-card__schedule{margin-top:16px;padding-top:14px;border-top:1px solid rgba(0,0,0,.08);font-size:.94rem}.bh-directory-card__schedule strong{display:block;margin-bottom:8px}.bh-directory-card__schedule ul{list-style:none;margin:0;padding:0}.bh-directory-card__schedule li{display:flex;justify-content:space-between;gap:12px;padding:3px 0}.bh-directory-card__day{font-weight:600}.bh-directory-card__times{text-align:right}@media(max-width:600px){.bh-directory-card__schedule li{display:block}.bh-directory-card__times{display:block;text-align:left}}
 
 .bh-weekly-schedule-widget{margin:0}
-.bh-weekly-schedule-widget__day{padding:10px 0;border-bottom:1px solid rgba(0,0,0,.08)}
+.bh-weekly-schedule-widget__day{display:grid;grid-template-columns:minmax(70px,30%) 1fr;gap:12px;padding:10px 0;border-bottom:1px solid rgba(0,0,0,.08);align-items:start}
 .bh-weekly-schedule-widget__day:last-child{border-bottom:0}
-.bh-weekly-schedule-widget__day-name{font-weight:600;text-transform:none;margin-bottom:4px}
-.bh-weekly-schedule-widget__sessions{display:flex;flex-direction:column;gap:4px}
-.bh-weekly-schedule-widget__session{display:flex;flex-direction:column;gap:1px}
-.bh-weekly-schedule-widget__label{font-weight:500}
-.bh-weekly-schedule-widget__time{font-size:.92rem}
+.bh-weekly-schedule-widget__day-name{font-weight:600}
+.bh-weekly-schedule-widget__sessions{display:flex;flex-direction:column;gap:5px}
+.bh-weekly-schedule-widget__session{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.bh-weekly-schedule-widget__label{font-weight:500;min-width:0}
+.bh-weekly-schedule-widget__time{font-size:.92rem;white-space:nowrap;text-align:right}
 .bh-weekly-schedule-widget__closed{font-size:.92rem;opacity:.7}
-@media(max-width:600px){.bh-weekly-schedule-widget__day{padding:8px 0}}
+@media(max-width:600px){.bh-weekly-schedule-widget__day{grid-template-columns:70px 1fr;gap:8px;padding:8px 0}.bh-weekly-schedule-widget__session{gap:8px}.bh-weekly-schedule-widget__time{font-size:.88rem}}
