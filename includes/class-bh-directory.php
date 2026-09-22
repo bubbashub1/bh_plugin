@@ -33,8 +33,11 @@ final class Directory {
 
         ob_start();
         ?>
-        <?php echo DirectorySearch::shortcode(); ?>
         <section class="bh-directory" aria-label="<?php echo esc_attr($atts['title']); ?>">
+            <header class="bh-directory__header">
+                <h2><?php echo esc_html($atts['title']); ?></h2>
+            </header>
+            <?php echo DirectorySearch::shortcode(); ?>
             <header class="bh-directory__header">
                 <h2><?php echo esc_html($atts['title']); ?></h2>
                 <p class="bh-directory__count"><?php echo esc_html(number_format_i18n((int) $query->found_posts)); ?> <?php echo esc_html((int) $query->found_posts === 1 ? 'activity' : 'activities'); ?> found</p>
