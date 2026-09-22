@@ -1,0 +1,8 @@
+/* Bubba Hub platform layer.
+ * Directory presentation remains controlled by the active WordPress theme/Directorist.
+ * Keep this stylesheet deliberately small and non-invasive.
+ */
+.bh-platform {
+    width: 100%;
+    box-sizing: border-box;
+}
