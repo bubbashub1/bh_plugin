@@ -86,3 +86,7 @@ Adds a read-only directory field compatibility layer. It defines the existing se
 ## Stability Step 4
 
 Adds a read-only directory query helper targeting Directorist's native listing post type. It does not create a second directory engine or rewrite listings.
+
+## Stability Step 5
+
+Adds the optional `[bh_directory]` presentation shortcode. It reads published Directorist listings through the existing query bridge and renders lightweight responsive cards. It does not replace Directorist's archive or create a second listing system.
