@@ -6,8 +6,8 @@ defined('ABSPATH') || exit;
 /**
  * Read-only directory query helpers.
  *
- * This delegates searching to WordPress using Directorist's native listing
- * post type. It does not register another directory engine.
+ * Directorist remains the single source of truth for listings and location.
+ * Location filtering uses Directorist's hierarchical location taxonomy.
  */
 final class DirectoryQuery {
     public static function args(array $filters = []): array {
@@ -23,17 +23,30 @@ final class DirectoryQuery {
         $tax_query = [];
         $meta_query = [];
 
-        foreach (['category', 'region'] as $key) {
-            if (!empty($filters[$key])) {
-                $taxonomy = self::taxonomy_for($key);
-                if ($taxonomy) {
-                    $tax_query[] = [
-                        'taxonomy' => $taxonomy,
-                        'field' => 'slug',
-                        'terms' => array_map('sanitize_title', (array) $filters[$key]),
-                    ];
-                }
-            }
+        if (!empty($filters['category'])) {
+            $tax_query[] = [
+                'taxonomy' => 'at_biz_dir-category',
+                'field' => 'slug',
+                'terms' => array_map('sanitize_title', (array) $filters['category']),
+            ];
+        }
+
+        if (!empty($filters['region'])) {
+            $tax_query[] = [
+                'taxonomy' => 'at_biz_dir-location',
+                'field' => 'slug',
+                'terms' => array_map('sanitize_title', (array) $filters['region']),
+                'include_children' => true,
+            ];
+        }
+
+        if (!empty($filters['town'])) {
+            $tax_query[] = [
+                'taxonomy' => 'at_biz_dir-location',
+                'field' => 'slug',
+                'terms' => array_map('sanitize_title', (array) $filters['town']),
+                'include_children' => false,
+            ];
         }
 
         foreach (['age_range', 'price'] as $key) {
@@ -47,22 +60,13 @@ final class DirectoryQuery {
         }
 
         if ($tax_query) {
-            $args['tax_query'] = $tax_query;
+            $args['tax_query'] = ['relation' => 'AND', ...$tax_query];
         }
         if ($meta_query) {
             $args['meta_query'] = $meta_query;
         }
 
         return $args;
-    }
-
-    private static function taxonomy_for(string $key): ?string {
-        $map = [
-            'category' => 'at_biz_dir-category',
-            'region' => 'at_biz_dir-location',
-        ];
-
-        return $map[$key] ?? null;
     }
 
     public static function run(array $filters = []): \WP_Query {
