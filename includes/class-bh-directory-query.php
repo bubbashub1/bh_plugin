@@ -44,7 +44,11 @@ final class DirectoryQuery {
         } else {
             // Do not accidentally show listings from another directory type if
             // the expected Directorist type has not been configured yet.
-            $args['post__in'] = [0];
+            $meta_query[] = [
+                'key' => '_directory_type',
+                'value' => '__missing_groups_classes_type__',
+                'compare' => '=',
+            ];
         }
 
         if (!empty($filters['category'])) {
