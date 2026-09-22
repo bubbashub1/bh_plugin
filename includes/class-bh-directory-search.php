@@ -36,7 +36,7 @@ final class DirectorySearch {
         DirectoryQuery::run($args);
         $categories = self::categories();
         $regions = self::regions();
-        $towns = self::towns();
+        $towns = self::towns($values['region']);
         $age_options = DirectoristFields::options('age_range');
         $free_activity_option = DirectoristFields::free_activity_option();
 
@@ -71,8 +71,8 @@ final class DirectorySearch {
 
                 <div class="bh-directory-search__field">
                     <label for="bh-town">Town</label>
-                    <select id="bh-town" name="bh_town">
-                        <option value="">All towns</option>
+                    <select id="bh-town" name="bh_town" <?php disabled($values["region"], ""); ?>>
+                        <option value="">Select a region first</option>
                         <?php foreach ($towns as $term) : ?>
                             <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['town'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
                         <?php endforeach; ?>
@@ -151,11 +151,23 @@ final class DirectorySearch {
         return is_wp_error($terms) ? [] : $terms;
     }
 
-    private static function towns(): array {
+    private static function towns(string $region = ''): array {
+        $region = sanitize_title($region);
+
+        if ($region === '') {
+            return [];
+        }
+
+        $parent = get_term_by('slug', $region, self::LOCATION_TAXONOMY);
+
+        if (!$parent || is_wp_error($parent)) {
+            return [];
+        }
+
         $terms = get_terms([
             'taxonomy' => self::LOCATION_TAXONOMY,
             'hide_empty' => false,
-            'parent' => 376,
+            'parent' => (int) $parent->term_id,
             'orderby' => 'name',
             'order' => 'ASC',
         ]);
