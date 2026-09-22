@@ -82,3 +82,7 @@ No listings, taxonomies, fields, or Directorist settings are created or rewritte
 ## Stability Step 3
 
 Adds a read-only directory field compatibility layer. It defines the existing searchable Bubba Hub fields and reads existing metadata/ACF values without changing Directorist configuration or rewriting listings. Existing age values are explicitly preserved.
+
+## Stability Step 4
+
+Adds a read-only directory query helper. Queries target Directorist's native listing post type and only add filters where a known Directorist taxonomy/meta mapping exists. No second directory engine or listing post type is created.
