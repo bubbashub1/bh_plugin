@@ -63,9 +63,7 @@ final class WeeklyScheduleWidget extends \WP_Widget {
                     }
 
                     echo '<div class="bh-weekly-schedule-widget__session">';
-                    if ($label !== '') {
-                        echo '<span class="bh-weekly-schedule-widget__label">' . esc_html($label) . '</span>';
-                    }
+                    echo '<span class="bh-weekly-schedule-widget__label">' . esc_html($label !== '' ? $label : __('Session', 'bubba-hub')) . '</span>';
                     if ($start || $end) {
                         echo '<span class="bh-weekly-schedule-widget__time">' . esc_html($start && $end ? $start . '–' . $end : ($start ?: $end)) . '</span>';
                     }
