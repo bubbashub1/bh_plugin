@@ -58,17 +58,6 @@ final class DirectorySearch {
                         </select>
                     </div>
                 <?php endif; ?>
-                <?php if ($show_category) : ?>
-                    <div class="bh-directory-search__field">
-                        <label for="bh-category">Category</label>
-                        <select id="bh-category" name="bh_category">
-                            <option value="">All categories</option>
-                            <?php foreach ($categories as $term) : ?>
-                                <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['category'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                <?php endif; ?>
                 <?php if ($show_location) : ?>
                     <div class="bh-directory-search__field">
                         <label for="bh-region-main">Region</label>
@@ -94,29 +83,11 @@ final class DirectorySearch {
                     <summary>Advanced Search</summary>
                     <div class="bh-directory-search__advanced-grid">
                         <div class="bh-directory-search__field">
-                            <label for="bh-category">Category</label>
-                            <select id="bh-category" name="bh_category">
-                                <option value="">All categories</option>
-                                <?php foreach ($categories as $term) : ?>
-                                    <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['category'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="bh-directory-search__field">
                             <label for="bh-age-range">Age Range</label>
                             <select id="bh-age-range" name="bh_age_range">
                                 <option value="">Any age</option>
                                 <?php foreach (DirectoryFields::definitions()['age_range']['values'] as $age) : ?>
                                     <option value="<?php echo esc_attr($age); ?>" <?php selected($values['age_range'], $age); ?>><?php echo esc_html($age === 'all' ? 'All ages' : $age); ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="bh-directory-search__field">
-                            <label for="bh-town">Town</label>
-                            <select id="bh-town" name="bh_town" <?php disabled($values['region'], ''); ?>>
-                                <option value=""><?php echo $values['region'] === '' ? 'Select a region first' : 'All towns'; ?></option>
-                                <?php foreach ($towns as $term) : ?>
-                                    <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['town'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
