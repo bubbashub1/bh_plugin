@@ -61,7 +61,6 @@ final class Listing {
             'town'           => ['town', 'location'],
             'category'       => ['category'],
             'day'            => ['day', 'day_name'],
-            'term_time'      => ['term_time', 'term_time_only'],
             'price'          => ['price'],
             'session_length' => ['session_length'],
             'latitude'       => ['lat', 'latitude'],
