@@ -78,3 +78,7 @@ The `Listing` bridge is deliberately read-only. It:
 - provides field aliases for the original directory data model.
 
 No listings, taxonomies, fields, or Directorist settings are created or rewritten by this step.
+
+## Stability Step 3
+
+Adds a read-only directory field compatibility layer. It defines the existing searchable Bubba Hub fields and reads existing metadata/ACF values without changing Directorist configuration or rewriting listings. Existing age values are explicitly preserved.
