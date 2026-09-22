@@ -22,6 +22,7 @@ final class Directory {
         $query = DirectoryQuery::run([
             'posts_per_page' => (int) $atts['posts_per_page'],
             'paged' => max(1, (int) ($_GET['bh_page'] ?? 1)),
+            'search' => isset($_GET['bh_search']) ? sanitize_text_field(wp_unslash($_GET['bh_search'])) : '',
             'age_range' => isset($_GET['bh_age_range']) ? sanitize_text_field(wp_unslash($_GET['bh_age_range'])) : '',
             'category' => isset($_GET['bh_category']) ? sanitize_title(wp_unslash($_GET['bh_category'])) : '',
             'region' => isset($_GET['bh_region']) ? sanitize_title(wp_unslash($_GET['bh_region'])) : '',
@@ -36,6 +37,7 @@ final class Directory {
         <section class="bh-directory" aria-label="<?php echo esc_attr($atts['title']); ?>">
             <header class="bh-directory__header">
                 <h2><?php echo esc_html($atts['title']); ?></h2>
+                <p class="bh-directory__count"><?php echo esc_html(number_format_i18n((int) $query->found_posts)); ?> <?php echo esc_html((int) $query->found_posts === 1 ? 'activity' : 'activities'); ?> found</p>
             </header>
             <?php if ($query->have_posts()) : ?>
                 <div class="bh-directory__grid">
@@ -66,11 +68,12 @@ final class Directory {
                     <?php endwhile; ?>
                 </div>
                 <?php
-                $big = 999999;
+                $current_page = max(1, (int) ($_GET['bh_page'] ?? 1));
+                $base_url = remove_query_arg('bh_page');
                 $pagination = paginate_links([
-                    'base' => str_replace($big, '%#%', esc_url(get_pagenum_link($big))),
-                    'format' => '?bh_page=%#%',
-                    'current' => max(1, (int) ($_GET['bh_page'] ?? 1)),
+                    'base' => esc_url_raw(add_query_arg('bh_page', '%#%', $base_url)),
+                    'format' => '',
+                    'current' => $current_page,
                     'total' => max(1, (int) $query->max_num_pages),
                     'type' => 'list',
                 ]);
