@@ -29,6 +29,7 @@ require_once BH_PLUGIN_DIR . 'includes/class-bh-directory-fields.php';
 require_once BH_PLUGIN_DIR . 'includes/class-bh-directory-query.php';
 require_once BH_PLUGIN_DIR . 'includes/class-bh-directory.php';
 require_once BH_PLUGIN_DIR . 'includes/class-bh-directory-search.php';
+require_once BH_PLUGIN_DIR . 'includes/class-bh-directorist-search-config.php';
 require_once BH_PLUGIN_DIR . 'includes/class-bh-schedule.php';
 require_once BH_PLUGIN_DIR . 'includes/class-bh-directory-card.php';
 require_once BH_PLUGIN_DIR . 'includes/class-bh-plugin.php';
