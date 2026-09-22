@@ -38,15 +38,26 @@ final class Directory {
             <?php if ($query->have_posts()) : ?>
                 <div class="bh-directory__grid">
                     <?php while ($query->have_posts()) : $query->the_post(); ?>
+                        <?php $card = DirectoryCard::meta((int) get_the_ID()); ?>
                         <article class="bh-directory-card">
                             <a class="bh-directory-card__link" href="<?php the_permalink(); ?>">
                                 <?php if (has_post_thumbnail()) : ?>
                                     <div class="bh-directory-card__image"><?php the_post_thumbnail('medium'); ?></div>
+                                <?php else : ?>
+                                    <div class="bh-directory-card__image bh-directory-card__image--placeholder" aria-hidden="true">Bubba Hub</div>
                                 <?php endif; ?>
                                 <div class="bh-directory-card__body">
+                                    <div class="bh-directory-card__meta">
+                                        <?php if ($card['category']) : ?><span class="bh-directory-card__badge"><?php echo esc_html($card['category']); ?></span><?php endif; ?>
+                                    </div>
                                     <h3><?php the_title(); ?></h3>
-                                    <p><?php echo esc_html(wp_trim_words(wp_strip_all_tags(get_the_excerpt()), 20)); ?></p>
+                                    <div class="bh-directory-card__details">
+                                        <?php if ($card['location']) : ?><div class="bh-directory-card__detail"><span class="bh-directory-card__detail-label">Location:</span><span><?php echo esc_html($card['location']); ?></span></div><?php endif; ?>
+                                        <?php if ($card['age_range']) : ?><div class="bh-directory-card__detail"><span class="bh-directory-card__detail-label">Age:</span><span><?php echo esc_html(DirectoryCard::age_label($card['age_range'])); ?></span></div><?php endif; ?>
+                                        <?php if ($card['price']) : ?><div class="bh-directory-card__detail"><span class="bh-directory-card__detail-label">Price:</span><span><?php echo esc_html($card['price']); ?></span></div><?php endif; ?>
+                                    </div>
                                     <?php echo Schedule::summary((int) get_the_ID()); ?>
+                                    <span class="bh-directory-card__cta">View activity</span>
                                 </div>
                             </a>
                         </article>
@@ -82,5 +93,7 @@ final class Directory {
         wp_enqueue_style('bh-directory-search');
         wp_register_style('bh-schedule', BH_PLUGIN_URL . 'assets/css/bh-schedule.css', ['bh-directory'], BH_PLUGIN_VERSION);
         wp_enqueue_style('bh-schedule');
+        wp_register_style('bh-directory-card', BH_PLUGIN_URL . 'assets/css/bh-directory-card.css', ['bh-directory'], BH_PLUGIN_VERSION);
+        wp_enqueue_style('bh-directory-card');
     }
 }
