@@ -12,6 +12,7 @@ final class DirectorySearch {
 
     public static function shortcode(): string {
         $values = [
+            'search' => isset($_GET['bh_search']) ? sanitize_text_field(wp_unslash($_GET['bh_search'])) : '',
             'age_range' => isset($_GET['bh_age_range']) ? sanitize_text_field(wp_unslash($_GET['bh_age_range'])) : '',
             'region' => isset($_GET['bh_region']) ? sanitize_title(wp_unslash($_GET['bh_region'])) : '',
             'town' => isset($_GET['bh_town']) ? sanitize_title(wp_unslash($_GET['bh_town'])) : '',
@@ -38,6 +39,10 @@ final class DirectorySearch {
         ?>
         <section class="bh-directory-search" aria-label="Find family activities">
             <form class="bh-directory-search__form" method="get">
+                <div class="bh-directory-search__field bh-directory-search__field--search">
+                    <label for="bh-search">Search</label>
+                    <input id="bh-search" name="bh_search" type="search" value="<?php echo esc_attr($values['search']); ?>" placeholder="Search activities">
+                </div>
                 <div class="bh-directory-search__field">
                     <label for="bh-age-range">Age Range</label>
                     <select id="bh-age-range" name="bh_age_range">
@@ -97,7 +102,7 @@ final class DirectorySearch {
                 </div>
                 <div class="bh-directory-search__actions">
                     <button type="submit">Search</button>
-                    <a href="<?php echo esc_url(remove_query_arg(['bh_age_range','bh_category','bh_region','bh_town','bh_day','bh_term_time','bh_price','bh_page'])); ?>">Clear</a>
+                    <a href="<?php echo esc_url(remove_query_arg(['bh_search','bh_age_range','bh_category','bh_region','bh_town','bh_day','bh_term_time','bh_price','bh_page'])); ?>">Clear</a>
                 </div>
             </form>
         </section>
