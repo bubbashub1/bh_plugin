@@ -333,7 +333,7 @@ function openSearchPopover(trigger){
  if(panel.parentNode!==document.body) document.body.appendChild(panel);
  var backdrop=document.createElement('div'); backdrop.className='bh-search-popover-backdrop'; backdrop.addEventListener('click',closeSearchPopovers);
  document.body.appendChild(backdrop);
- panel.hidden=false; panel.setAttribute('data-bh-popover-open','1');
+ if(form){panel.dataset.bhFormId=form.id;} panel.dataset.bhPopoverKey=key; panel.hidden=false; panel.setAttribute('data-bh-popover-open','1');
  trigger.setAttribute('aria-expanded','true');
  positionPanel(trigger,panel);
  document.body.classList.add('bh-search-popover-open');
@@ -350,10 +350,10 @@ function initSearchPopovers(){
   if(choice.dataset.bhChoiceBound==='1')return;
   choice.dataset.bhChoiceBound='1';
   choice.addEventListener('click',function(){
-   var fieldWrap=choice.closest('.bh-search-popover-field'); var formId=fieldWrap?fieldWrap.dataset.bhFormId:''; var form=formId?document.getElementById(formId):null; if(!form)return;
+   var panel=choice.closest('.bh-search-popover-panel'); var formId=panel?panel.dataset.bhFormId:''; var form=formId?document.getElementById(formId):null; if(!form)return;
    var field=form.querySelector('#'+choice.getAttribute('data-bh-choice-for')); if(!field)return;
    field.value=choice.getAttribute('data-value')||'';
-   var trigger=choice.closest('.bh-search-popover-field')?.querySelector('.bh-search-popover-trigger');
+   var key=panel?panel.dataset.bhPopoverKey:''; var trigger=key?form.querySelector('[data-bh-search-popover="'+key+'"]'):null;
    if(trigger){var value=choice.textContent.trim(); var out=trigger.querySelector('.bh-search-popover-trigger__value'); if(out)out.textContent=value}
    closeSearchPopovers();
    submitFilters(form);
@@ -363,13 +363,13 @@ function initSearchPopovers(){
   if(input.dataset.bhInputBound==='1')return;
   input.dataset.bhInputBound='1';
   input.addEventListener('input',function(){
-   var field=input.closest('.bh-search-popover-field'); var formId=field?field.dataset.bhFormId:''; var form=formId?document.getElementById(formId):null; var hidden=form?form.querySelector('input[name="bh_search"].bh-search-popover-value'):null;
+   var panel=input.closest('.bh-search-popover-panel'); var formId=panel?panel.dataset.bhFormId:''; var form=formId?document.getElementById(formId):null; var hidden=form?form.querySelector('input[name="bh_search"].bh-search-popover-value'):null;
    if(!hidden)return;
    hidden.value=input.value;
-   var out=field.querySelector('.bh-search-popover-trigger__value'); if(out)out.textContent=input.value||'Groups, classes, activities…';
+   var key=panel?panel.dataset.bhPopoverKey:''; var trigger=key?form.querySelector('[data-bh-search-popover="'+key+'"]'):null; var out=trigger?trigger.querySelector('.bh-search-popover-trigger__value'):null; if(out)out.textContent=input.value||'Groups, classes, activities…';
   });
   input.addEventListener('keydown',function(e){
-   if(e.key==='Enter'){e.preventDefault();var field=input.closest('.bh-search-popover-field'); var formId=field?field.dataset.bhFormId:''; var form=formId?document.getElementById(formId):null; if(form){closeSearchPopovers();submitFilters(form)}}
+   if(e.key==='Enter'){e.preventDefault();var panel=input.closest('.bh-search-popover-panel'); var formId=panel?panel.dataset.bhFormId:''; var form=formId?document.getElementById(formId):null; if(form){closeSearchPopovers();submitFilters(form)}}
   });
  });
  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSearchPopovers()});
