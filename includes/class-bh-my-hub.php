@@ -144,16 +144,28 @@ final class MyHub {
     }
 
     private static function listing_location_label(int $listing_id): string {
-        if ($listing_id < 1 || !taxonomy_exists('location')) {
+        if ($listing_id < 1) {
             return '';
         }
 
-        $terms = wp_get_post_terms($listing_id, 'location', ['fields' => 'names']);
-        if (is_wp_error($terms) || empty($terms)) {
-            return '';
+        // Directorist stores listing locations in its own taxonomy.
+        // Keep the older custom "location" taxonomy as a fallback.
+        $taxonomies = ['at_biz_dir-location', 'location'];
+
+        foreach ($taxonomies as $taxonomy) {
+            if (!taxonomy_exists($taxonomy)) {
+                continue;
+            }
+
+            $terms = wp_get_post_terms($listing_id, $taxonomy, ['fields' => 'names']);
+            if (is_wp_error($terms) || empty($terms)) {
+                continue;
+            }
+
+            return (string) $terms[0];
         }
 
-        return (string) $terms[0];
+        return '';
     }
 
     private static function recently_viewed_listing_ids(int $user_id): array {
