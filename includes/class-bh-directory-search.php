@@ -14,7 +14,6 @@ final class DirectorySearch {
         add_action('wp_ajax_bh_edit_saved_search', [self::class, 'ajax_edit_saved_search']);
         add_action('init', [self::class, 'handle_saved_search']);
         add_action('init', [self::class, 'handle_delete_saved_search']);
-        add_filter('the_content', [self::class, 'inject_all_listings_saved_search'], 20);
     }
 
 
@@ -53,16 +52,14 @@ final class DirectorySearch {
         $query = array_filter($query, static function ($value): bool {
             return is_array($value) ? !empty($value) : trim((string) $value) !== '';
         });
-        if (!isset($_POST['bh_saved_search_source']) || sanitize_key(wp_unslash($_POST['bh_saved_search_source'])) !== 'directorist') {
-            $path = isset($_POST['bh_saved_search_path']) ? sanitize_text_field(wp_unslash($_POST['bh_saved_search_path'])) : '';
-            if ($path === '') {
-                $path = wp_parse_url(wp_unslash($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/';
-            }
-            $path = '/' . ltrim((string) $path, '/');
-            $saved_url = home_url($path);
-            if ($query) {
-                $saved_url = add_query_arg($query, $saved_url);
-            }
+        $path = isset($_POST['bh_saved_search_path']) ? sanitize_text_field(wp_unslash($_POST['bh_saved_search_path'])) : '';
+        if ($path === '') {
+            $path = wp_parse_url(wp_unslash($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/';
+        }
+        $path = '/' . ltrim((string) $path, '/');
+        $saved_url = home_url($path);
+        if ($query) {
+            $saved_url = add_query_arg($query, $saved_url);
         }
 
         $saved = get_user_meta(get_current_user_id(), '_bh_saved_searches', true);
