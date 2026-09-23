@@ -44,6 +44,8 @@ final class DirectorySearch {
         ?>
         <section class="bh-directory-search" aria-label="Find family activities">
             <form class="bh-directory-search__form" method="get">
+                <input type="hidden" name="bh_view" value="<?php echo esc_attr(isset($_GET['bh_view']) ? sanitize_key(wp_unslash($_GET['bh_view'])) : ''); ?>">
+                <input type="hidden" name="bh_date" value="<?php echo esc_attr(isset($_GET['bh_date']) ? sanitize_text_field(wp_unslash($_GET['bh_date'])) : ''); ?>">
                 <div class="bh-directory-search__field bh-directory-search__field--search">
                     <label for="bh-search">Search</label>
                     <input id="bh-search" name="bh_search" type="search" value="<?php echo esc_attr($values['search']); ?>" placeholder="Search activities">
