@@ -78,10 +78,31 @@ final class DirectorySearch {
     }
 
     public static function saved_searches_url(): string {
-        $page = get_page_by_path('my-hub/saved-searches');
-        return $page instanceof \WP_Post ? get_permalink($page) : home_url('/my-hub/saved-searches/');
-    }
+        // Resolve the actual page containing the saved-searches shortcode first.
+        // This avoids WordPress nested-page redirects (for example to /groups/).
+        $pages = get_pages([
+            'post_type'   => 'page',
+            'post_status' => 'publish',
+            'number'      => 100,
+        ]);
 
+        foreach ($pages as $page) {
+            if ($page instanceof \WP_Post && has_shortcode((string) $page->post_content, 'bh_saved_searches')) {
+                $permalink = get_permalink($page);
+                if ($permalink) {
+                    return (string) $permalink;
+                }
+            }
+        }
+
+        // Fallback to the expected nested page path.
+        $page = get_page_by_path('my-hub/saved-searches');
+        if ($page instanceof \WP_Post) {
+            return (string) get_permalink($page);
+        }
+
+        return home_url('/my-hub/saved-searches/');
+    }
     public static function handle_delete_saved_search(): void {
         if (!is_user_logged_in() || empty($_POST['bh_delete_saved_search'])) {
             return;
