@@ -137,7 +137,7 @@ final class MyHub {
                         <div class="bh-my-hub__modal-dialog" role="dialog" aria-modal="true">
                             <button type="button" class="bh-my-hub__modal-close" data-bh-modal-close aria-label="Close">×</button>
                             <h3>Add a child</h3>
-                            <form method="post" class="bh-my-hub__form">
+                            <form method="post" class="bh-my-hub__form" enctype="multipart/form-data">
                                 <?php wp_nonce_field('bh_my_hub_save_child', 'bh_my_hub_nonce'); ?>
                                 <input type="hidden" name="bh_my_hub_action" value="save_child">
                                 <?php self::child_fields(); ?>
@@ -223,6 +223,7 @@ final class MyHub {
     private static function child_fields(int $post_id = 0): void {
         $name = $post_id ? (string) get_field('child_name', $post_id) : '';
         $nickname = $post_id ? (string) get_field('child_nickname', $post_id) : '';
+        $gender = $post_id ? (string) get_field('gender', $post_id) : '';
         $status = $post_id ? (string) get_field('child_status', $post_id) : 'born';
         $dob = $post_id ? (string) get_field('child_date_of_birth', $post_id) : '';
         $due = $post_id ? (string) get_field('child_due_date', $post_id) : '';
@@ -234,6 +235,14 @@ final class MyHub {
         <div class="bh-my-hub__fields">
             <label>Name<input type="text" name="child_name" maxlength="100" value="<?php echo esc_attr($name); ?>" required></label>
             <label>Nickname<input type="text" name="child_nickname" maxlength="100" value="<?php echo esc_attr($nickname); ?>"></label>
+            <label>Gender
+                <select name="gender">
+                    <option value="">Select gender</option>
+                    <option value="girl" <?php selected($gender, 'girl'); ?>>Girl</option>
+                    <option value="boy" <?php selected($gender, 'boy'); ?>>Boy</option>
+                    <option value="prefer_not_to_say" <?php selected($gender, 'prefer_not_to_say'); ?>>Prefer not to say</option>
+                </select>
+            </label>
             <label>Profile type
                 <select name="child_status">
                     <option value="born" <?php selected($status, 'born'); ?>>Child born</option>
@@ -309,6 +318,7 @@ final class MyHub {
     private static function save_child_post(int $user_id, int $id = 0): int {
         $name = sanitize_text_field(wp_unslash($_POST['child_name'] ?? ''));
         $nickname = sanitize_text_field(wp_unslash($_POST['child_nickname'] ?? ''));
+        $gender = sanitize_key(wp_unslash($_POST['gender'] ?? ''));
         $status = sanitize_key(wp_unslash($_POST['child_status'] ?? 'born'));
         $dob = sanitize_text_field(wp_unslash($_POST['child_dob'] ?? ''));
         $due = sanitize_text_field(wp_unslash($_POST['child_due_date'] ?? ''));
@@ -334,6 +344,7 @@ final class MyHub {
         }
 
         if (!in_array($status, ['born','expecting'], true)) $status = 'born';
+        if (!in_array($gender, ['girl', 'boy', 'prefer_not_to_say'], true)) $gender = '';
 
         if ($id) {
             $post = get_post($id);
@@ -346,6 +357,7 @@ final class MyHub {
 
         update_field('field_bubbahub_child_name', $name, $id);
         update_field('field_bubbahub_child_nickname', $nickname, $id);
+        update_field('gender', $gender, $id);
         update_field('field_bubbahub_child_status', $status, $id);
         update_field('field_bubbahub_child_date_of_birth', $status === 'born' ? $dob : '', $id);
         update_field('field_bubbahub_child_due_date', $status === 'expecting' ? $due : '', $id);
