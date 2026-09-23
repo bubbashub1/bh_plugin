@@ -465,7 +465,8 @@ final class MyHub {
                     update_user_meta($user_id, '_bh_saved_activities', array_values(array_unique(array_map('absint', $saved))));
                 }
             }
-            self::redirect_saved();
+            wp_safe_redirect(self::my_hub_url() . '#bh-my-hub-planner');
+            exit;
         }
 
         if ($action === 'remove_activity') {
@@ -870,11 +871,11 @@ final class MyHub {
     private static function render_saved_search_cards(int $user_id): string {
         $saved = get_user_meta($user_id, '_bh_saved_searches', true);
         if (!is_array($saved) || !$saved) {
-            return '<div class="bh-my-hub__saved-searches-empty"><strong>No saved searches yet</strong><p>Run a search in the Bubba Hub directory and save it to see it here.</p><a class="bh-my-hub__button" href="' . esc_url(home_url('/directory/')) . '">Browse the directory</a></div>';
+            return '<div class="bh-saved-searches__empty"><strong>No saved searches yet</strong><p>Run a search in the Bubba Hub directory and save it to see it here.</p><a class="bh-saved-searches__button" href="' . esc_url(home_url('/directory/')) . '">Browse the directory</a></div>';
         }
 
         ob_start();
-        echo '<div class="bh-my-hub__saved-search-cards">';
+        echo '<div class="bh-saved-searches__list">';
         foreach ($saved as $search_id => $item) {
             if (!is_array($item)) continue;
             $name = sanitize_text_field((string) ($item['name'] ?? 'Saved search'));
@@ -882,35 +883,31 @@ final class MyHub {
             if (!$url) continue;
             $criteria = DirectorySearch::saved_search_criteria($url);
 
-            echo '<article class="bh-my-hub__saved-search-card">';
-            echo '<div class="bh-my-hub__saved-search-card-icon" aria-hidden="true">🔎</div>';
-            echo '<div class="bh-my-hub__saved-search-card-body">';
-            echo '<strong>' . esc_html($name) . '</strong>';
+            echo '<article class="bh-saved-searches__card">';
+            echo '<div><h2>🔎 ' . esc_html($name) . '</h2>';
             if ($criteria) {
-                echo '<dl class="bh-my-hub__saved-search-card-criteria">';
+                echo '<dl class="bh-saved-searches__criteria">';
                 foreach ($criteria as $label => $value) {
                     echo '<div><dt>' . esc_html($label) . '</dt><dd>' . esc_html($value) . '</dd></div>';
                 }
                 echo '</dl>';
             } else {
-                echo '<p class="bh-my-hub__saved-search-card-empty">No filters saved with this search.</p>';
+                echo '<p class="bh-saved-searches__empty-criteria">No filters saved with this search.</p>';
             }
-            echo '</div>';
-            echo '<div class="bh-my-hub__saved-search-card-actions">';
-            echo '<button type="button" class="bh-my-hub__saved-search-action" data-bh-edit-search="' . esc_attr((string) $search_id) . '">Edit</button>';
-            echo '<a class="bh-my-hub__saved-search-action" href="' . esc_url($url) . '">Search Again</a>';
-            echo '<button type="button" class="bh-my-hub__saved-search-action" data-bh-share-url="' . esc_attr($url) . '" data-bh-share-name="' . esc_attr($name) . '">Share</button>';
-            echo '<form method="post" class="bh-my-hub__saved-search-delete">';
+            echo '</div><div class="bh-saved-searches__actions">';
+            echo '<button type="button" class="bh-saved-searches__button bh-saved-searches__edit" data-bh-edit-search="' . esc_attr((string) $search_id) . '">Edit</button>';
+            echo '<a class="bh-saved-searches__button" href="' . esc_url($url) . '">Search Again</a>';
+            echo '<button type="button" class="bh-saved-searches__button bh-saved-searches__share" data-bh-share-url="' . esc_attr($url) . '" data-bh-share-name="' . esc_attr($name) . '">Share</button>';
+            echo '<form method="post" class="bh-saved-searches__delete">';
             wp_nonce_field('bh_delete_saved_search', 'bh_delete_saved_search_nonce');
             echo '<input type="hidden" name="bh_delete_saved_search" value="' . esc_attr((string) $search_id) . '">';
-            echo '<button type="submit" class="bh-my-hub__saved-search-action bh-my-hub__saved-search-action--delete">Delete</button>';
-            echo '</form>';
-            echo '</div>';
-            echo '</article>';
+            echo '<button type="submit">Delete</button>';
+            echo '</form></div></article>';
         }
         echo '</div>';
         return (string) ob_get_clean();
     }
+
     private static function redirect_saved(): void {
         $url=remove_query_arg('bh_hub_saved',self::my_hub_url());
         wp_safe_redirect(add_query_arg('bh_hub_saved','1',$url));
