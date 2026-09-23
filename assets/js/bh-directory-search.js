@@ -248,8 +248,14 @@ function initSaveSearchModal(){
  document.querySelectorAll('[data-bh-open-save-search]').forEach(function(button){
   if(button.dataset.bhModalBound==='1')return; button.dataset.bhModalBound='1';
   button.addEventListener('click',function(){
-   var modal=button.closest('.bh-directory-search').parentNode.querySelector('[data-bh-save-search-modal]');
-   if(!modal)return; modal.hidden=false; document.body.classList.add('bh-save-search-open');
+   var search=button.closest('.bh-directory-search');
+   var modal=search ? search.querySelector('[data-bh-save-search-modal]') : null;
+   if(!modal)return;
+   // Move the modal to <body> before opening so no parent stacking context,
+   // sticky filter, transform, or listing card can render above it.
+   if(modal.parentNode !== document.body){document.body.appendChild(modal)}
+   modal.hidden=false;
+   document.body.classList.add('bh-save-search-open');
    var input=modal.querySelector('input[name="bh_saved_search_name"]'); if(input){input.focus()}
   });
  });
