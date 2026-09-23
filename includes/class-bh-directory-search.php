@@ -79,7 +79,7 @@ final class DirectorySearch {
 
     public static function saved_searches_url(): string {
         $page = get_page_by_path('saved-searches');
-        return $page instanceof \\WP_Post ? get_permalink($page) : home_url('/saved-searches/');
+        return $page instanceof \WP_Post ? get_permalink($page) : home_url('/saved-searches/');
     }
 
     public static function handle_delete_saved_search(): void {
