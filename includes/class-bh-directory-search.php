@@ -431,6 +431,11 @@ final class DirectorySearch {
                         <span class="bh-search-popover-trigger__label">What are you looking for?</span>
                         <strong class="bh-search-popover-trigger__value"><?php echo $values['search'] !== '' ? esc_html($values['search']) : 'Groups, classes, activities…'; ?></strong>
                     </button>
+                    <div class="bh-search-popover-panel bh-search-popover-panel--search" data-bh-popover-panel="search" hidden>
+                        <div class="bh-search-popover-panel__title">What would you like to find?</div>
+                        <input class="bh-search-popover-input" data-bh-search-input type="search" value="<?php echo esc_attr($values['search']); ?>" placeholder="Groups, classes, activities…" autocomplete="off">
+                        <p class="bh-search-popover-panel__hint">Try baby groups, toddler classes, dance, swimming or family activities.</p>
+                    </div>
                     <input class="bh-search-popover-value" id="bh-search" name="bh_search" type="search" value="<?php echo esc_attr($values['search']); ?>" placeholder="Groups, classes, activities…">
                 </div>
 
