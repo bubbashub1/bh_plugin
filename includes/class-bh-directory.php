@@ -101,7 +101,7 @@ final class Directory {
                 <h2><?php echo esc_html($atts['title']); ?></h2>
             </header>
 
-            <?php echo DirectorySearch::shortcode(); ?>
+            <div class="bh-directory__search-top"><?php echo DirectorySearch::shortcode(); ?></div>
 
             <div class="bh-directory__layout">
                 <aside class="bh-directory__filters" aria-label="Directory filters">
