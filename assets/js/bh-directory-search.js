@@ -224,9 +224,23 @@
     function initDirectorySearch() {
         initRegionTown();
         initAutoFilters();
+        initMobileFilterToggle();
     }
 
-    window.BubbaHubInitDirectorySearch = initDirectorySearch;
+    function initMobileFilterToggle(){
+ document.querySelectorAll('.bh-directory__filter-toggle').forEach(function(button){
+  if(button.dataset.bhFilterBound==='1')return;
+  button.dataset.bhFilterBound='1';
+  button.addEventListener('click',function(){
+   var filters=button.closest('.bh-directory__filters');
+   if(!filters)return;
+   var open=filters.classList.toggle('is-open');
+   button.setAttribute('aria-expanded',open?'true':'false');
+  });
+ });
+}
+
+window.BubbaHubInitDirectorySearch = initDirectorySearch;
 
     document.addEventListener('DOMContentLoaded', initDirectorySearch);
 
