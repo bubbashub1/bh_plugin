@@ -29,5 +29,10 @@
 .bh-my-hub__muted{opacity:.75}
 .bh-my-hub__notice{margin-bottom:20px;padding:12px 15px;border-radius:10px;background:rgba(0,0,0,.05)}
 .bh-my-hub__coming{padding:18px;border-radius:12px;background:rgba(0,0,0,.035)}
+.bh-my-hub__groups{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.bh-my-hub__group{display:flex;align-items:flex-start;gap:12px;padding:16px;border-radius:12px;background:rgba(0,0,0,.035)}
+.bh-my-hub__group-icon{font-size:1.25rem;line-height:1.2}
+.bh-my-hub__group h3{margin:0 0 5px;font-size:1rem}
+.bh-my-hub__group p{margin:0;font-size:.88rem;opacity:.75}
 .bh-my-hub__login{text-align:center}
-@media(max-width:700px){.bh-my-hub{padding:18px 14px 40px}.bh-my-hub__intro{align-items:flex-start;flex-direction:column}.bh-my-hub__grid{grid-template-columns:1fr}.bh-my-hub__card--wide{grid-column:auto}.bh-my-hub__fields{grid-template-columns:1fr}.bh-my-hub__account-link{width:100%}}
+@media(max-width:700px){.bh-my-hub{padding:18px 14px 40px}.bh-my-hub__intro{align-items:flex-start;flex-direction:column}.bh-my-hub__grid{grid-template-columns:1fr}.bh-my-hub__card--wide{grid-column:auto}.bh-my-hub__fields{grid-template-columns:1fr}.bh-my-hub__groups{grid-template-columns:repeat(2,minmax(0,1fr))}.bh-my-hub__account-link{width:100%}}
