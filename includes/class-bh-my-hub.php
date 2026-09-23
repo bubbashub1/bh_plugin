@@ -67,7 +67,7 @@ final class MyHub {
 
             <nav class="bh-my-hub__quick-nav" aria-label="My Bubba Hub">
                 <a href="#bh-my-hub-family" class="bh-my-hub__quick-link bh-my-hub__quick-link--active"><span aria-hidden="true">👨‍👩‍👧</span><strong>My Family</strong><small>Children &amp; bumps</small></a>
-                <a href="#bh-my-hub-groups" class="bh-my-hub__quick-link"><span aria-hidden="true">🔎</span><strong>Find Activities</strong><small>Discover local groups</small></a>
+                <a href="<?php echo esc_url(home_url('/directory/')); ?>" class="bh-my-hub__quick-link"><span aria-hidden="true">🔎</span><strong>Find Activities</strong><small>Discover local groups</small></a>
                 <a href="<?php echo esc_url(self::planner_url()); ?>" class="bh-my-hub__quick-link"><span aria-hidden="true">📅</span><strong>My Planner</strong><small>Plan your week</small></a>
                 <a href="<?php echo esc_url(DirectorySearch::saved_searches_url()); ?>" class="bh-my-hub__quick-link"><span aria-hidden="true">♡</span><strong>Saved Searches</strong><small>Quickly revisit searches</small></a>
             </nav>
