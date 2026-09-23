@@ -1,10 +1,7 @@
-.bh-directory-views{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px;padding:0;border-bottom:1px solid rgba(0,0,0,.08)}
-.bh-directory-views__item{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:7px 14px;border:1px solid transparent;border-radius:10px 10px 0 0;text-decoration:none;font-weight:600;color:inherit;background:transparent}
-.bh-directory-views__item:hover,.bh-directory-views__item.is-active{background:#fff;border-color:rgba(0,0,0,.1);text-decoration:none}
-.bh-directory__grid--list{grid-template-columns:1fr}
-.bh-directory__grid--list .bh-directory-card__link{display:grid;grid-template-columns:180px minmax(0,1fr)}
-.bh-directory__grid--list .bh-directory-card__image img{height:100%;min-height:180px}
-.bh-directory-map{width:100%;min-height:420px}
+/* Bubba Hub Planner — isolated calendar styles.
+ * Do not style shared directory classes here. The directory stylesheet owns
+ * .bh-directory-views and listing presentation.
+ */
 .bh-planner-shell{width:100%;box-sizing:border-box}
 .bh-planner-shell__heading{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin:0 0 18px}
 .bh-planner-shell__heading h3{margin:0 0 4px;font-size:1.35rem}
@@ -13,6 +10,21 @@
 .bh-planner-shell__navigation{display:flex;align-items:center;gap:6px;flex-shrink:0}
 .bh-planner-shell__navigation a{display:inline-flex;align-items:center;justify-content:center;min-width:42px;min-height:40px;padding:6px 10px;border:1px solid rgba(0,0,0,.12);border-radius:10px;text-decoration:none;background:#fff;color:inherit;font-weight:600}
 .bh-planner-shell__navigation a:first-child,.bh-planner-shell__navigation a:last-child{font-size:1.35rem;padding-inline:8px}
+
+/* Calendar view tabs are scoped so this file cannot alter directory views. */
+.bh-directory--view-daily .bh-directory-views,
+.bh-directory--view-weekly .bh-directory-views,
+.bh-directory--view-monthly .bh-directory-views{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px;padding:0;border-bottom:1px solid rgba(0,0,0,.08)}
+.bh-directory--view-daily .bh-directory-views__item,
+.bh-directory--view-weekly .bh-directory-views__item,
+.bh-directory--view-monthly .bh-directory-views__item{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:7px 14px;border:1px solid transparent;border-radius:10px 10px 0 0;text-decoration:none;font-weight:600;color:inherit;background:transparent}
+.bh-directory--view-daily .bh-directory-views__item:hover,
+.bh-directory--view-daily .bh-directory-views__item.is-active,
+.bh-directory--view-weekly .bh-directory-views__item:hover,
+.bh-directory--view-weekly .bh-directory-views__item.is-active,
+.bh-directory--view-monthly .bh-directory-views__item:hover,
+.bh-directory--view-monthly .bh-directory-views__item.is-active{background:#fff;border-color:rgba(0,0,0,.1);text-decoration:none}
+
 .bh-planner{width:100%;overflow:auto;border:1px solid rgba(0,0,0,.1);border-radius:14px;background:#fff}
 .bh-planner--daily,.bh-planner--weekly{min-width:640px}
 .bh-planner__week-head{display:grid;grid-template-columns:64px repeat(var(--bh-columns),minmax(130px,1fr));border-bottom:1px solid rgba(0,0,0,.1);position:sticky;top:0;z-index:3;background:#fff}
@@ -26,7 +38,6 @@
 .bh-planner__time-axis span{position:absolute;right:8px;top:calc(var(--bh-time-position) * (100% / var(--bh-slots)) - 7px);white-space:nowrap}
 .bh-planner__day-column{position:relative;border-right:1px solid rgba(0,0,0,.07);background-image:linear-gradient(to bottom,rgba(0,0,0,.07) 1px,transparent 1px),linear-gradient(to bottom,rgba(0,0,0,.035) 1px,transparent 1px);background-size:100% calc(100% / 16),100% calc(100% / 32);background-position:0 0}
 .bh-planner__day-column.is-today{background-color:rgba(250,235,245,.25)}
-.bh-planner__slot-line{display:none}
 .bh-planner__event{position:absolute;left:calc(4px + (var(--bh-event-lane,0) * (100% - 8px) / var(--bh-event-lanes,1)));width:calc((100% - 8px) / var(--bh-event-lanes,1) - 2px);right:auto;top:var(--bh-event-top);height:var(--bh-event-height);box-sizing:border-box;padding:7px 8px;border-radius:9px;background:rgba(214,174,204,.92);color:inherit;text-decoration:none;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08);z-index:2;display:flex;flex-direction:column;gap:2px}
 .bh-planner__event:hover{box-shadow:0 3px 10px rgba(0,0,0,.13);text-decoration:none}
 .bh-planner__event strong{font-size:.78rem;line-height:1.2}
@@ -45,16 +56,22 @@
 .bh-planner__month-event strong,.bh-planner__month-event span{display:block;font-size:.68rem;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bh-planner__month-event span{opacity:.75;margin-top:2px}
 .bh-planner__more{font-size:.68rem;font-weight:600;opacity:.7;padding:2px 5px}
-@media (max-width:700px){
+.bh-planner-actions{display:flex;justify-content:center;gap:10px;margin-top:16px}
+.bh-planner-actions__button{display:inline-flex;align-items:center;justify-content:center;padding:10px 18px;border:1px solid rgba(0,0,0,.12);border-radius:10px;text-decoration:none;cursor:pointer;font:inherit;background:#fff}
+.bh-print-header,.bh-print-footer{display:none!important}
+
+@media(max-width:700px){
  .bh-planner-shell__heading{align-items:stretch;flex-direction:column;gap:12px}
  .bh-planner-shell__heading h3{font-size:1.15rem}
  .bh-planner-shell__navigation{width:100%;justify-content:stretch;gap:6px}
  .bh-planner-shell__navigation a{flex:1;min-width:0;min-height:44px}
  .bh-planner-shell__navigation a:first-child,.bh-planner-shell__navigation a:last-child{font-size:1.2rem}
- .bh-directory-views{gap:6px;margin-bottom:16px}
- .bh-directory-views__item{flex:1 1 calc(50% - 6px);min-height:44px;padding:8px 6px}
- .bh-directory__grid--list .bh-directory-card__link{grid-template-columns:1fr}
- .bh-directory__grid--list .bh-directory-card__image img{min-height:170px;height:170px}
+ .bh-directory--view-daily .bh-directory-views,
+ .bh-directory--view-weekly .bh-directory-views,
+ .bh-directory--view-monthly .bh-directory-views{gap:6px;margin-bottom:16px}
+ .bh-directory--view-daily .bh-directory-views__item,
+ .bh-directory--view-weekly .bh-directory-views__item,
+ .bh-directory--view-monthly .bh-directory-views__item{flex:1 1 calc(50% - 6px);min-height:44px;padding:8px 6px}
  .bh-planner--daily,.bh-planner--weekly{min-width:560px}
  .bh-planner__week-head{grid-template-columns:52px repeat(var(--bh-columns),minmax(105px,1fr))}
  .bh-planner__time-grid{grid-template-columns:52px repeat(var(--bh-columns),minmax(105px,1fr));height:900px}
@@ -65,39 +82,31 @@
  .bh-planner__month-grid{grid-auto-rows:minmax(100px,1fr);min-width:620px}
  .bh-planner--monthly{overflow-x:auto}
  .bh-planner__month-head{min-width:620px}
+ .bh-planner-actions{flex-direction:column}
+ .bh-planner-actions__button{width:100%;box-sizing:border-box}
 }
-@media (max-width:420px){
+@media(max-width:420px){
  .bh-planner-shell__date{font-size:.9rem}
  .bh-planner__month-grid{min-width:580px}
  .bh-planner__month-head{min-width:580px}
- .bh-planner__month-day{padding:6px}
- .bh-planner__month-event{padding:4px 5px}
- .bh-directory-views__item{font-size:.9rem}
 }
 
-
-.bh-print-header{display:none!important}
-.bh-print-footer{display:none!important}
-.bh-planner-actions{display:flex;justify-content:center;gap:10px;margin-top:16px}
-.bh-planner-actions__button{display:inline-flex;align-items:center;justify-content:center;padding:10px 18px;border:1px solid rgba(0,0,0,.12);border-radius:10px;text-decoration:none;cursor:pointer;font:inherit;background:#fff}
-@media(max-width:600px){.bh-planner-actions{flex-direction:column}.bh-planner-actions__button{width:100%;box-sizing:border-box}}
-
 @media print{
-    body.bh-printing-calendar *{visibility:hidden!important}
-    body.bh-printing-calendar .bh-planner,
-    body.bh-printing-calendar .bh-planner *{visibility:visible!important}
-    body.bh-printing-calendar .bh-planner{position:absolute!important;left:0!important;top:0!important;width:100%!important;max-width:none!important}
-    body.bh-printing-calendar .bh-planner-actions,
-    body.bh-printing-calendar .bh-planner-shell__heading,
-    body.bh-printing-calendar .bh-directory__header,
-    body.bh-printing-calendar .bh-directory-views,
-    body.bh-printing-calendar .bh-directory-search{display:none!important}
-    body.bh-printing-calendar .bh-print-footer{display:flex!important;visibility:visible!important;position:fixed!important;left:0!important;right:0!important;bottom:0!important;align-items:center!important;justify-content:space-between!important;padding:8px 0!important;border-top:1px solid #ddd!important;font-size:12px!important;color:#000!important;background:#fff!important}
-    body.bh-printing-calendar .bh-print-footer *{visibility:visible!important;color:#000!important}
-    body.bh-printing-calendar .bh-planner__event strong,
-    body.bh-printing-calendar .bh-planner__event span,
-    body.bh-printing-calendar .bh-planner__event small,
-    body.bh-printing-calendar .bh-planner__month-event strong,
-    body.bh-printing-calendar .bh-planner__month-event span,
-    body.bh-printing-calendar .bh-planner__time-axis span{display:block!important;visibility:visible!important;color:#000!important;opacity:1!important}
+ body.bh-printing-calendar *{visibility:hidden!important}
+ body.bh-printing-calendar .bh-planner,
+ body.bh-printing-calendar .bh-planner *{visibility:visible!important}
+ body.bh-printing-calendar .bh-planner{position:absolute!important;left:0!important;top:0!important;width:100%!important;max-width:none!important}
+ body.bh-printing-calendar .bh-planner-actions,
+ body.bh-printing-calendar .bh-planner-shell__heading,
+ body.bh-printing-calendar .bh-directory__header,
+ body.bh-printing-calendar .bh-directory-views,
+ body.bh-printing-calendar .bh-directory-search{display:none!important}
+ body.bh-printing-calendar .bh-print-footer{display:flex!important;visibility:visible!important;position:fixed!important;left:0!important;right:0!important;bottom:0!important;align-items:center!important;justify-content:space-between!important;padding:8px 0!important;border-top:1px solid #ddd!important;font-size:12px!important;color:#000!important;background:#fff!important}
+ body.bh-printing-calendar .bh-print-footer *{visibility:visible!important;color:#000!important}
+ body.bh-printing-calendar .bh-planner__event strong,
+ body.bh-printing-calendar .bh-planner__event span,
+ body.bh-printing-calendar .bh-planner__event small,
+ body.bh-printing-calendar .bh-planner__month-event strong,
+ body.bh-printing-calendar .bh-planner__month-event span,
+ body.bh-printing-calendar .bh-planner__time-axis span{display:block!important;visibility:visible!important;color:#000!important;opacity:1!important}
 }
