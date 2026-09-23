@@ -26,6 +26,27 @@ final class DirectoryQuery {
             $args['paged'] = 1;
         }
 
+        $sort = sanitize_key((string) ($filters['sort'] ?? 'latest'));
+        $sort_map = [
+            'az' => ['orderby' => 'title', 'order' => 'ASC'],
+            'za' => ['orderby' => 'title', 'order' => 'DESC'],
+            'latest' => ['orderby' => 'date', 'order' => 'DESC'],
+            'oldest' => ['orderby' => 'date', 'order' => 'ASC'],
+            'random' => ['orderby' => 'rand', 'order' => 'DESC'],
+            'price_low' => ['orderby' => 'meta_value_num', 'order' => 'ASC'],
+            'price_high' => ['orderby' => 'meta_value_num', 'order' => 'DESC'],
+            'popular' => ['orderby' => 'meta_value_num', 'order' => 'DESC'],
+        ];
+        if (isset($sort_map[$sort])) {
+            $args['orderby'] = $sort_map[$sort]['orderby'];
+            $args['order'] = $sort_map[$sort]['order'];
+        }
+        if (in_array($sort, ['price_low', 'price_high'], true)) {
+            $args['meta_key'] = DirectoristFields::meta_key('price');
+        } elseif ($sort === 'popular') {
+            $args['meta_key'] = '_atbdp_post_views_count';
+        }
+
         $search = trim(sanitize_text_field((string) ($filters['search'] ?? '')));
         $post_in = null;
 
