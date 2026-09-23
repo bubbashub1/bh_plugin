@@ -70,6 +70,7 @@ final class MyHub {
                 <a href="<?php echo esc_url(home_url('/directory/')); ?>" class="bh-my-hub__quick-link"><span aria-hidden="true">🔎</span><strong>Find Activities</strong><small>Discover local groups</small></a>
                 <a href="<?php echo esc_url(self::planner_url()); ?>" class="bh-my-hub__quick-link"><span aria-hidden="true">📅</span><strong>My Planner</strong><small>Plan your week</small></a>
                 <a href="<?php echo esc_url(DirectorySearch::saved_searches_url()); ?>" class="bh-my-hub__quick-link"><span aria-hidden="true">♡</span><strong>Saved Searches</strong><small>Quickly revisit searches</small></a>
+                <a href="#bh-my-hub-groups" class="bh-my-hub__quick-link"><span aria-hidden="true">👥</span><strong>My Groups</strong><small>Your group activity</small></a>
             </nav>
 
             <?php if (isset($_GET['bh_hub_saved'])): ?>
@@ -271,12 +272,62 @@ final class MyHub {
                 </section>
 
                 <section id="bh-my-hub-groups" class="bh-my-hub__card bh-my-hub__card--wide">
-                    <div class="bh-my-hub__card-head"><div><span class="bh-my-hub__icon">👥</span><h2>My Groups</h2></div></div>
-                    <div class="bh-my-hub__groups">
-                        <article class="bh-my-hub__group"><span class="bh-my-hub__group-icon">🕘</span><div><h3>Recently viewed</h3><p>Groups you have recently looked at.</p></div></article>
-                        <article class="bh-my-hub__group"><span class="bh-my-hub__group-icon">📍</span><div><h3>Visited</h3><p>Groups and activities you have marked as visited.</p></div></article>
-                        <article class="bh-my-hub__group"><span class="bh-my-hub__group-icon">♡</span><div><h3>Saved</h3><p>Your saved Bubba Hub groups and activities.</p></div></article>
-                        <article class="bh-my-hub__group"><span class="bh-my-hub__group-icon">✨</span><div><h3>Suggestions</h3><p>Groups suggested from your family and search preferences.</p></div></article>
+                    <div class="bh-my-hub__card-head">
+                        <div><span class="bh-my-hub__icon">👥</span><h2>My Groups</h2></div>
+                    </div>
+
+                    <div class="bh-my-hub__group-rows">
+                        <section class="bh-my-hub__group-row" aria-labelledby="bh-recently-viewed-title">
+                            <div class="bh-my-hub__group-row-head">
+                                <div><span class="bh-my-hub__group-icon">🕘</span><h3 id="bh-recently-viewed-title">Recently viewed</h3></div>
+                                <span>Swipe to explore</span>
+                            </div>
+                            <div class="bh-my-hub__group-scroll">
+                                <article class="bh-my-hub__group-card">
+                                    <strong>No recently viewed groups yet</strong>
+                                    <p>Groups you look at in the directory will appear here.</p>
+                                </article>
+                            </div>
+                        </section>
+
+                        <section class="bh-my-hub__group-row" aria-labelledby="bh-visited-title">
+                            <div class="bh-my-hub__group-row-head">
+                                <div><span class="bh-my-hub__group-icon">📍</span><h3 id="bh-visited-title">Visited</h3></div>
+                                <span>Swipe to explore</span>
+                            </div>
+                            <div class="bh-my-hub__group-scroll">
+                                <article class="bh-my-hub__group-card">
+                                    <strong>No visited groups yet</strong>
+                                    <p>Keep track of groups and activities you have visited.</p>
+                                </article>
+                            </div>
+                        </section>
+
+                        <section class="bh-my-hub__group-row" aria-labelledby="bh-saved-groups-title">
+                            <div class="bh-my-hub__group-row-head">
+                                <div><span class="bh-my-hub__group-icon">♡</span><h3 id="bh-saved-groups-title">Saved</h3></div>
+                                <span>Swipe to explore</span>
+                            </div>
+                            <div class="bh-my-hub__group-scroll">
+                                <article class="bh-my-hub__group-card">
+                                    <strong>No saved groups yet</strong>
+                                    <p>Groups and activities you save will appear here.</p>
+                                </article>
+                            </div>
+                        </section>
+
+                        <section class="bh-my-hub__group-row" aria-labelledby="bh-suggestions-title">
+                            <div class="bh-my-hub__group-row-head">
+                                <div><span class="bh-my-hub__group-icon">✨</span><h3 id="bh-suggestions-title">Suggestions</h3></div>
+                                <span>Swipe to explore</span>
+                            </div>
+                            <div class="bh-my-hub__group-scroll">
+                                <article class="bh-my-hub__group-card">
+                                    <strong>Suggestions for your family</strong>
+                                    <p>Recommended groups will appear here based on your family and search preferences.</p>
+                                </article>
+                            </div>
+                        </section>
                     </div>
                 </section>
             </div>
