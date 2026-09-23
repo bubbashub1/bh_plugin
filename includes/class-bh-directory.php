@@ -4,11 +4,77 @@ namespace BubbaHub;
 defined('ABSPATH') || exit;
 
 final class Directory {
+    private static bool $directorist_bridge_running = false;
+
     public static function register(): void {
         add_shortcode('bh_directory', [self::class, 'shortcode']);
         add_action('wp_enqueue_scripts', [self::class, 'assets']);
         add_action('admin_post_bh_calendar_ics', [Planner::class, 'export_ics']);
         add_action('admin_post_nopriv_bh_calendar_ics', [Planner::class, 'export_ics']);
+        add_filter('pre_do_shortcode_tag', [self::class, 'bridge_directorist_listing'], 10, 4);
+    }
+
+    public static function bridge_directorist_listing($return, string $tag, array $attr, array $m): ?string {
+        if ($tag !== 'directorist_all_listing' || self::$directorist_bridge_running || !Listing::is_available()) {
+            return $return;
+        }
+
+        $filters = self::filters();
+        $has_filter = false;
+        foreach (['search','category','age_range','region','town','saved_location','day','price','free_activity'] as $key) {
+            if ((string) ($filters[$key] ?? '') !== '') {
+                $has_filter = true;
+                break;
+            }
+        }
+        if (!$has_filter) {
+            return $return;
+        }
+
+        $filters['all_results'] = true;
+        $filters['posts_per_page'] = -1;
+        $filters['paged'] = 1;
+        $query = DirectoryQuery::run($filters);
+        $ids = array_values(array_unique(array_filter(array_map('absint', wp_list_pluck($query->posts, 'ID')))));
+
+        if (!empty($attr['ids'])) {
+            $native_ids = array_values(array_filter(array_map('absint', preg_split('/[,\\s]+/', (string) $attr['ids']))));
+            $ids = array_values(array_intersect($native_ids, $ids));
+        }
+
+        $bridge_attr = $attr;
+        $bridge_attr['ids'] = $ids ? implode(',', $ids) : '0';
+
+        $sort_map = [
+            'az' => ['orderby'=>'title','order'=>'asc'],
+            'za' => ['orderby'=>'title','order'=>'desc'],
+            'latest' => ['orderby'=>'date','order'=>'desc'],
+            'oldest' => ['orderby'=>'date','order'=>'asc'],
+            'random' => ['orderby'=>'rand','order'=>'desc'],
+            'price_low' => ['orderby'=>'price','order'=>'asc'],
+            'price_high' => ['orderby'=>'price','order'=>'desc'],
+        ];
+        $sort = (string) ($filters['sort'] ?? 'latest');
+        if (isset($sort_map[$sort])) {
+            $bridge_attr += $sort_map[$sort];
+        }
+        $bridge_attr['listings_per_page'] = (string) self::per_page(12);
+
+        $parts = [];
+        foreach ($bridge_attr as $key => $value) {
+            if (!is_array($value)) {
+                $parts[] = sanitize_key((string) $key) . '="' . esc_attr((string) $value) . '"';
+            }
+        }
+        $shortcode = '[directorist_all_listing' . ($parts ? ' ' . implode(' ', $parts) : '') . ']';
+
+        self::$directorist_bridge_running = true;
+        try {
+            $output = do_shortcode($shortcode);
+        } finally {
+            self::$directorist_bridge_running = false;
+        }
+        return (string) $output;
     }
 
     public static function shortcode(array $atts = []): string {
