@@ -387,7 +387,7 @@ final class DirectorySearch {
                 <div class="bh-directory-search__save">
                     <div class="bh-directory-search__save-intro">
                         <strong>Save this search</strong>
-                        <a href="<?php echo esc_url(home_url('/my-hub/')); ?>">View saved searches in My Hub</a>
+                        <a href="<?php echo esc_url(self::saved_searches_url()); ?>">View Saved Searches</a>
                     </div>
                     <form method="post" class="bh-directory-search__save-form">
                         <?php wp_nonce_field('bh_save_directory_search', 'bh_saved_search_nonce'); ?>
