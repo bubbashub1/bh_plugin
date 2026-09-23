@@ -1,20 +1,73 @@
 (function () {
     'use strict';
 
+    function getDirectory(form) {
+        return form.closest('.bh-directory');
+    }
+
+    function buildFilterUrl(form) {
+        var url = new URL(window.location.href);
+        var params = new URLSearchParams(new FormData(form));
+
+        // Remove pagination whenever a filter changes.
+        params.delete('bh_page');
+
+        // Keep the existing page path but replace its query with the active filters.
+        url.search = params.toString();
+        return url;
+    }
+
+    function refreshDirectory(form, pushHistory) {
+        var directory = getDirectory(form);
+        if (!directory || directory.dataset.bhAjaxLoading === '1') {
+            return;
+        }
+
+        var targetUrl = buildFilterUrl(form);
+        directory.dataset.bhAjaxLoading = '1';
+        directory.setAttribute('aria-busy', 'true');
+
+        fetch(targetUrl.toString(), {
+            credentials: 'same-origin',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('Directory request failed');
+                }
+                return response.text();
+            })
+            .then(function (html) {
+                var doc = new DOMParser().parseFromString(html, 'text/html');
+                var replacement = doc.querySelector('.bh-directory');
+
+                if (!replacement) {
+                    throw new Error('Directory content not found');
+                }
+
+                directory.replaceWith(replacement);
+
+                if (pushHistory) {
+                    window.history.pushState({ bhDirectory: true }, '', targetUrl.toString());
+                }
+
+                initDirectorySearch();
+            })
+            .catch(function () {
+                // If AJAX fails, use the normal WordPress request as a safe fallback.
+                window.location.href = targetUrl.toString();
+            });
+    }
+
     function submitFilters(form) {
         if (!form || form.dataset.bhAutoSubmitting === '1') {
             return;
         }
 
         form.dataset.bhAutoSubmitting = '1';
-
-        // Reset pagination whenever filters change.
-        var page = form.querySelector('input[name="bh_page"]');
-        if (page) {
-            page.value = '';
-        }
-
-        form.submit();
+        refreshDirectory(form, true);
     }
 
     function initAutoFilters() {
@@ -25,11 +78,13 @@
 
             form.dataset.bhAutoFiltersBound = '1';
 
-            // Dropdowns and checkboxes update the directory immediately.
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                submitFilters(form);
+            });
+
             form.querySelectorAll('select, input[type="checkbox"]').forEach(function (field) {
                 field.addEventListener('change', function () {
-                    // Region needs to load its towns first; do not submit until
-                    // the user has selected a town or another filter.
                     if (field.id === 'bh-region') {
                         return;
                     }
@@ -37,7 +92,6 @@
                 });
             });
 
-            // Search text updates after the user pauses typing.
             var search = form.querySelector('input[name="bh_search"]');
             var searchTimer = null;
             if (search) {
@@ -56,7 +110,6 @@
                 });
             }
 
-            // Price is a free-text filter, so update when the field loses focus.
             var price = form.querySelector('input[name="bh_price"]');
             if (price) {
                 price.addEventListener('change', function () {
@@ -88,7 +141,6 @@
                 town.appendChild(placeholder);
 
                 if (!regionValue) {
-                    // Clearing the region is itself a filter change.
                     submitFilters(form);
                     return;
                 }
@@ -138,9 +190,6 @@
                         }
 
                         town.disabled = false;
-
-                        // Region is a filter too, so refresh immediately after
-                        // the town list has been loaded.
                         submitFilters(form);
                     })
                     .catch(function () {
@@ -156,8 +205,14 @@
         });
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
+    function initDirectorySearch() {
         initRegionTown();
         initAutoFilters();
+    }
+
+    document.addEventListener('DOMContentLoaded', initDirectorySearch);
+
+    window.addEventListener('popstate', function () {
+        window.location.reload();
     });
 }());
