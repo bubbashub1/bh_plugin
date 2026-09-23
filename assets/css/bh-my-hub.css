@@ -46,8 +46,9 @@
 .bh-my-hub__modal-close{position:absolute;top:10px;right:12px;border:0;background:none;font-size:28px;line-height:1;cursor:pointer;padding:4px 8px}
 body.bh-modal-open{overflow:hidden}
 
-.bh-my-hub__family-actions{display:flex;gap:10px;flex-wrap:wrap;margin:-4px 0 18px}
-.bh-my-hub__button--outline{background:transparent;color:inherit;border:1px solid currentColor}
+.bh-my-hub__family-actions{display:flex!important;align-items:center!important;gap:10px!important;flex-wrap:wrap!important;margin:-4px 0 18px!important;min-height:44px!important}
+.bh-my-hub__family-actions .bh-my-hub__button{display:inline-flex!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:2!important;min-height:44px!important;padding:11px 17px!important;background:#6f5aa8!important;color:#fff!important;border:1px solid #6f5aa8!important;border-radius:10px!important}
+.bh-my-hub__button--outline{background:transparent!important;color:#6f5aa8!important;border:1px solid #6f5aa8!important}
 
 .bh-my-hub__school-tracker{width:100%;display:grid;gap:3px;margin-top:4px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.75);border:1px solid rgba(0,0,0,.07)}
 .bh-my-hub__school-tracker strong{margin:0;font-size:.9rem}
@@ -56,21 +57,18 @@ body.bh-modal-open{overflow:hidden}
 
 .bh-my-hub__edit-link{border:0;background:none;padding:0;text-decoration:underline;cursor:pointer;font:inherit}
 
-
 .bh-my-hub__avatar{width:52px;height:52px;flex:0 0 52px;border-radius:50%;object-fit:cover;display:block}
 .bh-my-hub__avatar--placeholder{display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.06);font-size:1.35rem}
 .bh-my-hub__avatar-field small{font-size:.75rem;font-weight:400;opacity:.7}
 .bh-my-hub__avatar-field input[type="file"]{padding:8px}
 .bh-my-hub__avatar-remove{display:flex!important;grid-template-columns:none!important;align-items:center;gap:8px;font-weight:400!important;margin:0 0 14px}
-.bh-my-hub__avatar-remove input{width:auto}
-
 
 .bh-my-hub__antenatal-tracker{width:100%;display:grid;gap:3px;margin-top:4px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.75);border:1px solid rgba(0,0,0,.07)}
 .bh-my-hub__antenatal-tracker strong{margin:0;font-size:.9rem}
 .bh-my-hub__antenatal-tracker span{font-size:.88rem;font-weight:700}
 .bh-my-hub__antenatal-tracker small{font-size:.82rem;opacity:.78}
 
-/* Ensure My Hub modal save actions remain visible */
+/* Keep all My Hub modal save buttons visible above theme/plugin styles */
 .bh-my-hub__modal-dialog .bh-my-hub__button[type="submit"]{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:44px!important;margin-top:6px!important;padding:11px 20px!important;background:#6f5aa8!important;color:#fff!important;border:1px solid #6f5aa8!important;border-radius:10px!important;opacity:1!important;visibility:visible!important;cursor:pointer!important;}
 
 /* Mobile: stack My Groups cards vertically */
