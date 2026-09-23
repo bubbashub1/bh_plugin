@@ -247,34 +247,11 @@ final class MyHub {
                     <div class="bh-my-hub__saved-searches">
                         <div class="bh-my-hub__saved-searches-head">
                             <div>
-                                <strong>🔎 Saved searches</strong>
-                                <p>Save your favourite Bubba Hub searches and quickly return to them from My Family.</p>
+                                <strong>🔎 Saved Searches</strong>
+                                <p>Your saved group searches are kept on their own page so they are quick to find and run.</p>
                             </div>
+                            <a class="bh-my-hub__button" href="<?php echo esc_url(DirectorySearch::saved_searches_url()); ?>">View Saved Searches</a>
                         </div>
-                        <?php
-                        $saved_searches = get_user_meta($user->ID, '_bh_saved_searches', true);
-                        if (!is_array($saved_searches)) $saved_searches = [];
-                        ?>
-                        <?php if ($saved_searches): ?>
-                            <div class="bh-my-hub__saved-search-list">
-                                <?php foreach ($saved_searches as $search_id => $saved_search): ?>
-                                    <?php
-                                    $search_name = is_array($saved_search) ? (string) ($saved_search['name'] ?? 'Saved search') : 'Saved search';
-                                    $search_url = is_array($saved_search) ? (string) ($saved_search['url'] ?? '') : '';
-                                    ?>
-                                    <article class="bh-my-hub__saved-search">
-                                        <strong><?php echo esc_html($search_name); ?></strong>
-                                        <?php if ($search_url): ?>
-                                            <a class="bh-my-hub__button" href="<?php echo esc_url($search_url); ?>">Run search</a>
-                                        <?php else: ?>
-                                            <span class="bh-my-hub__muted">Saved search</span>
-                                        <?php endif; ?>
-                                    </article>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php else: ?>
-                            <p class="bh-my-hub__muted">Your saved searches will appear here when you save a search from the Bubba Hub directory.</p>
-                        <?php endif; ?>
                     </div>
                 </section>
 
