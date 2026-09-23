@@ -110,10 +110,12 @@ final class Directory {
                             <?php self::hidden_listing_params(); ?>
                             <label><span>Sort by</span><select name="bh_sort" onchange="this.form.submit()"><?php foreach (self::sort_options() as $value => $label) : ?><option value="<?php echo esc_attr($value); ?>" <?php selected($filters['sort'], $value); ?>><?php echo esc_html($label); ?></option><?php endforeach; ?></select></label>
                             <label><span>Per page</span><select name="bh_per_page" onchange="this.form.submit()"><?php foreach ([6,12,18,24,36,48] as $number) : ?><option value="<?php echo esc_attr($number); ?>" <?php selected($filters['posts_per_page'], $number); ?>><?php echo esc_html($number); ?></option><?php endforeach; ?></select></label>
-                            <button class="bh-directory-share-button" type="button" data-bh-share-search data-bh-admin-share="<?php echo current_user_can('manage_options') ? '1' : '0'; ?>" aria-label="Share this search">Share</button>
                             <?php if ($view === 'grid') : ?>
                                 <label><span>Columns</span><select name="bh_columns" onchange="this.form.submit()"><?php foreach ([1,2,3,4,5] as $number) : ?><option value="<?php echo esc_attr($number); ?>" <?php selected($columns, $number); ?>><?php echo esc_html($number); ?></option><?php endforeach; ?></select></label>
                             <?php endif; ?>
+                            <div class="bh-directory-listing-controls__share-row">
+                                <button class="bh-directory-share-button" type="button" data-bh-share-search data-bh-admin-share="<?php echo current_user_can('manage_options') ? '1' : '0'; ?>" aria-label="Share this search">Share</button>
+                            </div>
                         </form>
                     <?php endif; ?>
                 </div>
