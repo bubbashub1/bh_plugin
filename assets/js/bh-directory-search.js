@@ -304,9 +304,14 @@ function moveMoreFilters(){
   var advanced=search ? search.querySelector('.bh-directory-search__advanced') : null;
   var panel=directory.querySelector('.bh-directory__filter-panel');
   if(!advanced||!panel)return;
-  if(advanced.parentNode!==panel){panel.appendChild(advanced)}
+  if(advanced.parentNode!==panel){panel.appendChild(advanced);}
+  // The advanced filter block is now inside the outer Filter Activities
+  // disclosure. Keep it open so the actual fields are visible when the
+  // outer drawer is opened; its own summary is intentionally hidden.
+  advanced.open=true;
  });
 }
+window.BubbaHubMoveMoreFilters=moveMoreFilters;
 document.addEventListener('DOMContentLoaded',moveMoreFilters);
 }());
 
