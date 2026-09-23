@@ -9,6 +9,7 @@ final class Directory {
         add_action('wp_enqueue_scripts', [self::class, 'assets']);
         add_action('admin_post_bh_calendar_ics', [Planner::class, 'export_ics']);
         add_action('admin_post_nopriv_bh_calendar_ics', [Planner::class, 'export_ics']);
+        add_filter('pre_do_shortcode_tag', [self::class, 'replace_all_listings_shortcode'], 10, 4);
     }
 
     public static function shortcode(array $atts = []): string {
