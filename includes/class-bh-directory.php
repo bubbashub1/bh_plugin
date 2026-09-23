@@ -188,5 +188,11 @@ final class Directory {
         wp_enqueue_script('bh-weekly-schedule');
         wp_register_script('bh-planner', BH_PLUGIN_URL . 'assets/js/bh-planner.js', [], BH_PLUGIN_VERSION, true);
         wp_enqueue_script('bh-planner');
+        wp_register_script('bh-directory-search', BH_PLUGIN_URL . 'assets/js/bh-directory-search.js', [], BH_PLUGIN_VERSION, true);
+        wp_enqueue_script('bh-directory-search');
+        wp_localize_script('bh-directory-search', 'BubbaHubDirectorySearch', [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('bh_directory_search'),
+        ]);
     }
 }
