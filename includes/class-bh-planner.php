@@ -169,6 +169,28 @@ final class Planner {
             }
         }
 
+        // Collapse multiple sessions for the same listing/day into one continuous activity block.
+        // The block starts at the earliest session start and ends at the latest session end.
+        $blocks = [];
+        foreach ($events as $event) {
+            $key = $event['date'] . '|' . $event['post_id'];
+            if (!isset($blocks[$key])) {
+                $blocks[$key] = $event;
+                continue;
+            }
+
+            $blocks[$key]['start'] = min($blocks[$key]['start'], $event['start']);
+            $blocks[$key]['end'] = max($blocks[$key]['end'], $event['end']);
+        }
+
+        foreach ($blocks as &$block) {
+            $block['time'] = self::format_minutes($block['start']) . '–' . self::format_minutes($block['end']);
+            $block['label'] = '';
+        }
+        unset($block);
+
+        $events = array_values($blocks);
+
         usort($events, static function (array $a, array $b): int {
             return [$a['date'], $a['start'], $a['title']] <=> [$b['date'], $b['start'], $b['title']];
         });
