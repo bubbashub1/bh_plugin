@@ -153,7 +153,8 @@ final class MyHub {
 
                 <section class="bh-my-hub__card">
                     <div class="bh-my-hub__card-head">
-                        <div><span class="bh-my-hub__icon">🤰</span><h2>My Bump</h2></div>
+                        <div><span class="bh-my-hub__icon">🤰</span><h2>My Bumps</h2></div>
+                        <span class="bh-my-hub__count"><?php echo esc_html(count($bumps)); ?></span>
                     </div>
 
                     <div class="bh-my-hub__family-actions">
