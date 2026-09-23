@@ -28,10 +28,17 @@
 
                 var body = new URLSearchParams();
                 body.append('action', 'bh_get_towns');
-                body.append('nonce', window.BubbaHubDirectorySearch ? BubbaHubDirectorySearch.nonce : '');
+                var config = window.BubbaHubDirectorySearch || {};
+                body.append('nonce', config.nonce || '');
                 body.append('region', regionValue);
 
-                fetch(window.BubbaHubDirectorySearch.ajaxUrl, {
+                if (!config.ajaxUrl) {
+                    town.innerHTML = '<option value="">AJAX unavailable — please refresh</option>';
+                    town.disabled = false;
+                    return;
+                }
+
+                fetch(config.ajaxUrl, {
                     method: 'POST',
                     credentials: 'same-origin',
                     headers: {
