@@ -71,6 +71,19 @@ final class Directory {
                             <a href="<?php echo esc_url(Planner::navigation_url($view, Planner::date(), 1)); ?>" aria-label="Next <?php echo esc_attr($view); ?>">›</a>
                         </div>
                     </div>
+                    <div class="bh-print-header" aria-hidden="true">
+                        <div class="bh-print-header__brand">
+                            <?php
+                            $custom_logo_id = get_theme_mod('custom_logo');
+                            if ($custom_logo_id) {
+                                echo wp_get_attachment_image($custom_logo_id, 'medium', false, ['class' => 'bh-print-header__logo', 'alt' => get_bloginfo('name')]);
+                            }
+                            ?>
+                            <strong><?php echo esc_html(get_bloginfo('name')); ?></strong>
+                        </div>
+                        <span class="bh-print-header__date"><?php echo esc_html(wp_date(get_option('date_format'), current_datetime()->getTimestamp(), wp_timezone())); ?></span>
+                    </div>
+
                     <?php echo Planner::render($view, $query); ?>
 
                     <?php
