@@ -57,6 +57,30 @@
         });
     }
 
+    document.addEventListener('click', function (event) {
+        var button = event.target.closest('[data-bh-print-calendar]');
+        if (!button) {
+            return;
+        }
+
+        var planner = button.closest('[data-bh-planner]');
+        if (!planner) {
+            return;
+        }
+
+        var calendar = planner.querySelector('.bh-planner');
+        if (!calendar) {
+            return;
+        }
+
+        document.body.classList.add('bh-printing-calendar');
+        window.print();
+
+        window.setTimeout(function () {
+            document.body.classList.remove('bh-printing-calendar');
+        }, 500);
+    });
+
     document.addEventListener('DOMContentLoaded', bindPlannerNavigation);
 
     window.addEventListener('popstate', function () {
