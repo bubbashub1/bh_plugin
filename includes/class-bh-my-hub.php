@@ -192,6 +192,7 @@ final class MyHub {
         self::migrate_legacy_profiles($user->ID);
         $children = self::get_children($user->ID);
         $bumps = self::get_bumps($user->ID);
+        $visited_listings = self::visited_listing_ids($user->ID);
 
         ob_start(); ?>
         <div class="bh-my-hub">
@@ -395,13 +396,31 @@ final class MyHub {
                         <section class="bh-my-hub__group-row" aria-labelledby="bh-visited-title">
                             <div class="bh-my-hub__group-row-head">
                                 <div><span class="bh-my-hub__group-icon">📍</span><h3 id="bh-visited-title">Visited</h3></div>
-                                <span>Swipe to explore</span>
+                                <span><?php echo $visited_listings ? esc_html(count($visited_listings)) . ' visited' : 'Swipe to explore'; ?></span>
                             </div>
                             <div class="bh-my-hub__group-scroll">
-                                <article class="bh-my-hub__group-card">
-                                    <strong>No visited groups yet</strong>
-                                    <p>Keep track of groups and activities you have visited.</p>
-                                </article>
+                                <?php if ($visited_listings): ?>
+                                    <?php foreach (array_keys($visited_listings) as $visited_id): ?>
+                                        <?php
+                                        $visited_post = get_post((int) $visited_id);
+                                        if (!$visited_post || $visited_post->post_status !== 'publish') {
+                                            continue;
+                                        }
+                                        $visited_title = get_the_title($visited_post);
+                                        $visited_url = get_permalink($visited_post);
+                                        ?>
+                                        <article class="bh-my-hub__group-card bh-my-hub__group-card--visited">
+                                            <strong><?php echo esc_html($visited_title ?: 'Activity'); ?></strong>
+                                            <p>📍 Visited activity</p>
+                                            <?php if ($visited_url): ?><a href="<?php echo esc_url($visited_url); ?>">View activity</a><?php endif; ?>
+                                        </article>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <article class="bh-my-hub__group-card">
+                                        <strong>No visited groups yet</strong>
+                                        <p>Mark an activity as visited in the directory and it will appear here.</p>
+                                    </article>
+                                <?php endif; ?>
                             </div>
                         </section>
 
