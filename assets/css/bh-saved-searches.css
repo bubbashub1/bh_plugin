@@ -1,0 +1,32 @@
+.bh-saved-searches{max-width:1000px;margin:0 auto;padding:24px 20px 50px}
+.bh-saved-searches__intro{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:28px}
+.bh-saved-searches__eyebrow{margin:0 0 5px;font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.bh-saved-searches h1,.bh-saved-searches h2{margin-top:0}
+.bh-saved-searches__intro h1{margin-bottom:8px}
+.bh-saved-searches__intro p:last-child{margin-bottom:0}
+.bh-saved-searches__back{display:inline-flex;align-items:center;justify-content:center;padding:11px 17px;border:1px solid currentColor;border-radius:10px;text-decoration:none}
+.bh-saved-searches__notice{margin-bottom:20px;padding:12px 15px;border-radius:10px;background:rgba(0,0,0,.05)}
+.bh-saved-searches__list{display:grid;gap:16px}
+.bh-saved-searches__card{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;padding:20px;border-radius:16px;background:rgba(255,255,255,.78);box-shadow:0 4px 20px rgba(0,0,0,.05)}
+.bh-saved-searches__card h2{margin:0 0 12px;font-size:1.15rem}
+.bh-saved-searches__criteria{display:grid;gap:6px;margin:0}
+.bh-saved-searches__criteria>div{display:flex;gap:5px;flex-wrap:wrap;font-size:.92rem}
+.bh-saved-searches__criteria dt{font-weight:700}
+.bh-saved-searches__criteria dd{margin:0}
+.bh-saved-searches__empty-criteria{margin:0;opacity:.7;font-size:.9rem}
+.bh-saved-searches__actions{display:flex;align-items:center;gap:12px;flex:0 0 auto}
+.bh-saved-searches__button{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 16px;border:0;border-radius:10px;background:currentColor;color:#fff;text-decoration:none;cursor:pointer;font:inherit}
+.bh-saved-searches__delete{margin:0}
+.bh-saved-searches__delete button{border:0;background:none;padding:8px 2px;text-decoration:underline;cursor:pointer;font:inherit}
+.bh-saved-searches__empty{text-align:center;padding:30px 20px;border-radius:16px;background:rgba(0,0,0,.035)}
+.bh-saved-searches__empty p{opacity:.75}
+.bh-saved-searches--login{text-align:center}
+@media(max-width:700px){
+.bh-saved-searches{padding:18px 14px 40px}
+.bh-saved-searches__intro{align-items:flex-start;flex-direction:column}
+.bh-saved-searches__back{width:100%;box-sizing:border-box}
+.bh-saved-searches__card{align-items:stretch;flex-direction:column;gap:16px}
+.bh-saved-searches__actions{align-items:stretch;flex-direction:column}
+.bh-saved-searches__actions>*{width:100%;box-sizing:border-box;text-align:center}
+.bh-saved-searches__delete button{width:100%}
+}
