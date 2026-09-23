@@ -425,23 +425,14 @@ final class DirectorySearch {
                 <input type="hidden" name="bh_view" value="<?php echo esc_attr(isset($_GET['bh_view']) ? sanitize_key(wp_unslash($_GET['bh_view'])) : ''); ?>">
                 <input type="hidden" name="bh_date" value="<?php echo esc_attr(isset($_GET['bh_date']) ? sanitize_text_field(wp_unslash($_GET['bh_date'])) : ''); ?>">
                 <?php if (isset($_GET['bh_saved_search_path'])) : ?><input type="hidden" name="bh_saved_search_path" value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['bh_saved_search_path']))); ?>"><?php endif; ?>
+
                 <div class="bh-directory-search__field bh-directory-search__field--search">
-                    <label for="bh-search">Search</label>
-                    <input id="bh-search" name="bh_search" type="search" value="<?php echo esc_attr($values['search']); ?>" placeholder="Search activities">
+                    <label for="bh-search">What are you looking for?</label>
+                    <input id="bh-search" name="bh_search" type="search" value="<?php echo esc_attr($values['search']); ?>" placeholder="Groups, classes, activities…">
                 </div>
 
-                <div class="bh-directory-search__field">
-                    <label for="bh-category">Category</label>
-                    <select id="bh-category" name="bh_category">
-                        <option value="">All categories</option>
-                        <?php foreach ($categories as $term) : ?>
-                            <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['category'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <div class="bh-directory-search__field">
-                    <label for="bh-region">Region</label>
+                <div class="bh-directory-search__field bh-directory-search__field--region">
+                    <label for="bh-region">Where?</label>
                     <select id="bh-region" name="bh_region">
                         <option value="">All regions</option>
                         <?php foreach ($regions as $term) : ?>
@@ -450,72 +441,84 @@ final class DirectorySearch {
                     </select>
                 </div>
 
-                <div class="bh-directory-search__field">
-                    <label for="bh-town">Town</label>
-                    <select id="bh-town" name="bh_town" <?php disabled($values["region"], ""); ?>>
-                        <option value="">Select a region first</option>
+                <div class="bh-directory-search__field bh-directory-search__field--town">
+                    <label for="bh-town">Town or area?</label>
+                    <select id="bh-town" name="bh_town" <?php disabled($values['region'], ''); ?>>
+                        <option value=""><?php echo $values['region'] ? 'All towns' : 'Select a region first'; ?></option>
                         <?php foreach ($towns as $term) : ?>
                             <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['town'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
 
-                <?php if ($saved_locations) : ?>
-                    <div class="bh-directory-search__field">
-                        <label for="bh-saved-location">My Saved Locations</label>
-                        <select id="bh-saved-location" name="bh_saved_location">
-                            <option value="">Any saved location</option>
-                            <?php foreach ($saved_locations as $term) : ?>
-                                <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['saved_location'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                <?php endif; ?>
+                <div class="bh-directory-search__field bh-directory-search__field--when">
+                    <label for="bh-day">When?</label>
+                    <select id="bh-day" name="bh_day">
+                        <option value="">Any day</option>
+                        <?php foreach (['monday','tuesday','wednesday','thursday','friday','saturday','sunday'] as $day) : ?>
+                            <option value="<?php echo esc_attr($day); ?>" <?php selected($values['day'], $day); ?>><?php echo esc_html(ucfirst($day)); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
 
-                <?php if ($free_activity_option) : ?>
-                    <div class="bh-directory-search__field bh-directory-search__field--checkbox">
-                        <label for="bh-free-activity">
-                            <input id="bh-free-activity" name="bh_free_activity" type="checkbox" value="<?php echo esc_attr($free_activity_option['value']); ?>" <?php checked($values['free_activity'], $free_activity_option['value']); ?>>
-                            Free Activity
-                        </label>
-                    </div>
-                <?php endif; ?>
+                <div class="bh-directory-search__field bh-directory-search__field--age">
+                    <label for="bh-age-range">Age?</label>
+                    <select id="bh-age-range" name="bh_age_range">
+                        <option value="">Any age</option>
+                        <?php foreach ($age_options as $option) : ?>
+                            <option value="<?php echo esc_attr($option['value']); ?>" <?php selected($values['age_range'], $option['value']); ?>><?php echo esc_html($option['label']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
 
-                <details class="bh-directory-search__advanced" <?php echo ($values['age_range'] !== '' || $values['day'] !== '' || $values['price'] !== '') ? 'open' : ''; ?>>
-                    <summary>Advanced Search</summary>
+                <div class="bh-directory-search__actions bh-directory-search__actions--primary">
+                    <button type="submit">Find activities</button>
+                </div>
+
+                <details class="bh-directory-search__advanced" <?php echo ($values['category'] !== '' || $values['saved_location'] !== '' || $values['price'] !== '' || $values['free_activity'] !== '') ? 'open' : ''; ?>>
+                    <summary>More filters</summary>
                     <div class="bh-directory-search__advanced-grid">
                         <div class="bh-directory-search__field">
-                            <label for="bh-age-range">Age Range</label>
-                            <select id="bh-age-range" name="bh_age_range">
-                                <option value="">Any age</option>
-                                <?php foreach ($age_options as $option) : ?>
-                                    <option value="<?php echo esc_attr($option['value']); ?>" <?php selected($values['age_range'], $option['value']); ?>><?php echo esc_html($option['label']); ?></option>
+                            <label for="bh-category">Category</label>
+                            <select id="bh-category" name="bh_category">
+                                <option value="">All categories</option>
+                                <?php foreach ($categories as $term) : ?>
+                                    <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['category'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
 
-                        <div class="bh-directory-search__field">
-                            <label for="bh-day">Day</label>
-                            <select id="bh-day" name="bh_day">
-                                <option value="">Any day</option>
-                                <?php foreach (['monday','tuesday','wednesday','thursday','friday','saturday','sunday'] as $day) : ?>
-                                    <option value="<?php echo esc_attr($day); ?>" <?php selected($values['day'], $day); ?>><?php echo esc_html(ucfirst($day)); ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
+                        <?php if ($saved_locations) : ?>
+                            <div class="bh-directory-search__field">
+                                <label for="bh-saved-location">My Saved Locations</label>
+                                <select id="bh-saved-location" name="bh_saved_location">
+                                    <option value="">Any saved location</option>
+                                    <?php foreach ($saved_locations as $term) : ?>
+                                        <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['saved_location'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        <?php endif; ?>
 
                         <div class="bh-directory-search__field">
                             <label for="bh-price">Price</label>
                             <input id="bh-price" name="bh_price" type="text" value="<?php echo esc_attr($values['price']); ?>" placeholder="e.g. £5">
                         </div>
 
+                        <?php if ($free_activity_option) : ?>
+                            <div class="bh-directory-search__field bh-directory-search__field--checkbox">
+                                <label for="bh-free-activity">
+                                    <input id="bh-free-activity" name="bh_free_activity" type="checkbox" value="<?php echo esc_attr($free_activity_option['value']); ?>" <?php checked($values['free_activity'], $free_activity_option['value']); ?>>
+                                    Free activities only
+                                </label>
+                            </div>
+                        <?php endif; ?>
+
                         <div class="bh-directory-search__actions">
-                            <button type="submit">Search</button>
-                            <a href="<?php echo esc_url(remove_query_arg(['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_day','bh_price','bh_free_activity','bh_page'])); ?>">Clear</a>
+                            <a href="<?php echo esc_url(remove_query_arg(['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_day','bh_price','bh_free_activity','bh_page'])); ?>">Clear filters</a>
                         </div>
                     </div>
                 </details>
-
             </form>
 
             <?php if (is_user_logged_in()) : ?>
