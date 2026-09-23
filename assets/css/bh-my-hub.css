@@ -262,3 +262,5 @@ body.bh-modal-open{overflow:hidden}
 .bh-visited-listing__button:hover{background:#f8f4fb}
 .bh-visited-listing__button--remove{border-color:rgba(0,0,0,.12);color:inherit;background:transparent;font-weight:600}
 .bh-visited-listing__badge{display:inline-flex;align-items:center;min-height:30px;padding:6px 10px;border-radius:999px;background:#eee8f7;color:#5d4a8f;font-size:.78rem;font-weight:700;line-height:1.2}
+
+.bh-my-hub__group-card--visited a{display:inline-block;margin-top:9px;font-size:.78rem;font-weight:700;text-decoration:underline;color:inherit}
