@@ -1308,3 +1308,117 @@ body.bh-modal-open{overflow:hidden}
     flex-basis:66px!important;
   }
 }
+
+
+/* Dedicated Family Hub card selector.
+ * Deliberately avoids the legacy .bh-my-hub__profile rules used elsewhere.
+ */
+.bh-my-hub .bh-my-hub__family-profile-card{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  width:auto!important;
+  min-width:0!important;
+  min-height:260px!important;
+  margin:0!important;
+  padding:20px!important;
+  border:1px solid #e7e0dc!important;
+  border-radius:22px!important;
+  background:#fffefd!important;
+  box-shadow:0 4px 16px rgba(70,55,48,.045)!important;
+  overflow:hidden!important;
+}
+
+.bh-my-hub .bh-my-hub__family-profile-card.bh-my-hub__family-profile--child{
+  background:linear-gradient(180deg,#fffefd 0%,#fffefd 72%,#fbf7f8 100%)!important;
+}
+
+.bh-my-hub .bh-my-hub__family-profile-card.bh-my-hub__family-profile--bump{
+  background:linear-gradient(180deg,#fffefd 0%,#fffefd 72%,#f8f4fa 100%)!important;
+}
+
+.bh-my-hub .bh-my-hub__family-profile-card .bh-my-hub__family-profile-top{
+  display:flex!important;
+  align-items:center!important;
+  gap:15px!important;
+  width:100%!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+}
+
+.bh-my-hub .bh-my-hub__family-profile-card .bh-my-hub__avatar{
+  width:82px!important;height:82px!important;min-width:82px!important;max-width:82px!important;
+  flex:0 0 82px!important;margin:0!important;padding:0!important;
+  object-fit:cover!important;border-radius:50%!important;border:5px solid #fff!important;
+  background:#f8edf1!important;box-shadow:0 2px 10px rgba(70,55,48,.09)!important;
+}
+
+.bh-my-hub .bh-my-hub__family-profile-card .bh-my-hub__avatar--placeholder{
+  border:0!important;border-radius:20px!important;box-shadow:none!important;font-size:28px!important;
+}
+
+.bh-my-hub .bh-my-hub__family-profile-card .bh-my-hub__family-profile-identity{
+  display:flex!important;flex-direction:column!important;justify-content:center!important;
+  min-width:0!important;margin:0!important;padding:0!important;
+}
+
+.bh-my-hub .bh-my-hub__family-profile-card .bh-my-hub__family-profile-type{
+  display:block!important;margin:0 0 3px!important;color:#777076!important;
+  font-size:.67rem!important;font-weight:800!important;letter-spacing:.12em!important;
+  line-height:1.2!important;text-transform:uppercase!important;
+}
+
+.bh-my-hub .bh-my-hub__family-profile-card .bh-my-hub__family-profile-identity strong{
+  display:block!important;margin:0!important;padding:0!important;color:#4b403d!important;
+  font-family:Georgia,"Times New Roman",serif!important;font-size:1.32rem!important;
+  line-height:1.15!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+}
+
+.bh-my-hub .bh-my-hub__family-profile-card .bh-my-hub__family-profile-details{
+  display:flex!important;flex-wrap:wrap!important;gap:7px!important;width:100%!important;
+  margin:20px 0 0!important;padding:16px 0 0!important;border-top:1px solid #eee9e5!important;
+  border-right:0!important;border-bottom:0!important;border-left:0!important;background:transparent!important;
+}
+
+.bh-my-hub .bh-my-hub__family-profile-card .bh-my-hub__family-profile-details span{
+  display:inline-flex!important;align-items:center!important;width:auto!important;min-height:32px!important;
+  margin:0!important;padding:6px 10px!important;border:0!important;border-radius:999px!important;
+  background:#f8f5f3!important;color:#6f6869!important;font-size:.74rem!important;
+}
+
+.bh-my-hub .bh-my-hub__family-profile-card .bh-my-hub__family-profile-actions{
+  display:flex!important;align-items:center!important;flex-wrap:wrap!important;gap:8px!important;
+  width:100%!important;margin-top:auto!important;padding:18px 0 0!important;
+  border:0!important;background:transparent!important;
+}
+
+.bh-my-hub .bh-my-hub__family-profile-card .bh-my-hub__family-action{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  min-height:36px!important;margin:0!important;padding:7px 13px!important;
+  border:1px solid #dcd5d1!important;border-radius:999px!important;background:#fff!important;
+  color:#4b403d!important;font-size:.74rem!important;font-weight:700!important;box-shadow:none!important;
+}
+
+.bh-my-hub .bh-my-hub__family-profile-card .bh-my-hub__family-action--remove{
+  border-color:transparent!important;background:transparent!important;color:#8a8285!important;
+}
+
+@media(max-width:1050px){
+  .bh-my-hub .bh-my-hub__family-profile-card{min-height:250px!important}
+}
+@media(max-width:760px){
+  .bh-my-hub .bh-my-hub__family-profile-card{min-height:0!important;padding:18px!important;border-radius:21px!important}
+  .bh-my-hub .bh-my-hub__family-profile-card .bh-my-hub__avatar{
+    width:74px!important;height:74px!important;min-width:74px!important;max-width:74px!important;flex-basis:74px!important;
+  }
+}
+@media(max-width:520px){
+  .bh-my-hub .bh-my-hub__family-profile-card{padding:17px!important}
+}
+@media(max-width:380px){
+  .bh-my-hub .bh-my-hub__family-profile-card .bh-my-hub__avatar{
+    width:66px!important;height:66px!important;min-width:66px!important;max-width:66px!important;flex-basis:66px!important;
+  }
+}
