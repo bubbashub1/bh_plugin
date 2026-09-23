@@ -209,7 +209,10 @@ final class DirectorySearch {
             <?php if (is_user_logged_in()) : ?>
                 <?php $save_url = remove_query_arg('bh_page'); ?>
                 <div class="bh-directory-search__save">
-                    <label for="bh-saved-search-name">Save this search</label>
+                    <div class="bh-directory-search__save-intro">
+                        <strong>Save this search</strong>
+                        <a href="<?php echo esc_url(home_url('/my-hub/')); ?>">View saved searches in My Hub</a>
+                    </div>
                     <form method="post" class="bh-directory-search__save-form">
                         <?php wp_nonce_field('bh_save_directory_search', 'bh_saved_search_nonce'); ?>
                         <input type="hidden" name="bh_saved_search_action" value="save">
@@ -219,8 +222,8 @@ final class DirectorySearch {
                                 <input type="hidden" name="<?php echo esc_attr($saved_key); ?>" value="<?php echo esc_attr(is_array($_GET[$saved_key]) ? '' : sanitize_text_field(wp_unslash($_GET[$saved_key]))); ?>">
                             <?php endif; ?>
                         <?php endforeach; ?>
-                        <input id="bh-saved-search-name" name="bh_saved_search_name" type="text" maxlength="80" placeholder="e.g. Baby groups near me" required>
-                        <button type="submit">Save search</button>
+                        <input id="bh-saved-search-name" name="bh_saved_search_name" type="text" maxlength="80" placeholder="Name this search" required>
+                        <button type="submit">Save</button>
                     </form>
                 </div>
             <?php endif; ?>
