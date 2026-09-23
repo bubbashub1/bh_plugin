@@ -426,34 +426,59 @@ final class DirectorySearch {
                 <input type="hidden" name="bh_date" value="<?php echo esc_attr(isset($_GET['bh_date']) ? sanitize_text_field(wp_unslash($_GET['bh_date'])) : ''); ?>">
                 <?php if (isset($_GET['bh_saved_search_path'])) : ?><input type="hidden" name="bh_saved_search_path" value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['bh_saved_search_path']))); ?>"><?php endif; ?>
 
-                <div class="bh-directory-search__field bh-directory-search__field--search">
-                    <label for="bh-search">What are you looking for?</label>
-                    <input id="bh-search" name="bh_search" type="search" value="<?php echo esc_attr($values['search']); ?>" placeholder="Groups, classes, activities…">
+                <div class="bh-search-popover-field bh-search-popover-field--search" data-bh-popover-field="search">
+                    <button type="button" class="bh-search-popover-trigger" data-bh-search-popover="search" aria-expanded="false">
+                        <span class="bh-search-popover-trigger__label">What are you looking for?</span>
+                        <strong class="bh-search-popover-trigger__value"><?php echo $values['search'] !== '' ? esc_html($values['search']) : 'Groups, classes, activities…'; ?></strong>
+                    </button>
+                    <input class="bh-search-popover-value" id="bh-search" name="bh_search" type="search" value="<?php echo esc_attr($values['search']); ?>" placeholder="Groups, classes, activities…">
                 </div>
 
-                <div class="bh-directory-search__field bh-directory-search__field--region">
-                    <label for="bh-region">Where?</label>
-                    <select id="bh-region" name="bh_region">
-                        <option value="">All regions</option>
-                        <?php foreach ($regions as $term) : ?>
-                            <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['region'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
-                        <?php endforeach; ?>
-                    </select>
+                <div class="bh-search-popover-field" data-bh-popover-field="where">
+                    <button type="button" class="bh-search-popover-trigger" data-bh-search-popover="where" aria-expanded="false">
+                        <span class="bh-search-popover-trigger__label">Where?</span>
+                        <strong class="bh-search-popover-trigger__value"><?php echo $values['town'] !== '' ? esc_html(self::term_label($values['town'], self::LOCATION_TAXONOMY)) : ($values['region'] !== '' ? esc_html(self::term_label($values['region'], self::LOCATION_TAXONOMY)) : 'Anywhere'); ?></strong>
+                    </button>
+                    <div class="bh-search-popover-panel" data-bh-popover-panel="where" hidden>
+                        <div class="bh-search-popover-panel__title">Where would you like to go?</div>
+                        <div class="bh-search-popover-panel__grid">
+                            <div class="bh-directory-search__field">
+                                <label for="bh-region">Region</label>
+                                <select id="bh-region" name="bh_region">
+                                    <option value="">All regions</option>
+                                    <?php foreach ($regions as $term) : ?>
+                                        <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['region'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="bh-directory-search__field">
+                                <label for="bh-town">Town or area?</label>
+                                <select id="bh-town" name="bh_town" <?php disabled($values['region'], ''); ?>>
+                                    <option value=""><?php echo $values['region'] ? 'All towns' : 'Select a region first'; ?></option>
+                                    <?php foreach ($towns as $term) : ?>
+                                        <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['town'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="bh-directory-search__field bh-directory-search__field--town">
-                    <label for="bh-town">Town or area?</label>
-                    <select id="bh-town" name="bh_town" <?php disabled($values['region'], ''); ?>>
-                        <option value=""><?php echo $values['region'] ? 'All towns' : 'Select a region first'; ?></option>
-                        <?php foreach ($towns as $term) : ?>
-                            <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['town'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <div class="bh-directory-search__field bh-directory-search__field--when">
-                    <label for="bh-day">When?</label>
-                    <select id="bh-day" name="bh_day">
+                <div class="bh-search-popover-field" data-bh-popover-field="when">
+                    <button type="button" class="bh-search-popover-trigger" data-bh-search-popover="when" aria-expanded="false">
+                        <span class="bh-search-popover-trigger__label">When?</span>
+                        <strong class="bh-search-popover-trigger__value"><?php echo $values['day'] !== '' ? esc_html(ucfirst($values['day'])) : 'Any day'; ?></strong>
+                    </button>
+                    <div class="bh-search-popover-panel" data-bh-popover-panel="when" hidden>
+                        <div class="bh-search-popover-panel__title">Choose a day</div>
+                        <div class="bh-search-choice-list">
+                            <button type="button" data-bh-choice-for="bh-day" data-value="">Any day</button>
+                            <?php foreach (['monday','tuesday','wednesday','thursday','friday','saturday','sunday'] as $day) : ?>
+                                <button type="button" data-bh-choice-for="bh-day" data-value="<?php echo esc_attr($day); ?>"><?php echo esc_html(ucfirst($day)); ?></button>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <select class="bh-search-popover-value" id="bh-day" name="bh_day" aria-hidden="true" tabindex="-1">
                         <option value="">Any day</option>
                         <?php foreach (['monday','tuesday','wednesday','thursday','friday','saturday','sunday'] as $day) : ?>
                             <option value="<?php echo esc_attr($day); ?>" <?php selected($values['day'], $day); ?>><?php echo esc_html(ucfirst($day)); ?></option>
@@ -461,9 +486,21 @@ final class DirectorySearch {
                     </select>
                 </div>
 
-                <div class="bh-directory-search__field bh-directory-search__field--age">
-                    <label for="bh-age-range">Age?</label>
-                    <select id="bh-age-range" name="bh_age_range">
+                <div class="bh-search-popover-field" data-bh-popover-field="age">
+                    <button type="button" class="bh-search-popover-trigger" data-bh-search-popover="age">
+                        <span class="bh-search-popover-trigger__label">Age?</span>
+                        <strong class="bh-search-popover-trigger__value"><?php echo $values['age_range'] !== '' ? esc_html(self::age_range_label($values['age_range'])) : 'Any age'; ?></strong>
+                    </button>
+                    <div class="bh-search-popover-panel" data-bh-popover-panel="age" hidden>
+                        <div class="bh-search-popover-panel__title">Who are you looking for activities for?</div>
+                        <div class="bh-search-choice-list bh-search-choice-list--chips">
+                            <button type="button" data-bh-choice-for="bh-age-range" data-value="">Any age</button>
+                            <?php foreach ($age_options as $option) : ?>
+                                <button type="button" data-bh-choice-for="bh-age-range" data-value="<?php echo esc_attr($option['value']); ?>"><?php echo esc_html($option['label']); ?></button>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <select class="bh-search-popover-value" id="bh-age-range" name="bh_age_range" aria-hidden="true" tabindex="-1">
                         <option value="">Any age</option>
                         <?php foreach ($age_options as $option) : ?>
                             <option value="<?php echo esc_attr($option['value']); ?>" <?php selected($values['age_range'], $option['value']); ?>><?php echo esc_html($option['label']); ?></option>
