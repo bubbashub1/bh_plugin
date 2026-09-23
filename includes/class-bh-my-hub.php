@@ -56,10 +56,10 @@ final class MyHub {
                 <div>
                     <p class="bh-my-hub__eyebrow">My Bubba Hub</p>
                     <h1>Welcome, <?php echo esc_html($user->display_name ?: $user->user_login); ?></h1>
-                    <p>Your family, activities and Bubba Hub preferences all in one place.</p>
+                    <p>Your family and favourite Bubba Hub groups all in one place.</p>
                 </div>
                 <?php if (function_exists('um_get_core_page')): ?>
-                    <a class="bh-my-hub__account-link" href="<?php echo esc_url(um_get_core_page('account')); ?>">Account settings</a>
+                    <a class="bh-my-hub__account-link" href="<?php echo esc_url(um_get_core_page('account')); ?>">Update preferences</a>
                 <?php endif; ?>
             </div>
 
@@ -160,13 +160,43 @@ final class MyHub {
                 <section class="bh-my-hub__card bh-my-hub__card--wide">
                     <div class="bh-my-hub__card-head">
                         <div>
-                            <span class="bh-my-hub__icon">✨</span>
-                            <h2>My Bubba Hub</h2>
+                            <span class="bh-my-hub__icon">👥</span>
+                            <h2>My Groups</h2>
                         </div>
                     </div>
-                    <div class="bh-my-hub__coming">
-                        <p><strong>Your personalised family space is being built here.</strong></p>
-                        <p>Next stages will add your interests and needs, saved activities, personalised planning, bookings, payments, notifications and support — without creating a second directory or account system.</p>
+
+                    <div class="bh-my-hub__groups">
+                        <article class="bh-my-hub__group">
+                            <span class="bh-my-hub__group-icon">🕘</span>
+                            <div>
+                                <h3>Recently viewed</h3>
+                                <p>Groups you have recently looked at.</p>
+                            </div>
+                        </article>
+
+                        <article class="bh-my-hub__group">
+                            <span class="bh-my-hub__group-icon">📍</span>
+                            <div>
+                                <h3>Visited</h3>
+                                <p>Groups and activities you have marked as visited.</p>
+                            </div>
+                        </article>
+
+                        <article class="bh-my-hub__group">
+                            <span class="bh-my-hub__group-icon">♡</span>
+                            <div>
+                                <h3>Saved</h3>
+                                <p>Your saved Bubba Hub groups and activities.</p>
+                            </div>
+                        </article>
+
+                        <article class="bh-my-hub__group">
+                            <span class="bh-my-hub__group-icon">✨</span>
+                            <div>
+                                <h3>Suggestions</h3>
+                                <p>Groups suggested from your family and search preferences.</p>
+                            </div>
+                        </article>
                     </div>
                 </section>
             </div>
