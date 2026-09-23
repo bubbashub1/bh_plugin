@@ -72,6 +72,7 @@ final class MyHub {
             <div class="bh-my-hub__grid">
                 <section id="bh-my-hub-family" class="bh-my-hub__card bh-my-hub__family-container">
                     <div class="bh-my-hub__family-scroll">
+                    <div class="bh-my-hub__family-panel">
                     <div class="bh-my-hub__card-head">
                         <div><span class="bh-my-hub__icon">👨‍👩‍👧</span><h2>My Family</h2></div>
                         <span class="bh-my-hub__count"><?php echo esc_html(count($children)); ?></span>
@@ -157,7 +158,7 @@ final class MyHub {
                             </form>
                         </div>
                     </div>
-                </section>
+                    </div>
 
                 <section class="bh-my-hub__family-panel">
                     <div class="bh-my-hub__card-head">
@@ -252,6 +253,7 @@ final class MyHub {
                     </div>
                 </section>
                 </div>
+                </section>
 
                 <?php echo self::render_planner_section($user->ID); ?>
 
