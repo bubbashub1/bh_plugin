@@ -66,6 +66,7 @@
 
 
 .bh-print-header{display:none!important}
+.bh-print-footer{display:none!important}
 .bh-planner-actions{display:flex;justify-content:center;gap:10px;margin-top:16px}
 .bh-planner-actions__button{display:inline-flex;align-items:center;justify-content:center;padding:10px 18px;border:1px solid rgba(0,0,0,.12);border-radius:10px;text-decoration:none;cursor:pointer;font:inherit;background:#fff}
 @media(max-width:600px){.bh-planner-actions{flex-direction:column}.bh-planner-actions__button{width:100%;box-sizing:border-box}}
