@@ -258,10 +258,11 @@ final class MyHub {
                         <div class="bh-my-hub__saved-searches-head">
                             <div>
                                 <strong>🔎 Saved Searches</strong>
-                                <p>Your saved group searches are kept on their own page so they are quick to find and run.</p>
+                                <p>Your saved group searches at a glance. Select a search to view and manage all your saved searches.</p>
                             </div>
                             <a class="bh-my-hub__button" href="<?php echo esc_url(DirectorySearch::saved_searches_url()); ?>">View Saved Searches</a>
                         </div>
+                        <?php echo self::render_saved_search_cards($user->ID); ?>
                     </div>
                 </section>
 
@@ -856,6 +857,44 @@ final class MyHub {
         }catch(\Exception $e){return'';}
     }
 
+    private static function render_saved_search_cards(int $user_id): string {
+        $saved = get_user_meta($user_id, '_bh_saved_searches', true);
+        if (!is_array($saved) || !$saved) return '<div class="bh-my-hub__saved-searches-empty"><strong>No saved searches yet</strong><p>Save a search from the directory and it will appear here.</p></div>';
+        ob_start();
+        echo '<div class="bh-my-hub__saved-search-cards">';
+        foreach ($saved as $item) {
+            if (!is_array($item)) continue;
+            $name = sanitize_text_field((string) ($item['name'] ?? 'Saved search'));
+            if (empty($item['url'])) continue;
+            $parts = wp_parse_url((string) $item['url']);
+            $query = [];
+            if (!empty($parts['query'])) parse_str($parts['query'], $query);
+            $details = [];
+            $map = ['bh_search'=>'Search','bh_region'=>'Region','bh_town'=>'Town','bh_day'=>'Day','bh_age_range'=>'Age','bh_category'=>'Category'];
+            foreach ($map as $key => $label) {
+                if (!isset($query[$key]) || is_array($query[$key]) || trim((string) $query[$key]) === '') continue;
+                $value = sanitize_text_field((string) $query[$key]);
+                if (in_array($key, ['bh_region','bh_town'], true)) {
+                    $term = get_term_by('slug', sanitize_title($value), 'at_biz_dir-location');
+                    $value = ($term && !is_wp_error($term)) ? $term->name : ucwords(str_replace(['-','_'], ' ', $value));
+                } elseif ($key === 'bh_category') {
+                    $term = get_term_by('slug', sanitize_title($value), 'at_biz_dir-category');
+                    $value = ($term && !is_wp_error($term)) ? $term->name : ucwords(str_replace(['-','_'], ' ', $value));
+                } elseif ($key === 'bh_day') $value = ucfirst($value);
+                $details[] = $label . ': ' . $value;
+            }
+            echo '<article class="bh-my-hub__saved-search-card">';
+            echo '<div class="bh-my-hub__saved-search-card-icon" aria-hidden="true">🔎</div>';
+            echo '<div class="bh-my-hub__saved-search-card-body">';
+            echo '<strong>' . esc_html($name) . '</strong>';
+            echo '<p>' . esc_html($details ? implode(' · ', $details) : 'Saved Bubba Hub search') . '</p>';
+            echo '</div>';
+            echo '<a class="bh-my-hub__saved-search-card-link" href="' . esc_url(DirectorySearch::saved_searches_url()) . '">View more</a>';
+            echo '</article>';
+        }
+        echo '</div>';
+        return (string) ob_get_clean();
+    }
     private static function redirect_saved(): void {
         $url=remove_query_arg('bh_hub_saved',self::my_hub_url());
         wp_safe_redirect(add_query_arg('bh_hub_saved','1',$url));
