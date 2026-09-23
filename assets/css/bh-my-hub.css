@@ -240,3 +240,16 @@ body.bh-modal-open{overflow:hidden}
 .bh-my-hub__nap-window-actions form{margin:0}
 .bh-my-hub__nap-window-actions .bh-my-hub__edit-link,
 .bh-my-hub__nap-window-actions button{font:inherit}
+
+/* My Groups: each section is its own standalone container */
+.bh-my-hub__group-rows{display:grid;gap:16px}
+.bh-my-hub__group-row{
+    min-width:0;
+    padding:16px;
+    border:1px solid rgba(226,223,230,.9);
+    border-radius:16px;
+    background:#fff;
+    box-shadow:0 3px 12px rgba(0,0,0,.04);
+}
+.bh-my-hub__group-row-head{margin-bottom:10px}
+.bh-my-hub__group-scroll{margin:0}
