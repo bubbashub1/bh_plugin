@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Bubba Hub
  * Description: Family platform layer for Bubba Hub. Uses free Directorist for directory listings, search and listing management.
- * Version: 1.3.4
+ * Version: 1.4.0
  * Author: Bubba Hub
  * Requires at least: 6.4
  * Requires PHP: 8.0
@@ -11,7 +11,7 @@
 defined('ABSPATH') || exit;
 
 if (!defined('BH_PLUGIN_VERSION')) {
-    define('BH_PLUGIN_VERSION', '1.3.4');
+    define('BH_PLUGIN_VERSION', '1.4.0');
 }
 if (!defined('BH_PLUGIN_FILE')) {
     define('BH_PLUGIN_FILE', __FILE__);
@@ -37,10 +37,12 @@ require_once BH_PLUGIN_DIR . 'includes/class-bh-weekly-schedule-widget.php';
 require_once BH_PLUGIN_DIR . 'includes/class-bh-listing-info-widget.php';
 require_once BH_PLUGIN_DIR . 'includes/class-bh-directory-card.php';
 require_once BH_PLUGIN_DIR . 'includes/class-bh-plugin.php';
+require_once BH_PLUGIN_DIR . 'includes/class-bh-my-hub.php';
 
 add_action('plugins_loaded', static function (): void {
     \BubbaHub\Plugin::boot();
     \BubbaHub\Directory::register();
+    \BubbaHub\MyHub::register();
     \BubbaHub\DirectorySearch::register();
     add_action('widgets_init', static function (): void {
         register_widget(\BubbaHub\WeeklyScheduleWidget::class);
