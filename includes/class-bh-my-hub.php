@@ -58,12 +58,19 @@ final class MyHub {
                 <?php endif; ?>
             </div>
 
+            <nav class="bh-my-hub__quick-nav" aria-label="My Bubba Hub">
+                <a href="#bh-my-hub-family" class="bh-my-hub__quick-link bh-my-hub__quick-link--active"><span aria-hidden="true">👨‍👩‍👧</span><strong>My Family</strong><small>Children &amp; bumps</small></a>
+                <a href="#bh-my-hub-groups" class="bh-my-hub__quick-link"><span aria-hidden="true">🔎</span><strong>Find Activities</strong><small>Discover local groups</small></a>
+                <a href="#bh-my-hub-planner" class="bh-my-hub__quick-link"><span aria-hidden="true">📅</span><strong>My Planner</strong><small>Plan your week</small></a>
+                <a href="<?php echo esc_url(DirectorySearch::saved_searches_url()); ?>" class="bh-my-hub__quick-link"><span aria-hidden="true">♡</span><strong>Saved Searches</strong><small>Quickly revisit searches</small></a>
+            </nav>
+
             <?php if (isset($_GET['bh_hub_saved'])): ?>
                 <div class="bh-my-hub__notice" role="status">Your details have been saved.</div>
             <?php endif; ?>
 
             <div class="bh-my-hub__grid">
-                <section class="bh-my-hub__card">
+                <section id="bh-my-hub-family" class="bh-my-hub__card">
                     <div class="bh-my-hub__card-head">
                         <div><span class="bh-my-hub__icon">👨‍👩‍👧</span><h2>My Family</h2></div>
                         <span class="bh-my-hub__count"><?php echo esc_html(count($children)); ?></span>
@@ -243,7 +250,7 @@ final class MyHub {
                     </div>
                 </section>
 
-                <section class="bh-my-hub__card bh-my-hub__card--wide">
+                <section id="bh-my-hub-planner" class="bh-my-hub__card bh-my-hub__card--wide">
                     <div class="bh-my-hub__saved-searches">
                         <div class="bh-my-hub__saved-searches-head">
                             <div>
@@ -255,7 +262,7 @@ final class MyHub {
                     </div>
                 </section>
 
-                <section class="bh-my-hub__card bh-my-hub__card--wide">
+                <section id="bh-my-hub-groups" class="bh-my-hub__card bh-my-hub__card--wide">
                     <div class="bh-my-hub__card-head"><div><span class="bh-my-hub__icon">👥</span><h2>My Groups</h2></div></div>
                     <div class="bh-my-hub__groups">
                         <article class="bh-my-hub__group"><span class="bh-my-hub__group-icon">🕘</span><div><h3>Recently viewed</h3><p>Groups you have recently looked at.</p></div></article>
