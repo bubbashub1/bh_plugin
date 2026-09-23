@@ -43,7 +43,7 @@ final class MyHub {
         $user = wp_get_current_user();
         self::migrate_legacy_profiles($user->ID);
         $children = self::get_children($user->ID);
-        $bump = self::get_bump($user->ID);
+        $bumps = self::get_bumps($user->ID);
 
         ob_start(); ?>
         <div class="bh-my-hub">
@@ -157,57 +157,90 @@ final class MyHub {
                     </div>
 
                     <div class="bh-my-hub__family-actions">
-                        <button type="button" class="bh-my-hub__button bh-my-hub__button--outline bh-my-hub__open-modal" data-bh-modal="bump"><?php echo $bump ? 'Edit bump' : 'Add bump'; ?></button>
+                        <button type="button" class="bh-my-hub__button bh-my-hub__button--outline bh-my-hub__open-modal" data-bh-modal="add-bump">Add bump</button>
                     </div>
 
-                    <?php if ($bump): ?>
-                        <?php
-                        $bump_id = (int) $bump->ID;
-                        $nickname = (string) get_field('child_nickname', $bump_id);
-                        $due = (string) get_field('child_due_date', $bump_id);
-                        $tracker = $due ? self::antenatal_tracker($due) : [];
-                        ?>
-                        <article class="bh-my-hub__profile bh-my-hub__bump-profile">
-                            <strong><?php echo esc_html($nickname ?: 'My bump'); ?></strong>
-                            <?php if ($due): ?>
-                                <span>Due <?php echo esc_html(wp_date(get_option('date_format'), strtotime($due))); ?></span>
-                                <?php if ($tracker): ?>
-                                    <div class="bh-my-hub__antenatal-tracker">
-                                        <strong>🤰 Antenatal tracker</strong>
-                                        <span><?php echo esc_html($tracker['countdown']); ?></span>
-                                        <small><?php echo esc_html($tracker['classes']); ?></small>
+                    <?php if ($bumps): ?>
+                        <div class="bh-my-hub__profiles">
+                            <?php foreach ($bumps as $bump): ?>
+                                <?php
+                                $bump_id = (int) $bump->ID;
+                                $nickname = (string) get_field('child_nickname', $bump_id);
+                                $due = (string) get_field('child_due_date', $bump_id);
+                                $tracker = $due ? self::antenatal_tracker($due) : [];
+                                $baby_is_here = $due ? self::bump_is_38_weeks($due) : false;
+                                ?>
+                                <article class="bh-my-hub__profile bh-my-hub__bump-profile">
+                                    <strong><?php echo esc_html($nickname ?: 'My bump'); ?></strong>
+                                    <?php if ($due): ?>
+                                        <span>Due <?php echo esc_html(wp_date(get_option('date_format'), strtotime($due))); ?></span>
+                                        <?php if ($tracker): ?>
+                                            <div class="bh-my-hub__antenatal-tracker">
+                                                <strong>🤰 Antenatal tracker</strong>
+                                                <span><?php echo esc_html($tracker['countdown']); ?></span>
+                                                <small><?php echo esc_html($tracker['classes']); ?></small>
+                                            </div>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
+                                    <div class="bh-my-hub__profile-actions">
+                                        <button type="button" class="bh-my-hub__edit-link bh-my-hub__open-modal" data-bh-modal="edit-bump-<?php echo esc_attr((string) $bump_id); ?>">Edit bump</button>
+                                        <?php if ($baby_is_here): ?>
+                                            <form method="post" class="bh-my-hub__inline-form">
+                                                <?php wp_nonce_field('bh_my_hub_baby_is_here_' . $bump_id, 'bh_my_hub_nonce'); ?>
+                                                <input type="hidden" name="bh_my_hub_action" value="baby_is_here">
+                                                <input type="hidden" name="child_id" value="<?php echo esc_attr((string) $bump_id); ?>">
+                                                <button type="submit" class="bh-my-hub__button bh-my-hub__button--success">Baby is here</button>
+                                            </form>
+                                        <?php endif; ?>
+                                        <form method="post" class="bh-my-hub__delete">
+                                            <?php wp_nonce_field('bh_my_hub_delete_bump_' . $bump_id, 'bh_my_hub_nonce'); ?>
+                                            <input type="hidden" name="bh_my_hub_action" value="delete_bump">
+                                            <input type="hidden" name="child_id" value="<?php echo esc_attr((string) $bump_id); ?>">
+                                            <button type="submit">Remove bump</button>
+                                        </form>
                                     </div>
-                                <?php endif; ?>
-                            <?php endif; ?>
-                            <form method="post" class="bh-my-hub__delete">
-                                <?php wp_nonce_field('bh_my_hub_delete_bump_' . $bump_id, 'bh_my_hub_nonce'); ?>
-                                <input type="hidden" name="bh_my_hub_action" value="delete_bump">
-                                <input type="hidden" name="child_id" value="<?php echo esc_attr((string) $bump_id); ?>">
-                                <button type="submit">Remove bump</button>
-                            </form>
-                        </article>
+                                </article>
+
+                                <div class="bh-my-hub__modal" data-bh-modal-panel="edit-bump-<?php echo esc_attr((string) $bump_id); ?>" hidden>
+                                    <div class="bh-my-hub__modal-backdrop" data-bh-modal-close></div>
+                                    <div class="bh-my-hub__modal-dialog" role="dialog" aria-modal="true">
+                                        <button type="button" class="bh-my-hub__modal-close" data-bh-modal-close aria-label="Close">×</button>
+                                        <h3>Edit bump</h3>
+                                        <form method="post" class="bh-my-hub__form">
+                                            <?php wp_nonce_field('bh_my_hub_save_bump_' . $bump_id, 'bh_my_hub_nonce'); ?>
+                                            <input type="hidden" name="bh_my_hub_action" value="save_bump">
+                                            <input type="hidden" name="child_id" value="<?php echo esc_attr((string) $bump_id); ?>">
+                                            <div class="bh-my-hub__fields">
+                                                <label>Nickname<input type="text" name="bump_nickname" maxlength="100" value="<?php echo esc_attr($nickname); ?>"></label>
+                                                <label>Due date<input type="date" name="bump_due_date" value="<?php echo esc_attr($due); ?>" required></label>
+                                            </div>
+                                            <button class="bh-my-hub__button" type="submit">Save changes</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
                     <?php else: ?>
-                        <p class="bh-my-hub__muted">Add a bump if you're expecting, and Bubba Hub can use your due date for personalised features.</p>
+                        <p class="bh-my-hub__muted">Add a bump if you're expecting. You can add more than one for a multiple pregnancy.</p>
                     <?php endif; ?>
 
-                    <div class="bh-my-hub__modal" data-bh-modal-panel="bump" hidden>
+                    <div class="bh-my-hub__modal" data-bh-modal-panel="add-bump" hidden>
                         <div class="bh-my-hub__modal-backdrop" data-bh-modal-close></div>
                         <div class="bh-my-hub__modal-dialog" role="dialog" aria-modal="true">
                             <button type="button" class="bh-my-hub__modal-close" data-bh-modal-close aria-label="Close">×</button>
-                            <h3><?php echo $bump ? 'Update bump' : 'Add a bump'; ?></h3>
+                            <h3>Add a bump</h3>
                             <form method="post" class="bh-my-hub__form">
                                 <?php wp_nonce_field('bh_my_hub_save_bump', 'bh_my_hub_nonce'); ?>
                                 <input type="hidden" name="bh_my_hub_action" value="save_bump">
-                                <input type="hidden" name="child_id" value="<?php echo $bump ? esc_attr((string) $bump->ID) : ''; ?>">
+                                <input type="hidden" name="child_id" value="">
                                 <div class="bh-my-hub__fields">
-                                    <label>Nickname<input type="text" name="bump_nickname" maxlength="100" value="<?php echo $bump ? esc_attr((string) get_field('child_nickname', $bump->ID)) : ''; ?>"></label>
-                                    <label>Due date<input type="date" name="bump_due_date" value="<?php echo $bump ? esc_attr((string) get_field('child_due_date', $bump->ID)) : ''; ?>" required></label>
+                                    <label>Nickname<input type="text" name="bump_nickname" maxlength="100" value=""></label>
+                                    <label>Due date<input type="date" name="bump_due_date" value="" required></label>
                                 </div>
-                                <button class="bh-my-hub__button" type="submit"><?php echo $bump ? 'Save changes' : 'Save bump'; ?></button>
+                                <button class="bh-my-hub__button" type="submit">Save bump</button>
                             </form>
                         </div>
                     </div>
-                </section>
 
                 <section class="bh-my-hub__card bh-my-hub__card--wide">
                     <div class="bh-my-hub__card-head"><div><span class="bh-my-hub__icon">👥</span><h2>My Groups</h2></div></div>
@@ -368,18 +401,23 @@ final class MyHub {
         }
 
         if ($action === 'save_bump') {
-            check_admin_referer('bh_my_hub_save_bump', 'bh_my_hub_nonce');
             $id = absint($_POST['child_id'] ?? 0);
+            check_admin_referer($id ? 'bh_my_hub_save_bump_' . $id : 'bh_my_hub_save_bump', 'bh_my_hub_nonce');
             if (!$id || !self::user_owns_child($id, $user_id)) {
-                $existing = self::get_bump($user_id);
-                if ($existing) {
-                    $id = (int) $existing->ID;
-                } else {
-                    $created = wp_insert_post(['post_type'=>self::CHILD_POST_TYPE,'post_status'=>'publish','post_author'=>$user_id,'post_title'=>'My bump'], true);
-                    $id = is_wp_error($created) ? 0 : (int) $created;
-                }
+                $created = wp_insert_post(['post_type'=>self::CHILD_POST_TYPE,'post_status'=>'publish','post_author'=>$user_id,'post_title'=>'My bump'], true);
+                $id = is_wp_error($created) ? 0 : (int) $created;
             }
             if ($id) self::save_bump_post($id);
+            self::redirect_saved();
+        }
+
+        if ($action === 'baby_is_here') {
+            $id = absint($_POST['child_id'] ?? 0);
+            check_admin_referer('bh_my_hub_baby_is_here_' . $id, 'bh_my_hub_nonce');
+            if (self::user_owns_child($id, $user_id) && get_field('child_status', $id) === 'expecting') {
+                $due = (string) get_field('field_bubbahub_child_due_date', $id);
+                if ($due && self::bump_is_38_weeks($due)) self::convert_bump_to_child($id);
+            }
             self::redirect_saved();
         }
 
@@ -504,17 +542,40 @@ final class MyHub {
         ]);
     }
 
-    private static function get_bump(int $user_id): ?\WP_Post {
-        $posts = get_posts([
+    private static function get_bumps(int $user_id): array {
+        return get_posts([
             'post_type'=>self::CHILD_POST_TYPE,
             'post_status'=>['publish','private'],
             'author'=>$user_id,
-            'posts_per_page'=>1,
+            'posts_per_page'=>-1,
             'orderby'=>'date',
-            'order'=>'DESC',
+            'order'=>'ASC',
             'meta_query'=>[['key'=>'child_status','value'=>'expecting','compare'=>'=']],
         ]);
-        return $posts ? $posts[0] : null;
+    }
+
+    private static function bump_is_38_weeks(string $due_date): bool {
+        try {
+            $due = new \DateTimeImmutable($due_date);
+            $today = new \DateTimeImmutable('today');
+            return $today >= $due->modify('-14 days');
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    private static function convert_bump_to_child(int $id): void {
+        $nickname = (string) get_field('field_bubbahub_child_nickname', $id);
+        $name = (string) get_field('field_bubbahub_child_name', $id);
+        $name = $name ?: ($nickname ?: 'Baby');
+        $today = current_time('Y-m-d');
+
+        wp_update_post(['ID'=>$id,'post_title'=>$name]);
+        update_field('field_bubbahub_child_name', $name, $id);
+        update_field('field_bubbahub_child_status', 'born', $id);
+        update_field('field_bubbahub_child_date_of_birth', $today, $id);
+        update_field('field_bubbahub_child_due_date', '', $id);
+        update_field('field_bubbahub_child_age_group', '0-3', $id);
     }
 
     private static function user_owns_child(int $id, int $user_id): bool {
