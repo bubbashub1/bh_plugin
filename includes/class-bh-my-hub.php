@@ -474,6 +474,38 @@ final class MyHub {
             self::redirect_planner();
         }
 
+        if ($action === 'edit_nap_window') {
+            check_admin_referer('bh_my_hub_edit_nap_window', 'bh_my_hub_nonce');
+
+            $child_id = absint($_POST['nap_child_id'] ?? 0);
+            $index = isset($_POST['nap_index']) ? absint($_POST['nap_index']) : -1;
+            $day = sanitize_key(wp_unslash($_POST['nap_day'] ?? ''));
+            $start = sanitize_text_field(wp_unslash($_POST['nap_start_time'] ?? ''));
+            $end = sanitize_text_field(wp_unslash($_POST['nap_end_time'] ?? ''));
+            $valid_days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+
+            if (
+                self::user_owns_child($child_id, $user_id) &&
+                get_field('child_status', $child_id) === 'born' &&
+                $index >= 0 &&
+                in_array($day, $valid_days, true) &&
+                preg_match('/^(?:[01]\\d|2[0-3]):[0-5]\\d$/', $start) &&
+                preg_match('/^(?:[01]\\d|2[0-3]):[0-5]\\d$/', $end) &&
+                $start < $end
+            ) {
+                $schedule = get_field('field_bubbahub_child_nap_schedule', $child_id);
+                if (is_array($schedule) && array_key_exists($index, $schedule)) {
+                    $schedule[$index]['day_name'] = $day;
+                    $schedule[$index]['enabled'] = 1;
+                    $schedule[$index]['start_time'] = $start;
+                    $schedule[$index]['end_time'] = $end;
+                    update_field('field_bubbahub_child_nap_schedule', array_values($schedule), $child_id);
+                }
+            }
+
+            self::redirect_planner();
+        }
+
         if ($action === 'remove_nap_window') {
             check_admin_referer('bh_my_hub_remove_nap_window', 'bh_my_hub_nonce');
 
@@ -633,13 +665,46 @@ final class MyHub {
                                     <span><?php echo esc_html($day_labels[$window['day_name']] ?? ucfirst($window['day_name'])); ?></span>
                                     <small><?php echo esc_html($window['start_time'] . '–' . $window['end_time']); ?></small>
                                 </div>
-                                <form method="post">
-                                    <?php wp_nonce_field('bh_my_hub_remove_nap_window', 'bh_my_hub_nonce'); ?>
-                                    <input type="hidden" name="bh_my_hub_action" value="remove_nap_window">
-                                    <input type="hidden" name="child_id" value="<?php echo esc_attr((string) $window['child_id']); ?>">
-                                    <input type="hidden" name="nap_index" value="<?php echo esc_attr((string) $window['index']); ?>">
-                                    <button type="submit">Remove</button>
-                                </form>
+                                <div class="bh-my-hub__nap-window-actions">
+                                    <button type="button" class="bh-my-hub__edit-link bh-my-hub__open-modal" data-bh-modal="edit-nap-<?php echo esc_attr((string) $window['child_id'] . '-' . (string) $window['index']); ?>">Edit</button>
+                                    <form method="post">
+                                        <?php wp_nonce_field('bh_my_hub_remove_nap_window', 'bh_my_hub_nonce'); ?>
+                                        <input type="hidden" name="bh_my_hub_action" value="remove_nap_window">
+                                        <input type="hidden" name="child_id" value="<?php echo esc_attr((string) $window['child_id']); ?>">
+                                        <input type="hidden" name="nap_index" value="<?php echo esc_attr((string) $window['index']); ?>">
+                                        <button type="submit">Remove</button>
+                                    </form>
+                                </div>
+                                <div class="bh-my-hub__modal" data-bh-modal-panel="edit-nap-<?php echo esc_attr((string) $window['child_id'] . '-' . (string) $window['index']); ?>" hidden>
+                                    <div class="bh-my-hub__modal-backdrop" data-bh-modal-close></div>
+                                    <div class="bh-my-hub__modal-dialog" role="dialog" aria-modal="true">
+                                        <button type="button" class="bh-my-hub__modal-close" data-bh-modal-close aria-label="Close">×</button>
+                                        <h3>Edit nap window</h3>
+                                        <form method="post" class="bh-my-hub__form">
+                                            <?php wp_nonce_field('bh_my_hub_edit_nap_window', 'bh_my_hub_nonce'); ?>
+                                            <input type="hidden" name="bh_my_hub_action" value="edit_nap_window">
+                                            <input type="hidden" name="nap_child_id" value="<?php echo esc_attr((string) $window['child_id']); ?>">
+                                            <input type="hidden" name="nap_index" value="<?php echo esc_attr((string) $window['index']); ?>">
+                                            <div class="bh-my-hub__fields">
+                                                <label>Child
+                                                    <select name="nap_child_id_display" disabled>
+                                                        <option selected><?php echo esc_html($window['child_name']); ?></option>
+                                                    </select>
+                                                </label>
+                                                <label>Day
+                                                    <select name="nap_day" required>
+                                                        <?php foreach ($day_labels as $day_key => $day_label): ?>
+                                                            <option value="<?php echo esc_attr($day_key); ?>" <?php selected($window['day_name'], $day_key); ?>><?php echo esc_html($day_label); ?></option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </label>
+                                                <label>Start time<input type="time" name="nap_start_time" value="<?php echo esc_attr($window['start_time']); ?>" required></label>
+                                                <label>End time<input type="time" name="nap_end_time" value="<?php echo esc_attr($window['end_time']); ?>" required></label>
+                                            </div>
+                                            <button class="bh-my-hub__button" type="submit">Save changes</button>
+                                        </form>
+                                    </div>
+                                </div>
                             </article>
                         <?php endforeach; ?>
                     </div>
