@@ -156,6 +156,7 @@ final class MyHub {
                             </form>
                         </div>
                     </div>
+                </section>
 
                 <section class="bh-my-hub__card">
                     <div class="bh-my-hub__card-head">
