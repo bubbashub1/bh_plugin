@@ -386,19 +386,6 @@ final class MyHub {
                     </div>
                 </section>
 
-                <section id="bh-my-hub-saved-searches" class="bh-my-hub__card bh-my-hub__card--wide">
-                    <div class="bh-my-hub__saved-searches">
-                        <div class="bh-my-hub__saved-searches-head">
-                            <div>
-                                <strong>🔎 Saved Searches</strong>
-                                <p>Your saved group searches at a glance. Select a search to view and manage all your saved searches.</p>
-                            </div>
-                            <a class="bh-my-hub__button" href="<?php echo esc_url(DirectorySearch::saved_searches_url()); ?>">View Saved Searches</a>
-                        </div>
-                        <?php echo self::render_saved_search_cards($user->ID); ?>
-                    </div>
-                </section>
-
                 <section id="bh-my-hub-groups" class="bh-my-hub__card bh-my-hub__card--wide">
                     <div class="bh-my-hub__card-head">
                         <div><span class="bh-my-hub__icon">👥</span><h2>My Groups</h2></div>
