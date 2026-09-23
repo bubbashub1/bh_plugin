@@ -107,7 +107,17 @@ final class Planner {
     public static function view_url(string $view): string {
         $args = self::current_filter_args();
         $args['bh_view'] = $view;
-        $args['bh_date'] = false;
+
+        // Keep the currently selected planner date when switching views.
+        // This means List/Grid/Map -> Daily/Weekly/Monthly stays on the
+        // same date, and switching back does not unexpectedly jump to today.
+        if (isset($_GET['bh_date']) && is_scalar($_GET['bh_date'])) {
+            $date = sanitize_text_field(wp_unslash($_GET['bh_date']));
+            if ($date !== '') {
+                $args['bh_date'] = $date;
+            }
+        }
+
         $args['bh_page'] = false;
 
         return add_query_arg($args);
