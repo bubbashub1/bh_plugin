@@ -20,3 +20,15 @@
 @media(max-width:650px){
  .bh-directory__filter-toggle{min-height:52px;border-radius:14px}
 }
+
+/* Full-width search with Pitchup-style filters down the left. */
+.bh-directory__search-top{width:100%;margin:0 0 24px}
+.bh-directory__layout{grid-template-columns:minmax(235px,280px) minmax(0,1fr)}
+.bh-directory__filter-drawer{background:#fff;border:1px solid #e7e9ed;border-radius:14px;padding:16px}
+.bh-directory__filter-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:800;color:var(--wp--preset--color--secondary,#5c6670)}
+.bh-directory__filter-panel{padding-top:14px}
+.bh-directory__filter-panel .bh-directory-search__advanced{border-top:0;padding-top:0;margin-top:0}
+.bh-directory__filter-panel .bh-directory-search__advanced summary{display:none}
+.bh-directory__filter-panel .bh-directory-search__advanced-grid{display:flex;flex-direction:column;grid-template-columns:none;gap:14px;margin-top:0}
+.bh-directory__filter-panel .bh-directory-search__field input,.bh-directory__filter-panel .bh-directory-search__field select{width:100%}
+@media(max-width:900px){.bh-directory__layout{grid-template-columns:1fr}.bh-directory__filter-drawer{margin-bottom:18px}}
