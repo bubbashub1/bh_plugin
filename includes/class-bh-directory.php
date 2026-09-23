@@ -7,6 +7,8 @@ final class Directory {
     public static function register(): void {
         add_shortcode('bh_directory', [self::class, 'shortcode']);
         add_action('wp_enqueue_scripts', [self::class, 'assets']);
+        add_action('admin_post_bh_calendar_ics', [Planner::class, 'export_ics']);
+        add_action('admin_post_nopriv_bh_calendar_ics', [Planner::class, 'export_ics']);
     }
 
     public static function shortcode(array $atts = []): string {
