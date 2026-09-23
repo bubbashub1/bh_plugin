@@ -87,6 +87,11 @@ final class MyHub {
                         <div class="bh-my-hub__profiles">
                             <?php foreach ($children as $index => $child): ?>
                                 <article class="bh-my-hub__profile">
+                                    <?php if (!empty($child['avatar_id'])): ?>
+                                        <?php echo wp_get_attachment_image((int) $child['avatar_id'], 'thumbnail', false, ['class' => 'bh-my-hub__avatar', 'alt' => '']); ?>
+                                    <?php else: ?>
+                                        <span class="bh-my-hub__avatar bh-my-hub__avatar--placeholder" aria-hidden="true">👶</span>
+                                    <?php endif; ?>
                                     <strong><?php echo esc_html($child['name'] ?? 'Child'); ?></strong>
                                     <?php if (!empty($child['dob'])): ?>
                                         <span><?php echo esc_html(self::age_label($child['dob'])); ?></span>
@@ -116,7 +121,7 @@ final class MyHub {
                                         <div class="bh-my-hub__modal-dialog" role="dialog" aria-modal="true" aria-labelledby="bh-edit-child-<?php echo esc_attr((string) $index); ?>-title">
                                             <button type="button" class="bh-my-hub__modal-close" data-bh-modal-close aria-label="Close">×</button>
                                             <h3 id="bh-edit-child-<?php echo esc_attr((string) $index); ?>-title">Edit <?php echo esc_html($child['name'] ?? 'child'); ?></h3>
-                                            <form method="post" class="bh-my-hub__form">
+                                            <form method="post" class="bh-my-hub__form" enctype="multipart/form-data">
                                                 <?php wp_nonce_field('bh_my_hub_edit_child', 'bh_my_hub_nonce'); ?>
                                                 <input type="hidden" name="bh_my_hub_action" value="edit_child">
                                                 <input type="hidden" name="child_index" value="<?php echo esc_attr((string) $index); ?>">
@@ -131,6 +136,7 @@ final class MyHub {
                                                         </select>
                                                     </label>
                                                     <label>Date of birth<input type="date" name="child_dob" value="<?php echo esc_attr($child['dob'] ?? ''); ?>"></label>
+                                                    <label class="bh-my-hub__avatar-field">Avatar<input type="file" name="child_avatar" accept="image/jpeg,image/png,image/webp"><small>JPG, PNG or WebP</small></label>
                                                     <label>Local authority
                                                         <select name="child_school_authority">
                                                             <option value="">Select local authority</option>
@@ -141,6 +147,9 @@ final class MyHub {
                                                         </select>
                                                     </label>
                                                 </div>
+                                                <?php if (!empty($child['avatar_id'])): ?>
+                                                    <label class="bh-my-hub__avatar-remove"><input type="checkbox" name="remove_child_avatar" value="1"> Remove current avatar</label>
+                                                <?php endif; ?>
                                                 <button class="bh-my-hub__button" type="submit">Save changes</button>
                                             </form>
                                         </div>
@@ -311,11 +320,42 @@ final class MyHub {
             $children = is_array($children) ? $children : [];
             $index = isset($_POST['child_index']) ? absint($_POST['child_index']) : -1;
             if (isset($children[$index])) {
+                $old_avatar_id = !empty($children[$index]['avatar_id']) ? absint($children[$index]['avatar_id']) : 0;
+                $avatar_id = $old_avatar_id;
+
+                if (!empty($_POST['remove_child_avatar']) && $old_avatar_id) {
+                    wp_delete_attachment($old_avatar_id, true);
+                    $avatar_id = 0;
+                }
+
+                if (!empty($_FILES['child_avatar']['name'])) {
+                    require_once ABSPATH . 'wp-admin/includes/file.php';
+                    require_once ABSPATH . 'wp-admin/includes/media.php';
+                    require_once ABSPATH . 'wp-admin/includes/image.php';
+
+                    $uploaded_avatar = media_handle_upload('child_avatar', 0, [], [
+                        'test_form' => false,
+                        'mimes' => [
+                            'jpg|jpeg|jpe' => 'image/jpeg',
+                            'png' => 'image/png',
+                            'webp' => 'image/webp',
+                        ],
+                    ]);
+
+                    if (!is_wp_error($uploaded_avatar)) {
+                        if ($old_avatar_id && $old_avatar_id !== $uploaded_avatar) {
+                            wp_delete_attachment($old_avatar_id, true);
+                        }
+                        $avatar_id = (int) $uploaded_avatar;
+                    }
+                }
+
                 $children[$index] = [
                     'name' => sanitize_text_field(wp_unslash($_POST['child_name'] ?? '')),
                     'gender' => sanitize_key(wp_unslash($_POST['child_gender'] ?? '')),
                     'dob' => sanitize_text_field(wp_unslash($_POST['child_dob'] ?? '')),
                     'school_authority' => sanitize_key(wp_unslash($_POST['child_school_authority'] ?? '')),
+                    'avatar_id' => $avatar_id,
                 ];
                 update_user_meta($user_id, self::CHILDREN_META, $children);
             }
