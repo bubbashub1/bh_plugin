@@ -116,7 +116,7 @@ final class MyHub {
                                         <div class="bh-my-hub__modal-dialog" role="dialog" aria-modal="true">
                                             <button type="button" class="bh-my-hub__modal-close" data-bh-modal-close aria-label="Close">×</button>
                                             <h3>Edit <?php echo esc_html($name ?: 'child'); ?></h3>
-                                            <form method="post" class="bh-my-hub__form">
+                                            <form method="post" class="bh-my-hub__form" enctype="multipart/form-data">
                                                 <?php wp_nonce_field('bh_my_hub_edit_child_' . $id, 'bh_my_hub_nonce'); ?>
                                                 <input type="hidden" name="bh_my_hub_action" value="edit_child">
                                                 <input type="hidden" name="child_id" value="<?php echo esc_attr((string) $id); ?>">
@@ -250,7 +250,8 @@ final class MyHub {
                     <?php endforeach; endif; ?>
                 </select>
             </label>
-            <label class="bh-my-hub__avatar-field">Avatar URL<input type="url" name="child_avatar_url" value="<?php echo esc_attr($avatar); ?>" placeholder="https://..."><small>Optional image URL.</small></label>
+            <label class="bh-my-hub__avatar-field">Avatar<input type="file" name="child_avatar" accept="image/jpeg,image/png,image/webp"><small>JPG, PNG or WebP</small></label>
+            <label class="bh-my-hub__avatar-field">Avatar URL<input type="url" name="child_avatar_url" value="<?php echo esc_attr($avatar); ?>" placeholder="https://..."><small>Or use an image URL.</small></label>
         </div>
         <?php
     }
@@ -313,6 +314,24 @@ final class MyHub {
         $due = sanitize_text_field(wp_unslash($_POST['child_due_date'] ?? ''));
         $avatar = esc_url_raw(wp_unslash($_POST['child_avatar_url'] ?? ''));
         $location_id = absint($_POST['child_location'] ?? 0);
+
+        if (!empty($_FILES['child_avatar']['name'])) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            require_once ABSPATH . 'wp-admin/includes/media.php';
+            require_once ABSPATH . 'wp-admin/includes/image.php';
+            $attachment_id = media_handle_upload('child_avatar', $id ?: 0, [], [
+                'test_form' => false,
+                'mimes' => [
+                    'jpg|jpeg|jpe' => 'image/jpeg',
+                    'png' => 'image/png',
+                    'webp' => 'image/webp',
+                ],
+            ]);
+            if (!is_wp_error($attachment_id)) {
+                $uploaded_url = wp_get_attachment_url((int) $attachment_id);
+                if ($uploaded_url) $avatar = $uploaded_url;
+            }
+        }
 
         if (!in_array($status, ['born','expecting'], true)) $status = 'born';
 
