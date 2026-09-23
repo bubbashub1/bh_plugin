@@ -94,6 +94,16 @@ final class MyHub {
                                     <?php if (!empty($child['gender'])): ?>
                                         <span><?php echo esc_html(ucfirst($child['gender'])); ?></span>
                                     <?php endif; ?>
+                                    <?php
+                                    $school_tracker = self::school_tracker($child['dob'] ?? '', $child['school_authority'] ?? '');
+                                    if ($school_tracker):
+                                    ?>
+                                        <div class="bh-my-hub__school-tracker">
+                                            <strong>🎓 School tracker</strong>
+                                            <span><?php echo esc_html($school_tracker['label']); ?></span>
+                                            <small><?php echo esc_html($school_tracker['countdown']); ?></small>
+                                        </div>
+                                    <?php endif; ?>
                                     <form method="post" class="bh-my-hub__delete">
                                         <?php wp_nonce_field('bh_my_hub_delete_child', 'bh_my_hub_nonce'); ?>
                                         <input type="hidden" name="bh_my_hub_action" value="delete_child">
@@ -126,6 +136,15 @@ final class MyHub {
                                         </select>
                                     </label>
                                     <label>Date of birth<input type="date" name="child_dob"></label>
+                                    <label>Local authority
+                                        <select name="child_school_authority">
+                                            <option value="">Select local authority</option>
+                                            <option value="devon">Devon</option>
+                                            <option value="cornwall">Cornwall</option>
+                                            <option value="torbay">Torbay</option>
+                                            <option value="plymouth">Plymouth</option>
+                                        </select>
+                                    </label>
                                 </div>
                                 <button class="bh-my-hub__button" type="submit">Save child</button>
                             </form>
@@ -245,6 +264,7 @@ final class MyHub {
                 'name' => sanitize_text_field(wp_unslash($_POST['child_name'] ?? '')),
                 'gender' => sanitize_key(wp_unslash($_POST['child_gender'] ?? '')),
                 'dob' => sanitize_text_field(wp_unslash($_POST['child_dob'] ?? '')),
+                'school_authority' => sanitize_key(wp_unslash($_POST['child_school_authority'] ?? '')),
             ];
             update_user_meta($user_id, self::CHILDREN_META, $children);
             self::redirect_saved();
@@ -325,6 +345,76 @@ final class MyHub {
         });
         </script>
         <?php
+    }
+
+    private static function school_tracker(string $dob, string $authority): array {
+        if (!$dob) {
+            return [];
+        }
+
+        try {
+            $birth = new \DateTimeImmutable($dob);
+            $today = new \DateTimeImmutable('today');
+
+            if ($birth > $today) {
+                return [];
+            }
+
+            // Normal Reception intake follows the child's school year.
+            $fourth_birthday = $birth->modify('+4 years');
+            $reception_year = (int) $fourth_birthday->format('Y');
+            if ((int) $fourth_birthday->format('m') > 8) {
+                $reception_year++;
+            }
+
+            $deadline = new \DateTimeImmutable($reception_year . '-01-15');
+            $label = 'Reception application deadline';
+
+            // Once Reception is past, track the next normal Year 7 application.
+            if ($deadline < $today) {
+                $eleven_birthday = $birth->modify('+11 years');
+                $secondary_year = (int) $eleven_birthday->format('Y');
+                $deadline = new \DateTimeImmutable($secondary_year . '-10-31');
+                $label = 'Secondary school application deadline';
+            }
+
+            $authority_label = self::school_authority_label($authority);
+            $prefix = $label . ($authority_label ? ' • ' . $authority_label : '');
+            if ($deadline < $today) {
+                return [
+                    'label' => $prefix,
+                    'countdown' => 'Deadline passed — check your local authority for late applications.',
+                ];
+            }
+
+            $diff = $today->diff($deadline);
+            $parts = [];
+            if ($diff->y) {
+                $parts[] = $diff->y . ' ' . ($diff->y === 1 ? 'year' : 'years');
+            }
+            if ($diff->m) {
+                $parts[] = $diff->m . ' ' . ($diff->m === 1 ? 'month' : 'months');
+            }
+            $parts[] = $diff->d . ' ' . ($diff->d === 1 ? 'day' : 'days');
+
+            return [
+                'label' => $prefix,
+                'countdown' => implode(', ', $parts) . ' to apply',
+            ];
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+
+    private static function school_authority_label(string $authority): string {
+        $labels = [
+            'devon' => 'Devon',
+            'cornwall' => 'Cornwall',
+            'torbay' => 'Torbay',
+            'plymouth' => 'Plymouth',
+        ];
+
+        return $labels[$authority] ?? '';
     }
 
     private static function age_label(string $dob): string {
