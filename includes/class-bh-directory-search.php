@@ -52,7 +52,11 @@ final class DirectorySearch {
         $query = array_filter($query, static function ($value): bool {
             return is_array($value) ? !empty($value) : trim((string) $value) !== '';
         });
-        $path = wp_parse_url(wp_unslash($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/';
+        $path = isset($_POST['bh_saved_search_path']) ? sanitize_text_field(wp_unslash($_POST['bh_saved_search_path'])) : '';
+        if ($path === '') {
+            $path = wp_parse_url(wp_unslash($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/';
+        }
+        $path = '/' . ltrim((string) $path, '/');
         $saved_url = home_url($path);
         if ($query) {
             $saved_url = add_query_arg($query, $saved_url);
@@ -318,6 +322,7 @@ final class DirectorySearch {
         }
         $query['bh_edit_saved_search_id'] = $id;
         $query['bh_modal_editor'] = '1';
+        $query['bh_saved_search_path'] = !empty($parts['path']) ? (string) $parts['path'] : '/directory/';
 
         $original_get = $_GET;
         $_GET = $query;
@@ -380,6 +385,8 @@ final class DirectorySearch {
             <form class="bh-directory-search__form" method="get">
                 <input type="hidden" name="bh_view" value="<?php echo esc_attr(isset($_GET['bh_view']) ? sanitize_key(wp_unslash($_GET['bh_view'])) : ''); ?>">
                 <input type="hidden" name="bh_date" value="<?php echo esc_attr(isset($_GET['bh_date']) ? sanitize_text_field(wp_unslash($_GET['bh_date'])) : ''); ?>">
+                <?php if (isset($_GET['bh_saved_search_path'])) : ?><input type="hidden" name="bh_saved_search_path" value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['bh_saved_search_path']))); ?>"><?php endif; ?>
+                <div class="bh-directory-search__main-heading"><h3>Main Search</h3></div>
                 <div class="bh-directory-search__field bh-directory-search__field--search">
                     <label for="bh-search">Search</label>
                     <input id="bh-search" name="bh_search" type="search" value="<?php echo esc_attr($values['search']); ?>" placeholder="Search activities">
@@ -462,7 +469,7 @@ final class DirectorySearch {
             </form>
 
             <?php if (is_user_logged_in()) : ?>
-                <?php $save_url = remove_query_arg('bh_page'); ?>
+                <?php $save_url = remove_query_arg(['bh_page','bh_edit_saved_search_id','bh_modal_editor','bh_saved_search_path']); ?>
                 <div class="bh-directory-search__save">
                     <div class="bh-directory-search__save-intro">
                         <strong>Save this search</strong>
