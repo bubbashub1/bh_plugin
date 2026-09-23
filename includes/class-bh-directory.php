@@ -8,7 +8,6 @@ final class Directory {
 
     public static function register(): void {
         add_shortcode('bh_directory', [self::class, 'shortcode']);
-        add_shortcode('bh_groups', [self::class, 'groups_shortcode']);
         add_action('wp_enqueue_scripts', [self::class, 'assets']);
         add_action('admin_post_bh_calendar_ics', [Planner::class, 'export_ics']);
         add_action('admin_post_nopriv_bh_calendar_ics', [Planner::class, 'export_ics']);
@@ -69,16 +68,6 @@ final class Directory {
             . DirectorySearch::location_form()
             . '<div class="bh-directory__directorist-listings">' . $listings . '</div>'
             . '</div>';
-    }
-
-    public static function groups_shortcode(array $atts = []): string {
-        $atts = shortcode_atts([
-            'posts_per_page' => 12,
-            'title' => 'Find Family Activities',
-            'columns' => 3,
-        ], $atts, 'bh_groups');
-
-        return self::shortcode($atts);
     }
 
     public static function shortcode(array $atts = []): string {
