@@ -194,30 +194,17 @@ final class Planner {
             }
         }
 
-        // Collapse multiple sessions for the same listing/day into one continuous activity block.
-        // The block starts at the earliest session start and ends at the latest session end.
-        $blocks = [];
-        foreach ($events as $event) {
-            $key = $event['date'] . '|' . $event['post_id'];
-            if (!isset($blocks[$key])) {
-                $blocks[$key] = $event;
-                continue;
-            }
-
-            $blocks[$key]['start'] = min($blocks[$key]['start'], $event['start']);
-            $blocks[$key]['end'] = max($blocks[$key]['end'], $event['end']);
+        // Keep each session as its own event. Multiple sessions on the same day
+        // must remain separate so families can see the actual session times.
+        // Overlapping events are assigned lanes in render_time_grid() so they
+        // remain visible side-by-side instead of covering one another.
+        foreach ($events as &$event) {
+            $event['time'] = self::format_minutes($event['start']) . '–' . self::format_minutes($event['end']);
         }
-
-        foreach ($blocks as &$block) {
-            $block['time'] = self::format_minutes($block['start']) . '–' . self::format_minutes($block['end']);
-            $block['label'] = '';
-        }
-        unset($block);
-
-        $events = array_values($blocks);
+        unset($event);
 
         usort($events, static function (array $a, array $b): int {
-            return [$a['date'], $a['start'], $a['title']] <=> [$b['date'], $b['start'], $b['title']];
+            return [$a['date'], $a['start'], $a['end'], $a['title'], $a['label']] <=> [$b['date'], $b['start'], $b['end'], $b['title'], $b['label']];
         });
 
         return $events;
@@ -337,6 +324,45 @@ final class Planner {
             $by_day[$event['date']][] = $event;
         }
 
+        // Assign overlap lanes per day. Events that do not overlap can share a lane;
+        // overlapping events are displayed side-by-side.
+        foreach ($by_day as $date_key => &$day_events) {
+            usort($day_events, static function (array $a, array $b): int {
+                return [$a['start'], $a['end'], $a['title']] <=> [$b['start'], $b['end'], $b['title']];
+            });
+
+            $lane_ends = [];
+            foreach ($day_events as &$event) {
+                $lane = null;
+                foreach ($lane_ends as $index => $lane_end) {
+                    if ($event['start'] >= $lane_end) {
+                        $lane = $index;
+                        break;
+                    }
+                }
+
+                if ($lane === null) {
+                    $lane = count($lane_ends);
+                    $lane_ends[] = $event['end'];
+                } else {
+                    $lane_ends[$lane] = $event['end'];
+                }
+
+                $event['lane'] = $lane;
+                $event['lane_count'] = count($lane_ends);
+            }
+            unset($event);
+
+            // Once all lanes are known, every event gets the same width for that
+            // day's overlap group. This keeps the grid stable and readable.
+            $lane_count = count($lane_ends);
+            foreach ($day_events as &$event) {
+                $event['lane_count'] = max(1, $lane_count);
+            }
+            unset($event);
+        }
+        unset($day_events);
+
         ob_start();
         ?>
         <div class="bh-planner bh-planner--<?php echo esc_attr($view); ?>">
@@ -369,8 +395,10 @@ final class Planner {
                             $height = max(3, (($event['end'] - $event['start']) / 30) * (100 / $slots));
                             $top = max(0, min(100, $top));
                             $height = max(2.5, min(100 - $top, $height));
+                            $lane = (int) ($event['lane'] ?? 0);
+                            $lane_count = max(1, (int) ($event['lane_count'] ?? 1));
                             ?>
-                            <a class="bh-planner__event" href="<?php echo esc_url($event['url']); ?>" style="--bh-event-top:<?php echo esc_attr((string) $top); ?>%;--bh-event-height:<?php echo esc_attr((string) $height); ?>%;">
+                            <a class="bh-planner__event" href="<?php echo esc_url($event['url']); ?>" style="--bh-event-top:<?php echo esc_attr((string) $top); ?>%;--bh-event-height:<?php echo esc_attr((string) $height); ?>%;--bh-event-lane:<?php echo esc_attr((string) $lane); ?>;--bh-event-lanes:<?php echo esc_attr((string) $lane_count); ?>;">
                                 <strong><?php echo esc_html($event['title']); ?></strong>
                                 <span><?php echo esc_html($event['time']); ?></span>
                                 <?php if ($event['label']) : ?><small><?php echo esc_html($event['label']); ?></small><?php endif; ?>
