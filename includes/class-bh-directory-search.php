@@ -521,24 +521,35 @@ final class DirectorySearch {
             <?php if (is_user_logged_in()) : ?>
                 <?php $save_url = remove_query_arg(['bh_page','bh_edit_saved_search_id','bh_modal_editor','bh_saved_search_path']); ?>
                 <div class="bh-directory-search__save">
-                    <div class="bh-directory-search__save-intro">
-                        <strong>Save this search</strong>
-                        <a href="<?php echo esc_url(self::saved_searches_url()); ?>">View Saved Searches</a>
+                    <button type="button" class="bh-directory-search__save-trigger" data-bh-open-save-search aria-haspopup="dialog">Save this search</button>
+                    <a class="bh-directory-search__saved-link" href="<?php echo esc_url(self::saved_searches_url()); ?>">View Saved Searches</a>
+                </div>
+                <div class="bh-save-search-modal" data-bh-save-search-modal hidden>
+                    <div class="bh-save-search-modal__backdrop" data-bh-close-save-search></div>
+                    <div class="bh-save-search-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="bh-save-search-title">
+                        <button type="button" class="bh-save-search-modal__close" data-bh-close-save-search aria-label="Close">×</button>
+                        <p class="bh-save-search-modal__eyebrow">My Bubba Hub</p>
+                        <h2 id="bh-save-search-title">Save this search</h2>
+                        <p>Give this search a name so you can quickly find it again.</p>
+                        <form method="post" class="bh-directory-search__save-form">
+                            <?php wp_nonce_field('bh_save_directory_search', 'bh_saved_search_nonce'); ?>
+                            <input type="hidden" name="bh_saved_search_action" value="save">
+                            <input type="hidden" name="bh_edit_saved_search_id" value="<?php echo esc_attr(isset($_GET['bh_edit_saved_search_id']) ? sanitize_text_field(wp_unslash($_GET['bh_edit_saved_search_id'])) : ''); ?>">
+                            <?php if (isset($_GET['bh_saved_search_path'])) : ?><input type="hidden" name="bh_saved_search_path" value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['bh_saved_search_path']))); ?>"><?php endif; ?>
+                            <input type="hidden" name="bh_saved_search_url" value="<?php echo esc_attr($save_url); ?>">
+                            <?php foreach (['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_saved_location','bh_day','bh_price','bh_free_activity','bh_view','bh_date'] as $saved_key) : ?>
+                                <?php if (isset($_GET[$saved_key])) : ?>
+                                    <input type="hidden" name="<?php echo esc_attr($saved_key); ?>" value="<?php echo esc_attr(is_array($_GET[$saved_key]) ? '' : sanitize_text_field(wp_unslash($_GET[$saved_key]))); ?>">
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                            <label for="bh-saved-search-name">Search name</label>
+                            <input id="bh-saved-search-name" name="bh_saved_search_name" type="text" maxlength="80" placeholder="e.g. Toddler groups in Torbay" required>
+                            <div class="bh-save-search-modal__actions">
+                                <button type="button" class="bh-save-search-modal__cancel" data-bh-close-save-search>Cancel</button>
+                                <button type="submit">Save search</button>
+                            </div>
+                        </form>
                     </div>
-                    <form method="post" class="bh-directory-search__save-form">
-                        <?php wp_nonce_field('bh_save_directory_search', 'bh_saved_search_nonce'); ?>
-                        <input type="hidden" name="bh_saved_search_action" value="save">
-                        <input type="hidden" name="bh_edit_saved_search_id" value="<?php echo esc_attr(isset($_GET['bh_edit_saved_search_id']) ? sanitize_text_field(wp_unslash($_GET['bh_edit_saved_search_id'])) : ''); ?>">
-                        <?php if (isset($_GET['bh_saved_search_path'])) : ?><input type="hidden" name="bh_saved_search_path" value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['bh_saved_search_path']))); ?>"><?php endif; ?>
-                        <input type="hidden" name="bh_saved_search_url" value="<?php echo esc_attr($save_url); ?>">
-                        <?php foreach (['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_saved_location','bh_day','bh_price','bh_free_activity','bh_view','bh_date'] as $saved_key) : ?>
-                            <?php if (isset($_GET[$saved_key])) : ?>
-                                <input type="hidden" name="<?php echo esc_attr($saved_key); ?>" value="<?php echo esc_attr(is_array($_GET[$saved_key]) ? '' : sanitize_text_field(wp_unslash($_GET[$saved_key]))); ?>">
-                            <?php endif; ?>
-                        <?php endforeach; ?>
-                        <input id="bh-saved-search-name" name="bh_saved_search_name" type="text" maxlength="80" placeholder="Name this search" required>
-                        <button type="submit">Save</button>
-                    </form>
                 </div>
             <?php endif; ?>
         </section>
