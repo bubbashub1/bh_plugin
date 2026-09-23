@@ -56,3 +56,29 @@
 .bh-directory-search__field--search label{color:var(--wp--preset--color--secondary,#d89bb8)}
 .bh-directory-search__field--search input{border:2px solid var(--wp--preset--color--secondary,#d89bb8);border-radius:10px;background:#fff}
 .bh-directory-search__field--search input:focus{border-color:var(--wp--preset--color--secondary,#d89bb8);box-shadow:0 0 0 3px color-mix(in srgb,var(--wp--preset--color--secondary,#d89bb8) 18%,transparent)}
+
+/* Airbnb-inspired Bubba Hub pop-out search controls. */
+.bh-search-popover-field{position:relative;min-width:0}
+.bh-search-popover-trigger{width:100%;min-height:58px;padding:9px 14px;border:1px solid #d8dde3;border-radius:12px;background:#fff;text-align:left;cursor:pointer;font:inherit;display:flex;flex-direction:column;justify-content:center;transition:border-color .15s,box-shadow .15s,background .15s}
+.bh-search-popover-trigger:hover,.bh-search-popover-trigger[aria-expanded="true"]{border-color:var(--wp--preset--color--secondary,#d89bb8);box-shadow:0 0 0 2px color-mix(in srgb,var(--wp--preset--color--secondary,#d89bb8) 12%,transparent);background:#fff}
+.bh-search-popover-trigger__label{font-size:.76rem;font-weight:800;color:#4c5661;line-height:1.2}
+.bh-search-popover-trigger__value{margin-top:3px;font-size:.92rem;color:#28323c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bh-search-popover-field--search .bh-search-popover-trigger{border:2px solid var(--wp--preset--color--secondary,#d89bb8)}
+.bh-search-popover-value{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.bh-search-popover-panel{position:fixed;z-index:2147483646;width:min(560px,calc(100vw - 32px));padding:22px;background:#fff;border:1px solid #e2e6ea;border-radius:18px;box-shadow:0 20px 60px rgba(24,39,75,.2);box-sizing:border-box}
+.bh-search-popover-panel__title{font-size:1.05rem;font-weight:800;color:#28323c;margin-bottom:14px}
+.bh-search-popover-panel__hint{margin:10px 0 0;color:#68737e;font-size:.84rem}
+.bh-search-popover-input{width:100%;min-height:50px;padding:11px 14px;border:2px solid var(--wp--preset--color--secondary,#d89bb8);border-radius:11px;background:#fff;font:inherit;box-sizing:border-box}
+.bh-search-popover-panel__grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.bh-search-choice-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.bh-search-choice-list--chips{grid-template-columns:repeat(3,minmax(0,1fr))}
+.bh-search-choice-list button{min-height:44px;padding:9px 12px;border:1px solid #d8dde3;border-radius:10px;background:#fff;color:#28323c;text-align:left;font:inherit;font-weight:700;cursor:pointer}
+.bh-search-choice-list button:hover,.bh-search-choice-list button.is-selected{border-color:var(--wp--preset--color--secondary,#d89bb8);background:color-mix(in srgb,var(--wp--preset--color--secondary,#d89bb8) 10%,#fff)}
+.bh-search-popover-panel select{min-height:48px}
+.bh-search-popover-backdrop{position:fixed;inset:0;z-index:2147483645;background:rgba(20,28,35,.12)}
+body.bh-search-popover-open{overflow:hidden}
+@media(max-width:700px){
+ .bh-search-popover-panel{width:calc(100vw - 20px);padding:18px;border-radius:16px}
+ .bh-search-popover-panel__grid,.bh-search-choice-list,.bh-search-choice-list--chips{grid-template-columns:1fr}
+ .bh-search-popover-trigger{min-height:56px}
+}
