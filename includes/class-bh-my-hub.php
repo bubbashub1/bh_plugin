@@ -370,7 +370,7 @@ final class MyHub {
                     </div>
 
                     <div class="bh-my-hub__family-profile-details">
-                        <?php if ($dob): ?><span>🎂 <?php echo esc_html(self::age_label($dob)); ?></span><?php endif; ?>
+                        <?php if ($dob): ?><span>🎂 <?php echo esc_html(self::family_age_label($dob)); ?></span><?php endif; ?>
                         <?php if ($gender): ?><span>♡ <?php echo esc_html(ucwords(str_replace('_', ' ', $gender))); ?></span><?php endif; ?>
                     </div>
 
@@ -1353,7 +1353,7 @@ final class MyHub {
         }catch(\Exception $e){return[];}
     }
 
-    private static function age_label(string $dob): string {
+    private static function family_age_label(string $dob): string {
         try{
             $birth=new \DateTimeImmutable($dob);$today=new \DateTimeImmutable('today');if($birth>$today)return'';
             $diff=$birth->diff($today);
