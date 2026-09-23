@@ -81,10 +81,11 @@ final class MyHub {
                     <div class="bh-my-hub__family-panel">
                     <div class="bh-my-hub__card-head">
                         <div><span class="bh-my-hub__icon">👨‍👩‍👧</span><h2>My Family</h2></div>
-                        <span class="bh-my-hub__count"><?php echo esc_html(count($children)); ?></span>
+                        <span class="bh-my-hub__count"><?php echo esc_html(count($children) + count($bumps)); ?></span>
                     </div>
                     <div class="bh-my-hub__family-actions">
                         <button type="button" class="bh-my-hub__button bh-my-hub__open-modal" data-bh-modal="child">Add child</button>
+                        <button type="button" class="bh-my-hub__button bh-my-hub__button--outline bh-my-hub__open-modal" data-bh-modal="add-bump">Add bump</button>
                     </div>
 
                     <?php if ($children): ?>
@@ -166,15 +167,7 @@ final class MyHub {
                     </div>
                     </div>
 
-                <section class="bh-my-hub__family-panel">
-                    <div class="bh-my-hub__card-head">
-                        <div><span class="bh-my-hub__icon">🤰</span><h2>My Bumps</h2></div>
-                        <span class="bh-my-hub__count"><?php echo esc_html(count($bumps)); ?></span>
-                    </div>
-
-                    <div class="bh-my-hub__family-actions">
-                        <button type="button" class="bh-my-hub__button bh-my-hub__button--outline bh-my-hub__open-modal" data-bh-modal="add-bump">Add bump</button>
-                    </div>
+                    <div class="bh-my-hub__family-bumps">
 
                     <?php if ($bumps): ?>
                         <div class="bh-my-hub__profiles">
@@ -257,8 +250,7 @@ final class MyHub {
                             </form>
                         </div>
                     </div>
-                </section>
-                </div>
+                    </div>
                 </section>
 
                 <?php echo self::render_planner_section($user->ID); ?>
