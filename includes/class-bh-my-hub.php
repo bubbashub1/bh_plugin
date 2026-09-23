@@ -67,7 +67,7 @@ final class MyHub {
         global $post;
 
         $id = 0;
-        if ($post instanceof \\WP_Post) {
+        if ($post instanceof \WP_Post) {
             $id = (int) $post->ID;
         }
         if (!$id) {
