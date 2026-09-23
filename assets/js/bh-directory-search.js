@@ -88,6 +88,20 @@
                     if (field.id === 'bh-region') {
                         return;
                     }
+                    if (field.id === 'bh-saved-location' && field.value) {
+                        var region = form.querySelector('#bh-region');
+                        var town = form.querySelector('#bh-town');
+                        if (region) region.value = '';
+                        if (town) {
+                            town.value = '';
+                            town.innerHTML = '<option value="">Select a region first</option>';
+                            town.disabled = true;
+                        }
+                    }
+                    if (field.id === 'bh-town' && field.value) {
+                        var savedLocation = form.querySelector('#bh-saved-location');
+                        if (savedLocation) savedLocation.value = '';
+                    }
                     submitFilters(form);
                 });
             });
@@ -131,6 +145,8 @@
 
             region.addEventListener('change', function () {
                 var regionValue = region.value;
+                var savedLocation = form.querySelector('#bh-saved-location');
+                if (savedLocation) savedLocation.value = '';
 
                 town.innerHTML = '';
                 town.disabled = true;
