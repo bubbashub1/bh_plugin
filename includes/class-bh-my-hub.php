@@ -354,6 +354,20 @@ final class MyHub {
                         <p class="bh-my-hub__muted">Add your children or a bump to personalise Bubba Hub around your family.</p>
                     <?php endif; ?>
 
+                    <div class="bh-my-hub__modal" data-bh-modal-panel="child" hidden>
+                        <div class="bh-my-hub__modal-backdrop" data-bh-modal-close></div>
+                        <div class="bh-my-hub__modal-dialog" role="dialog" aria-modal="true">
+                            <button type="button" class="bh-my-hub__modal-close" data-bh-modal-close aria-label="Close">×</button>
+                            <h3>Add a child</h3>
+                            <form method="post" class="bh-my-hub__form" enctype="multipart/form-data">
+                                <?php wp_nonce_field('bh_my_hub_save_child', 'bh_my_hub_nonce'); ?>
+                                <input type="hidden" name="bh_my_hub_action" value="save_child">
+                                <?php self::child_fields(); ?>
+                                <button class="bh-my-hub__button" type="submit">Save child</button>
+                            </form>
+                        </div>
+                    </div>
+
                     <div class="bh-my-hub__modal" data-bh-modal-panel="add-bump" hidden>
                         <div class="bh-my-hub__modal-backdrop" data-bh-modal-close></div>
                         <div class="bh-my-hub__modal-dialog" role="dialog" aria-modal="true">
@@ -504,7 +518,7 @@ final class MyHub {
                     <option value="prefer_not_to_say" <?php selected($gender, 'prefer_not_to_say'); ?>>Prefer not to say</option>
                 </select>
             </label>
-            <label>Date of birth<input type="date" name="child_dob" value="<?php echo esc_attr($dob); ?>"></label>
+            <label>Date of birth<input type="text" name="child_dob" value="<?php echo esc_attr($dob ? wp_date('d/m/Y', strtotime($dob)) : ''); ?>" placeholder="DD/MM/YYYY" inputmode="numeric" autocomplete="bday" pattern="\\d{2}/\\d{2}/\\d{4}" maxlength="10"></label>
             <input type="hidden" name="child_status" value="born">
 
             <label class="bh-my-hub__avatar-field">Avatar
@@ -930,7 +944,12 @@ final class MyHub {
         $nickname = sanitize_text_field(wp_unslash($_POST['child_nickname'] ?? ''));
         $gender = sanitize_key(wp_unslash($_POST['gender'] ?? ''));
         $status = sanitize_key(wp_unslash($_POST['child_status'] ?? 'born'));
-        $dob = sanitize_text_field(wp_unslash($_POST['child_dob'] ?? ''));
+        $dob_input = sanitize_text_field(wp_unslash($_POST['child_dob'] ?? ''));
+        $dob = '';
+        if ($dob_input) {
+            $dob_dt = \DateTimeImmutable::createFromFormat('!d/m/Y', $dob_input, wp_timezone());
+            if ($dob_dt instanceof \DateTimeImmutable && $dob_dt->format('d/m/Y') === $dob_input) $dob = $dob_dt->format('Y-m-d');
+        }
         $due = sanitize_text_field(wp_unslash($_POST['child_due_date'] ?? ''));
         $avatar = esc_url_raw(wp_unslash($_POST['child_avatar_url'] ?? ''));
         $location_id = absint($_POST['child_location'] ?? 0);
