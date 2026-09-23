@@ -160,7 +160,7 @@ final class DirectorySearch {
                             </div>
                             <div class="bh-saved-searches__actions">
                                 <?php if ($url): ?>
-                                    <a class="bh-saved-searches__button" href="<?php echo esc_url($url); ?>">Run Search</a>
+                                    <a class="bh-saved-searches__button" href="<?php echo esc_url($url); ?>">Re-run Search</a>
                                 <?php endif; ?>
                                 <form method="post" class="bh-saved-searches__delete">
                                     <?php wp_nonce_field('bh_delete_saved_search', 'bh_delete_saved_search_nonce'); ?>
