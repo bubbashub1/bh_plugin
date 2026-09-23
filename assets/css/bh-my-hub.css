@@ -264,3 +264,45 @@ body.bh-modal-open{overflow:hidden}
 .bh-visited-listing__badge{display:inline-flex;align-items:center;min-height:30px;padding:6px 10px;border-radius:999px;background:#eee8f7;color:#5d4a8f;font-size:.78rem;font-weight:700;line-height:1.2}
 
 .bh-my-hub__group-card--visited a{display:inline-block;margin-top:9px;font-size:.78rem;font-weight:700;text-decoration:underline;color:inherit}
+
+
+/* My Family — clean standalone family cards */
+.bh-my-hub__family-container{grid-column:1/-1;overflow:visible;padding:24px;background:#fff}
+.bh-my-hub__family-header{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:22px}
+.bh-my-hub__family-header .bh-my-hub__card-head{margin:0;flex:1}
+.bh-my-hub__family-header .bh-my-hub__card-head>div{align-items:flex-start}
+.bh-my-hub__family-header .bh-my-hub__card-head h2{margin:0 0 4px}
+.bh-my-hub__family-subtitle{margin:0;font-size:.82rem;line-height:1.4;opacity:.68}
+.bh-my-hub__family-actions{display:flex!important;align-items:center!important;gap:8px!important;flex-wrap:wrap!important;margin:0!important;min-height:0!important}
+.bh-my-hub__family-actions .bh-my-hub__button{min-height:40px!important;padding:9px 14px!important;border-radius:10px!important}
+.bh-my-hub__family-actions .bh-my-hub__button--outline{background:#fff!important;color:#6f5aa8!important}
+.bh-my-hub__family-container>.bh-my-hub__profiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0;padding:0}
+.bh-my-hub__family-profile{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:0!important;min-width:0!important;min-height:0!important;box-sizing:border-box;padding:16px!important;border:1px solid #e7e3ea!important;border-radius:16px!important;background:#fff!important;box-shadow:0 2px 10px rgba(24,39,75,.04)!important}
+.bh-my-hub__family-profile-top{display:flex;align-items:center;gap:12px;min-width:0}
+.bh-my-hub__family-profile-identity{display:grid;gap:3px;min-width:0}
+.bh-my-hub__family-profile-identity strong{margin:0!important;font-size:1rem;line-height:1.2;overflow:hidden;text-overflow:ellipsis}
+.bh-my-hub__family-profile-type{font-size:.7rem!important;font-weight:700!important;text-transform:uppercase;letter-spacing:.06em;opacity:.58}
+.bh-my-hub__family-profile-details{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0;padding-top:12px;border-top:1px solid rgba(0,0,0,.07)}
+.bh-my-hub__family-profile-details span{display:inline-flex;align-items:center;padding:5px 8px;border-radius:8px;background:rgba(216,155,184,.09);font-size:.76rem!important;line-height:1.25}
+.bh-my-hub__family-profile-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:12px;border-top:1px solid rgba(0,0,0,.07)}
+.bh-my-hub__family-profile-actions form{margin:0}
+.bh-my-hub__family-action{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:6px 10px;border:1px solid #e1dbe2;border-radius:9px;background:#fff;color:inherit;font:inherit;font-size:.76rem;font-weight:600;text-decoration:none;cursor:pointer}
+.bh-my-hub__family-action:hover{background:#fff7fb;border-color:#d8b5ca}
+.bh-my-hub__family-action--remove{border-color:transparent;background:transparent;text-decoration:underline;font-weight:500}
+.bh-my-hub__family-action--success{background:#5d8b68;color:#fff;border-color:#5d8b68}
+.bh-my-hub__family-empty{display:flex;align-items:center;gap:14px;padding:18px;border:1px dashed #ddd6df;border-radius:14px;background:#fffafd}
+.bh-my-hub__family-empty>span{font-size:1.7rem}
+.bh-my-hub__family-empty strong{display:block;margin-bottom:3px}
+.bh-my-hub__family-empty p{margin:0;font-size:.82rem;opacity:.68}
+@media(max-width:900px){
+    .bh-my-hub__container>.bh-my-hub__profiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .bh-my-hub__family-container>.bh-my-hub__profiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .bh-my-hub__family-header{flex-direction:column}
+}
+@media(max-width:600px){
+    .bh-my-hub__family-container{padding:18px}
+    .bh-my-hub__family-container>.bh-my-hub__profiles{display:flex;overflow-x:auto;overflow-y:hidden;gap:12px;padding:2px 2px 10px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+    .bh-my-hub__family-container>.bh-my-hub__profiles>.bh-my-hub__family-profile{flex:0 0 calc(100vw - 58px);scroll-snap-align:start}
+    .bh-my-hub__family-actions{width:100%}
+    .bh-my-hub__family-actions .bh-my-hub__button{flex:1 1 auto}
+}
