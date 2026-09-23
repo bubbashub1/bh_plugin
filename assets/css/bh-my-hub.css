@@ -235,3 +235,8 @@ body.bh-modal-open{overflow:hidden}
     .bh-my-hub__nap-schedule>.bh-my-hub__card-head{align-items:flex-start;flex-wrap:wrap}
     .bh-my-hub__nap-windows{grid-template-columns:1fr}
 }
+
+.bh-my-hub__nap-window-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.bh-my-hub__nap-window-actions form{margin:0}
+.bh-my-hub__nap-window-actions .bh-my-hub__edit-link,
+.bh-my-hub__nap-window-actions button{font:inherit}
