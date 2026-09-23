@@ -1422,3 +1422,65 @@ body.bh-modal-open{overflow:hidden}
     width:66px!important;height:66px!important;min-width:66px!important;max-width:66px!important;flex-basis:66px!important;
   }
 }
+
+
+/* Family Hub horizontal child-card rail */
+#bh-my-hub-family > .bh-my-hub__profiles{
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  align-items:stretch!important;
+  gap:16px!important;
+  width:100%!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  padding:2px 2px 12px!important;
+  margin:0!important;
+  -webkit-overflow-scrolling:touch;
+  scroll-snap-type:x proximity;
+  scrollbar-width:thin;
+}
+
+#bh-my-hub-family > .bh-my-hub__profiles > .bh-my-hub__family-profile-card{
+  flex:0 0 300px!important;
+  width:300px!important;
+  max-width:300px!important;
+  min-width:300px!important;
+  scroll-snap-align:start;
+}
+
+#bh-my-hub-family > .bh-my-hub__profiles > .bh-my-hub__family-profile-card--child,
+#bh-my-hub-family > .bh-my-hub__profiles > .bh-my-hub__family-profile--child{
+  flex:0 0 300px!important;
+  width:300px!important;
+  min-width:300px!important;
+}
+
+@media(max-width:760px){
+  #bh-my-hub-family > .bh-my-hub__profiles{
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    gap:13px!important;
+  }
+
+  #bh-my-hub-family > .bh-my-hub__profiles > .bh-my-hub__family-profile-card,
+  #bh-my-hub-family > .bh-my-hub__profiles > .bh-my-hub__family-profile--child,
+  #bh-my-hub-family > .bh-my-hub__profiles > .bh-my-hub__family-profile--bump{
+    flex:0 0 280px!important;
+    width:280px!important;
+    max-width:280px!important;
+    min-width:280px!important;
+  }
+}
+
+@media(max-width:520px){
+  #bh-my-hub-family > .bh-my-hub__profiles > .bh-my-hub__family-profile-card,
+  #bh-my-hub-family > .bh-my-hub__profiles > .bh-my-hub__family-profile--child,
+  #bh-my-hub-family > .bh-my-hub__profiles > .bh-my-hub__family-profile--bump{
+    flex-basis:270px!important;
+    width:270px!important;
+    max-width:270px!important;
+    min-width:270px!important;
+  }
+}
