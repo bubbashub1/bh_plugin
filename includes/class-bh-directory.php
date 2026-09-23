@@ -160,7 +160,7 @@ final class Directory {
         }
 
         $output = do_shortcode(sprintf(
-            '[directorist_all_listing view="map" ids="%s" header="no" show_pagination="no" listings_per_page="%d"]',
+            '[directorist_all_listing view="map" ids="%s" header="no" advanced_filter="no" show_pagination="no" listings_per_page="%d"]',
             esc_attr(implode(',', $ids)),
             count($ids)
         ));
