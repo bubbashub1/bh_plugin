@@ -43,3 +43,5 @@
     .bh-directory-search__save-form input[type="text"]{flex:1 1 100%;width:100%}
     .bh-directory-search__save-form button{flex:0 0 auto}
 }
+
+.bh-directory-search__save-form button.is-saving{opacity:.7;cursor:wait}.bh-directory-search__spinner{display:inline-block;width:15px;height:15px;margin-right:7px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:-3px;animation:bh-directory-spin .7s linear infinite}@keyframes bh-directory-spin{to{transform:rotate(360deg)}}
