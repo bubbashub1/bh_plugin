@@ -229,7 +229,7 @@ final class Directory {
                                         <?php wp_nonce_field('bh_my_hub_save_activity', 'bh_my_hub_nonce'); ?>
                                         <input type="hidden" name="bh_my_hub_action" value="<?php echo esc_attr($bh_is_saved ? 'remove_activity' : 'save_activity'); ?>">
                                         <input type="hidden" name="listing_id" value="<?php echo esc_attr((string) get_the_ID()); ?>">
-                                        <button type="submit" class="bh-directory-card__save<?php echo $bh_is_saved ? ' is-saved' : ''; ?>"><?php echo $bh_is_saved ? '♥ Saved' : '♡ Save to My Hub'; ?></button>
+                                        <button type="submit" class="bh-directory-card__save<?php echo $bh_is_saved ? ' is-saved' : ''; ?>" aria-label="<?php echo esc_attr($bh_is_saved ? 'Added to My Week' : 'Add to My Week'); ?>"><?php echo $bh_is_saved ? '♥ Added to My Week' : '♡ Add to My Week'; ?></button>
                                     </form>
                                 <?php endif; ?>
                             </article>
