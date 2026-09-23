@@ -63,3 +63,9 @@ body.bh-modal-open{overflow:hidden}
 .bh-my-hub__avatar-field input[type="file"]{padding:8px}
 .bh-my-hub__avatar-remove{display:flex!important;grid-template-columns:none!important;align-items:center;gap:8px;font-weight:400!important;margin:0 0 14px}
 .bh-my-hub__avatar-remove input{width:auto}
+
+
+.bh-my-hub__antenatal-tracker{width:100%;display:grid;gap:3px;margin-top:4px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.75);border:1px solid rgba(0,0,0,.07)}
+.bh-my-hub__antenatal-tracker strong{margin:0;font-size:.9rem}
+.bh-my-hub__antenatal-tracker span{font-size:.88rem;font-weight:700}
+.bh-my-hub__antenatal-tracker small{font-size:.82rem;opacity:.78}
