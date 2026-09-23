@@ -55,3 +55,11 @@ body.bh-modal-open{overflow:hidden}
 .bh-my-hub__school-tracker small{font-size:.9rem;font-weight:700}
 
 .bh-my-hub__edit-link{border:0;background:none;padding:0;text-decoration:underline;cursor:pointer;font:inherit}
+
+
+.bh-my-hub__avatar{width:52px;height:52px;flex:0 0 52px;border-radius:50%;object-fit:cover;display:block}
+.bh-my-hub__avatar--placeholder{display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.06);font-size:1.35rem}
+.bh-my-hub__avatar-field small{font-size:.75rem;font-weight:400;opacity:.7}
+.bh-my-hub__avatar-field input[type="file"]{padding:8px}
+.bh-my-hub__avatar-remove{display:flex!important;grid-template-columns:none!important;align-items:center;gap:8px;font-weight:400!important;margin:0 0 14px}
+.bh-my-hub__avatar-remove input{width:auto}
