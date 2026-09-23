@@ -72,6 +72,27 @@ final class Directory {
                         </div>
                     </div>
                     <?php echo Planner::render($view, $query); ?>
+
+                    <?php
+                    $calendar_export_args = [
+                        'action' => 'bh_calendar_ics',
+                        'bh_view' => $view,
+                        'bh_date' => Planner::date()->format('Y-m-d'),
+                        'bh_search' => $filters['search'],
+                        'bh_category' => $filters['category'],
+                        'bh_age_range' => $filters['age_range'],
+                        'bh_region' => $filters['region'],
+                        'bh_town' => $filters['town'],
+                        'bh_day' => $filters['day'],
+                        'bh_price' => $filters['price'],
+                        'bh_free_activity' => $filters['free_activity'],
+                    ];
+                    $calendar_export_url = add_query_arg($calendar_export_args, admin_url('admin-post.php'));
+                    ?>
+                    <div class="bh-planner-actions" aria-label="Calendar actions">
+                        <a class="bh-planner-actions__button" href="<?php echo esc_url($calendar_export_url); ?>" download>Subscribe</a>
+                        <button class="bh-planner-actions__button" type="button" data-bh-print-calendar>Print</button>
+                    </div>
                 </section>
             <?php else : ?>
                 <div class="bh-directory__header">
