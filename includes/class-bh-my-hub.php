@@ -251,13 +251,7 @@ final class MyHub {
                     </div>
                 </section>
 
-                <section id="bh-my-hub-planner" class="bh-my-hub__card bh-my-hub__card--wide">
-                    <div class="bh-my-hub__card-head"><div><span class="bh-my-hub__icon">📅</span><h2>My Planner</h2></div></div>
-                    <div class="bh-my-hub__coming">
-                        <strong>Your family planner is coming next.</strong>
-                        <p>Stage 2 will connect your children and saved activities to a simple weekly family planner.</p>
-                    </div>
-                </section>
+                <?php echo self::render_planner_section($user->ID); ?>
 
                 <section id="bh-my-hub-saved-searches" class="bh-my-hub__card bh-my-hub__card--wide">
                     <div class="bh-my-hub__saved-searches">
@@ -450,12 +444,154 @@ final class MyHub {
             self::redirect_saved();
         }
 
+        if ($action === 'save_activity') {
+            check_admin_referer('bh_my_hub_save_activity', 'bh_my_hub_nonce');
+            $id = absint($_POST['listing_id'] ?? 0);
+            if ($id && get_post_status($id) && Listing::is_available()) {
+                $saved = self::saved_activities($user_id);
+                if (!in_array($id, $saved, true)) {
+                    $saved[] = $id;
+                    update_user_meta($user_id, '_bh_saved_activities', array_values(array_unique(array_map('absint', $saved))));
+                }
+            }
+            self::redirect_saved();
+        }
+
+        if ($action === 'remove_activity') {
+            check_admin_referer('bh_my_hub_remove_activity', 'bh_my_hub_nonce');
+            $id = absint($_POST['listing_id'] ?? 0);
+            $saved = array_values(array_filter(self::saved_activities($user_id), static fn($item) => (int) $item !== $id));
+            update_user_meta($user_id, '_bh_saved_activities', $saved);
+            self::remove_activity_from_planner($user_id, $id);
+            self::redirect_saved();
+        }
+
+        if ($action === 'add_to_planner') {
+            check_admin_referer('bh_my_hub_add_to_planner', 'bh_my_hub_nonce');
+            $id = absint($_POST['listing_id'] ?? 0);
+            $date = sanitize_text_field(wp_unslash($_POST['planner_date'] ?? ''));
+            if ($id && self::valid_planner_date($date) && in_array($id, self::saved_activities($user_id), true)) {
+                $planner = self::planner_items($user_id);
+                $planner[$date] = isset($planner[$date]) && is_array($planner[$date]) ? $planner[$date] : [];
+                if (!in_array($id, $planner[$date], true)) $planner[$date][] = $id;
+                update_user_meta($user_id, '_bh_planner_items', $planner);
+            }
+            self::redirect_saved();
+        }
+
+        if ($action === 'remove_from_planner') {
+            check_admin_referer('bh_my_hub_remove_from_planner', 'bh_my_hub_nonce');
+            $id = absint($_POST['listing_id'] ?? 0);
+            $date = sanitize_text_field(wp_unslash($_POST['planner_date'] ?? ''));
+            if ($id && self::valid_planner_date($date)) {
+                $planner = self::planner_items($user_id);
+                if (isset($planner[$date])) {
+                    $planner[$date] = array_values(array_filter((array) $planner[$date], static fn($item) => (int) $item !== $id));
+                    if (!$planner[$date]) unset($planner[$date]);
+                    update_user_meta($user_id, '_bh_planner_items', $planner);
+                }
+            }
+            self::redirect_saved();
+        }
+
         if ($action === 'delete_bump') {
             $id = absint($_POST['child_id'] ?? 0);
             check_admin_referer('bh_my_hub_delete_bump_' . $id, 'bh_my_hub_nonce');
             if (self::user_owns_child($id, $user_id) && get_field('child_status', $id) === 'expecting') wp_delete_post($id, true);
             self::redirect_saved();
         }
+    }
+
+    private static function saved_activities(int $user_id): array {
+        $saved = get_user_meta($user_id, '_bh_saved_activities', true);
+        if (!is_array($saved)) return [];
+        return array_values(array_unique(array_filter(array_map('absint', $saved))));
+    }
+
+    private static function planner_items(int $user_id): array {
+        $items = get_user_meta($user_id, '_bh_planner_items', true);
+        return is_array($items) ? $items : [];
+    }
+
+    private static function valid_planner_date(string $date): bool {
+        $parsed = \DateTimeImmutable::createFromFormat('!Y-m-d', $date, wp_timezone());
+        return $parsed instanceof \DateTimeImmutable && $parsed->format('Y-m-d') === $date;
+    }
+
+    private static function remove_activity_from_planner(int $user_id, int $listing_id): void {
+        $planner = self::planner_items($user_id);
+        foreach ($planner as $date => $items) {
+            $planner[$date] = array_values(array_filter((array) $items, static fn($item) => (int) $item !== $listing_id));
+            if (!$planner[$date]) unset($planner[$date]);
+        }
+        update_user_meta($user_id, '_bh_planner_items', $planner);
+    }
+
+    private static function render_planner_section(int $user_id): string {
+        $saved = self::saved_activities($user_id);
+        $planner = self::planner_items($user_id);
+        $today = current_datetime()->setTime(0, 0);
+        $week_start = $today->modify('monday this week');
+        $days = [];
+        for ($i = 0; $i < 7; $i++) $days[] = $week_start->modify('+' . $i . ' days');
+
+        ob_start(); ?>
+        <section id="bh-my-hub-planner" class="bh-my-hub__card bh-my-hub__card--wide">
+            <div class="bh-my-hub__card-head">
+                <div><span class="bh-my-hub__icon">📅</span><h2>My Planner</h2></div>
+                <span class="bh-my-hub__count"><?php echo esc_html(count($saved)); ?> saved</span>
+            </div>
+            <p class="bh-my-hub__muted">Save activities from the directory, then add them to the day you want to visit.</p>
+
+            <?php if ($saved): ?>
+                <div class="bh-my-hub__planner-days">
+                    <?php foreach ($days as $day): $date_key = $day->format('Y-m-d'); ?>
+                        <div class="bh-my-hub__planner-day">
+                            <div class="bh-my-hub__planner-day-head">
+                                <strong><?php echo esc_html(wp_date('D', $day->getTimestamp(), wp_timezone())); ?></strong>
+                                <span><?php echo esc_html(wp_date('j M', $day->getTimestamp(), wp_timezone())); ?></span>
+                            </div>
+                            <?php foreach ((array) ($planner[$date_key] ?? []) as $listing_id):
+                                $post = get_post(absint($listing_id));
+                                if (!$post || $post->post_status !== 'publish') continue;
+                                ?>
+                                <article class="bh-my-hub__planner-item">
+                                    <a href="<?php echo esc_url(get_permalink($post)); ?>"><strong><?php echo esc_html(get_the_title($post)); ?></strong></a>
+                                    <form method="post">
+                                        <?php wp_nonce_field('bh_my_hub_remove_from_planner', 'bh_my_hub_nonce'); ?>
+                                        <input type="hidden" name="bh_my_hub_action" value="remove_from_planner">
+                                        <input type="hidden" name="listing_id" value="<?php echo esc_attr((string) $post->ID); ?>">
+                                        <input type="hidden" name="planner_date" value="<?php echo esc_attr($date_key); ?>">
+                                        <button type="submit">Remove</button>
+                                    </form>
+                                </article>
+                            <?php endforeach; ?>
+                            <?php if (empty($planner[$date_key])): ?>
+                                <span class="bh-my-hub__planner-empty">Nothing planned</span>
+                            <?php endif; ?>
+                            <?php foreach ($saved as $listing_id):
+                                $post = get_post($listing_id);
+                                if (!$post || $post->post_status !== 'publish' || in_array($listing_id, (array) ($planner[$date_key] ?? []), true)) continue;
+                                ?>
+                                <form method="post" class="bh-my-hub__planner-add">
+                                    <?php wp_nonce_field('bh_my_hub_add_to_planner', 'bh_my_hub_nonce'); ?>
+                                    <input type="hidden" name="bh_my_hub_action" value="add_to_planner">
+                                    <input type="hidden" name="listing_id" value="<?php echo esc_attr((string) $listing_id); ?>">
+                                    <input type="hidden" name="planner_date" value="<?php echo esc_attr($date_key); ?>">
+                                    <button type="submit">+ <?php echo esc_html(get_the_title($post)); ?></button>
+                                </form>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <div class="bh-my-hub__coming">
+                    <strong>Start building your family week.</strong>
+                    <p>Save an activity from the directory and it will appear here ready to add to your planner.</p>
+                </div>
+            <?php endif; ?>
+        </section>
+        <?php return (string) ob_get_clean();
     }
 
     private static function save_child_post(int $user_id, int $id = 0): int {
