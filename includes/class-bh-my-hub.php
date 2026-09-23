@@ -303,6 +303,13 @@ final class MyHub {
 
         ob_start(); ?>
         <div class="bh-my-hub">
+            <div class="bh-my-hub__hero">
+                <div class="bh-my-hub__hero-copy">
+                    <span class="bh-my-hub__hero-kicker">Your family dashboard</span>
+                    <h2>Family Hub <span aria-hidden="true">🌿✨</span></h2>
+                    <p>A quick, friendly home for your family profiles, favourite groups and weekly plans.</p>
+                </div>
+            </div>
             <div class="bh-my-hub__intro">
                 <div>
                     <p class="bh-my-hub__eyebrow">My Bubba Hub</p>
@@ -333,8 +340,8 @@ final class MyHub {
             <div>
                 <span class="bh-my-hub__icon" aria-hidden="true">👨‍👩‍👧</span>
                 <div>
-                    <h2>My Family</h2>
-                    <p class="bh-my-hub__family-subtitle">Keep your family details together for a more personal Bubba Hub.</p>
+                    <h2>Our Little Explorers <span aria-hidden="true">🌍✨</span></h2>
+                    <p class="bh-my-hub__family-subtitle">Meet the little people who make your family's Bubba Hub adventures special.</p>
                 </div>
             </div>
             <span class="bh-my-hub__count"><?php echo esc_html(count($children) + count($bumps)); ?></span>
@@ -366,6 +373,7 @@ final class MyHub {
                         <div class="bh-my-hub__family-profile-identity">
                             <span class="bh-my-hub__family-profile-type">Child</span>
                             <strong><?php echo esc_html($name ?: 'Child'); ?></strong>
+                            <?php if ($dob): ?><span class="bh-my-hub__family-profile-age">Age <?php echo esc_html(self::age_label($dob)); ?></span><?php endif; ?>
                         </div>
                     </div>
 
@@ -504,7 +512,7 @@ final class MyHub {
 
 <section id="bh-my-hub-groups" class="bh-my-hub__card bh-my-hub__card--wide">
                     <div class="bh-my-hub__card-head">
-                        <div><span class="bh-my-hub__icon">👥</span><h2>My Groups</h2></div>
+                        <div><span class="bh-my-hub__icon">👥</span><h2>Family Groups</h2></div>
                     </div>
 
                     <?php
