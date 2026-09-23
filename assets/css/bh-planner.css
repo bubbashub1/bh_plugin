@@ -63,3 +63,19 @@
  .bh-planner--monthly{overflow-x:auto}
  .bh-planner__month-head{min-width:620px}
 }
+
+
+.bh-planner-actions{display:flex;justify-content:center;gap:10px;margin-top:16px}
+.bh-planner-actions__button{display:inline-flex;align-items:center;justify-content:center;padding:10px 18px;border:1px solid rgba(0,0,0,.12);border-radius:10px;text-decoration:none;cursor:pointer;font:inherit;background:#fff}
+@media(max-width:600px){.bh-planner-actions{flex-direction:column}.bh-planner-actions__button{width:100%;box-sizing:border-box}}
+
+@media print{
+    body.bh-printing-calendar *{visibility:hidden!important}
+    body.bh-printing-calendar .bh-planner,
+    body.bh-printing-calendar .bh-planner *{visibility:visible!important}
+    body.bh-printing-calendar .bh-planner{position:absolute!important;left:0!important;top:0!important;width:100%!important;max-width:none!important}
+    body.bh-printing-calendar .bh-planner-actions,
+    body.bh-printing-calendar .bh-planner-shell__heading,
+    body.bh-printing-calendar .bh-directory-views,
+    body.bh-printing-calendar .bh-directory-search{display:none!important}
+}
