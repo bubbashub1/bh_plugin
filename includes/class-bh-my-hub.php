@@ -14,6 +14,7 @@ final class MyHub {
         add_action('wp_enqueue_scripts', [self::class, 'visited_assets']);
         add_action('wp_footer', [self::class, 'modal_script']);
         // Directorist visited-listing integration (read/write only in Bubba Hub user meta).
+        add_action('directorist_single_listing_after_title', [self::class, 'render_visited_listing_controls'], 20);
         add_action('atbdp_after_listing_tagline', [self::class, 'render_visited_listing_controls'], 20);
         add_action('init', [self::class, 'handle_visited_listing']);
     }
@@ -157,6 +158,12 @@ final class MyHub {
         if (!$listing_id) {
             return;
         }
+
+        static $rendered = [];
+        if (isset($rendered[$listing_id])) {
+            return;
+        }
+        $rendered[$listing_id] = true;
 
         $visited = self::has_visited_listing(get_current_user_id(), $listing_id);
         ?>
