@@ -154,3 +154,13 @@ body.bh-modal-open{overflow:hidden}
 .bh-my-hub__family-panel .bh-my-hub__profiles>.bh-my-hub__profile .bh-my-hub__delete{grid-column:auto}
 @media(max-width:900px){.bh-my-hub__family-panel .bh-my-hub__profiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.bh-my-hub__family-panel .bh-my-hub__profiles{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;padding-bottom:10px}.bh-my-hub__family-panel .bh-my-hub__profiles>.bh-my-hub__profile{flex:0 0 calc(100vw - 72px);scroll-snap-align:start}}
+
+
+/* Saved Searches: single horizontal scrolling row */
+.bh-my-hub__saved-search-cards{display:flex;flex-wrap:nowrap;grid-template-columns:none;gap:12px;overflow-x:auto;overflow-y:hidden;padding:2px 2px 10px;margin-top:18px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.bh-my-hub__saved-search-cards>.bh-saved-searches__card,
+.bh-my-hub__saved-search-cards>.bh-my-hub__saved-search-card{flex:0 0 280px;min-width:280px;scroll-snap-align:start;box-sizing:border-box}
+@media(max-width:600px){
+.bh-my-hub__saved-search-cards>.bh-saved-searches__card,
+.bh-my-hub__saved-search-cards>.bh-my-hub__saved-search-card{flex-basis:calc(100vw - 70px);min-width:calc(100vw - 70px)}
+}
