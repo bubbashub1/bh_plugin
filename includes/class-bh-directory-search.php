@@ -10,6 +10,64 @@ final class DirectorySearch {
         add_shortcode('bh_directory_search', [self::class, 'shortcode']);
         add_action('wp_ajax_bh_get_towns', [self::class, 'ajax_towns']);
         add_action('wp_ajax_nopriv_bh_get_towns', [self::class, 'ajax_towns']);
+        add_action('init', [self::class, 'handle_saved_search']);
+    }
+
+
+    public static function handle_saved_search(): void {
+        if (!is_user_logged_in() || empty($_POST['bh_saved_search_action'])) {
+            return;
+        }
+
+        $action = sanitize_key(wp_unslash($_POST['bh_saved_search_action']));
+        if ($action !== 'save') {
+            return;
+        }
+
+        check_admin_referer('bh_save_directory_search', 'bh_saved_search_nonce');
+
+        $name = sanitize_text_field(wp_unslash($_POST['bh_saved_search_name'] ?? ''));
+        $url = esc_url_raw(wp_unslash($_POST['bh_saved_search_url'] ?? ''));
+        if ($name === '') {
+            $name = 'Saved search';
+        }
+        $url = wp_validate_redirect($url, home_url('/'));
+
+        $allowed = ['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_day','bh_price','bh_free_activity','bh_view','bh_date'];
+        $parts = wp_parse_url($url);
+        $query = [];
+        if (!empty($parts['query'])) {
+            parse_str($parts['query'], $query);
+        }
+        $query = array_intersect_key($query, array_flip($allowed));
+        $query = array_filter($query, static function ($value): bool {
+            return is_array($value) ? !empty($value) : trim((string) $value) !== '';
+        });
+        $path = !empty($parts['path']) ? $parts['path'] : '/';
+        $saved_url = home_url($path);
+        if ($query) {
+            $saved_url = add_query_arg($query, $saved_url);
+        }
+
+        $saved = get_user_meta(get_current_user_id(), '_bh_saved_searches', true);
+        if (!is_array($saved)) {
+            $saved = [];
+        }
+
+        $id = wp_generate_uuid4();
+        $saved[$id] = [
+            'name' => $name,
+            'url' => $saved_url,
+            'created' => current_time('mysql'),
+        ];
+
+        if (count($saved) > 25) {
+            $saved = array_slice($saved, -25, 25, true);
+        }
+
+        update_user_meta(get_current_user_id(), '_bh_saved_searches', $saved);
+        wp_safe_redirect($saved_url);
+        exit;
     }
 
     public static function ajax_towns(): void {
@@ -140,6 +198,22 @@ final class DirectorySearch {
                         </div>
                     </div>
                 </details>
+
+                <?php if (is_user_logged_in()) : ?>
+                    <?php
+                    $save_url = remove_query_arg('bh_page');
+                    ?>
+                    <div class="bh-directory-search__save">
+                        <label for="bh-saved-search-name">Save this search</label>
+                        <form method="post" class="bh-directory-search__save-form">
+                            <?php wp_nonce_field('bh_save_directory_search', 'bh_saved_search_nonce'); ?>
+                            <input type="hidden" name="bh_saved_search_action" value="save">
+                            <input type="hidden" name="bh_saved_search_url" value="<?php echo esc_attr($save_url); ?>">
+                            <input id="bh-saved-search-name" name="bh_saved_search_name" type="text" maxlength="80" placeholder="e.g. Baby groups near me" required>
+                            <button type="submit">Save search</button>
+                        </form>
+                    </div>
+                <?php endif; ?>
             </form>
         </section>
         <?php
