@@ -219,3 +219,19 @@ body.bh-modal-open{overflow:hidden}
 @media(min-width:901px){
     .bh-my-hub__quick-nav{grid-template-columns:repeat(5,minmax(0,1fr))}
 }
+
+/* Child nap schedule */
+.bh-my-hub__nap-schedule{margin-top:24px;padding-top:22px;border-top:1px solid rgba(226,223,230,.9)}
+.bh-my-hub__nap-schedule>.bh-my-hub__card-head{margin-bottom:8px}
+.bh-my-hub__nap-schedule>.bh-my-hub__card-head h2{font-size:1.05rem}
+.bh-my-hub__nap-windows{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}
+.bh-my-hub__nap-window{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid rgba(226,223,230,.9);border-radius:14px;background:rgba(255,255,255,.72)}
+.bh-my-hub__nap-window>div{display:grid;gap:3px;min-width:0}
+.bh-my-hub__nap-window strong{font-size:.9rem}
+.bh-my-hub__nap-window span,.bh-my-hub__nap-window small{font-size:.78rem;opacity:.72}
+.bh-my-hub__nap-window button{border:0;background:none;padding:5px;cursor:pointer;font:inherit;font-size:.75rem;opacity:.65}
+.bh-my-hub__nap-window button:hover{opacity:1}
+@media(max-width:700px){
+    .bh-my-hub__nap-schedule>.bh-my-hub__card-head{align-items:flex-start;flex-wrap:wrap}
+    .bh-my-hub__nap-windows{grid-template-columns:1fr}
+}
