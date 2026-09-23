@@ -70,15 +70,16 @@
 @media(max-width:600px){.bh-planner-actions{flex-direction:column}.bh-planner-actions__button{width:100%;box-sizing:border-box}}
 
 @media print{
-    body.bh-printing-calendar .bh-print-header{display:flex!important;visibility:visible!important;align-items:center;justify-content:space-between;width:100%;margin:0 0 18px;padding:0 0 12px;border-bottom:1px solid #ddd;box-sizing:border-box}
+    body.bh-printing-calendar .bh-print-header{display:flex!important;position:relative!important;z-index:999999!important;visibility:visible!important;align-items:center;justify-content:space-between;width:100%;margin:0 0 18px;padding:0 0 12px;border-bottom:1px solid #ddd;box-sizing:border-box}
     body.bh-printing-calendar .bh-print-header *{visibility:visible!important}
     body.bh-printing-calendar .bh-print-header__brand{display:flex;align-items:center;gap:10px;font-size:18px}
-    body.bh-printing-calendar .bh-print-header__logo{display:block!important;visibility:visible!important;max-width:110px;max-height:45px;width:auto;height:auto;object-fit:contain}
+    body.bh-printing-calendar .bh-print-header__logo{display:block!important;visibility:visible!important;opacity:1!important;max-width:110px;max-height:45px;width:auto;height:auto;object-fit:contain}
     body.bh-printing-calendar .bh-print-header__date{font-size:13px}
 
     body.bh-printing-calendar *{visibility:hidden!important}
     body.bh-printing-calendar .bh-planner,
     body.bh-printing-calendar .bh-planner *{visibility:visible!important}
+    body.bh-printing-calendar .bh-print-header{position:absolute!important;left:0!important;top:0!important}
     body.bh-printing-calendar .bh-planner{position:absolute!important;left:0!important;top:82px!important;width:100%!important;max-width:none!important}
     body.bh-printing-calendar .bh-planner__event strong,
     body.bh-printing-calendar .bh-planner__event span,
