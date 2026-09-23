@@ -21,3 +21,5 @@
     .bh-directory-listing-controls select{width:100%}
     .bh-directory__grid--columns-2,.bh-directory__grid--columns-3,.bh-directory__grid--columns-4,.bh-directory__grid--columns-5{grid-template-columns:1fr}
 }
+
+.bh-directory-listing-controls .bh-directory-share-button{min-height:38px;padding:7px 14px;border:1px solid rgba(0,0,0,.15);border-radius:8px;background:#fff;cursor:pointer;font:inherit;font-weight:600;white-space:nowrap}.bh-directory-share-button.is-sharing{opacity:.65;cursor:wait}@media(max-width:600px){.bh-directory-listing-controls .bh-directory-share-button{width:100%}}
