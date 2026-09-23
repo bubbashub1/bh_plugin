@@ -199,22 +199,21 @@ final class DirectorySearch {
                     </div>
                 </details>
 
-                <?php if (is_user_logged_in()) : ?>
-                    <?php
-                    $save_url = remove_query_arg('bh_page');
-                    ?>
-                    <div class="bh-directory-search__save">
-                        <label for="bh-saved-search-name">Save this search</label>
-                        <form method="post" class="bh-directory-search__save-form">
-                            <?php wp_nonce_field('bh_save_directory_search', 'bh_saved_search_nonce'); ?>
-                            <input type="hidden" name="bh_saved_search_action" value="save">
-                            <input type="hidden" name="bh_saved_search_url" value="<?php echo esc_attr($save_url); ?>">
-                            <input id="bh-saved-search-name" name="bh_saved_search_name" type="text" maxlength="80" placeholder="e.g. Baby groups near me" required>
-                            <button type="submit">Save search</button>
-                        </form>
-                    </div>
-                <?php endif; ?>
             </form>
+
+            <?php if (is_user_logged_in()) : ?>
+                <?php $save_url = remove_query_arg('bh_page'); ?>
+                <div class="bh-directory-search__save">
+                    <label for="bh-saved-search-name">Save this search</label>
+                    <form method="post" class="bh-directory-search__save-form">
+                        <?php wp_nonce_field('bh_save_directory_search', 'bh_saved_search_nonce'); ?>
+                        <input type="hidden" name="bh_saved_search_action" value="save">
+                        <input type="hidden" name="bh_saved_search_url" value="<?php echo esc_attr($save_url); ?>">
+                        <input id="bh-saved-search-name" name="bh_saved_search_name" type="text" maxlength="80" placeholder="e.g. Baby groups near me" required>
+                        <button type="submit">Save search</button>
+                    </form>
+                </div>
+            <?php endif; ?>
         </section>
         <?php
         return (string) ob_get_clean();
