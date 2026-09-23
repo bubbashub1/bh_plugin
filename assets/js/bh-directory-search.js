@@ -225,6 +225,9 @@
         initRegionTown();
         initAutoFilters();
         initMobileFilterToggle();
+        if (typeof window.BubbaHubMoveMoreFilters === 'function') {
+            window.BubbaHubMoveMoreFilters();
+        }
         if (typeof initSearchPopovers === 'function') {
             initSearchPopovers();
         }
