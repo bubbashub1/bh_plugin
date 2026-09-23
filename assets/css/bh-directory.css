@@ -23,3 +23,5 @@
 }
 
 .bh-directory-listing-controls .bh-directory-share-button{min-height:38px;padding:7px 14px;border:1px solid rgba(0,0,0,.15);border-radius:8px;background:#fff;cursor:pointer;font:inherit;font-weight:600;white-space:nowrap}.bh-directory-share-button.is-sharing{opacity:.65;cursor:wait}@media(max-width:600px){.bh-directory-listing-controls .bh-directory-share-button{width:100%}}
+
+.bh-directory-listing-controls{align-items:flex-end}.bh-directory-listing-controls__share-row{flex:0 0 100%;display:flex;align-items:center;margin-top:2px}.bh-directory-listing-controls__share-row .bh-directory-share-button{min-height:38px;padding:7px 16px;border:1px solid var(--wp--preset--color--secondary,#d89bb8);border-radius:8px;background:var(--wp--preset--color--secondary,#d89bb8);color:#fff;cursor:pointer;font:inherit;font-weight:700;white-space:nowrap}.bh-directory-share-button.is-sharing{opacity:.65;cursor:wait}@media(max-width:600px){.bh-directory-listing-controls__share-row{grid-column:1/-1}.bh-directory-listing-controls__share-row .bh-directory-share-button{width:100%}}
