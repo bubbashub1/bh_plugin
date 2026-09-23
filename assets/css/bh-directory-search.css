@@ -9,3 +9,12 @@
 .bh-directory-search__field--checkbox input{width:auto;margin:0}
 @media (max-width:1100px){.bh-directory-search__form{grid-template-columns:minmax(160px,2fr) repeat(4,minmax(105px,1fr));gap:8px}}
 @media (max-width:700px){.bh-directory-search__form{grid-template-columns:1fr}.bh-directory-search__field--checkbox{min-height:0}.bh-directory-search__advanced{grid-column:auto}}
+
+
+/* Saved searches */
+.bh-directory-search__save{margin-top:18px;padding:16px;border-radius:12px;background:rgba(0,0,0,.035)}
+.bh-directory-search__save>label{display:block;margin-bottom:8px;font-weight:700}
+.bh-directory-search__save-form{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.bh-directory-search__save-form input[type="text"]{flex:1 1 240px;min-width:0}
+.bh-directory-search__save-form button{min-height:42px;padding:10px 16px;border:0;border-radius:10px;cursor:pointer;font:inherit}
+@media(max-width:700px){.bh-directory-search__save-form{align-items:stretch;flex-direction:column}.bh-directory-search__save-form input[type="text"],.bh-directory-search__save-form button{width:100%;box-sizing:border-box}}
