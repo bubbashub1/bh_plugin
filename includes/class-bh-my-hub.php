@@ -11,6 +11,7 @@ final class MyHub {
         add_shortcode('bh_my_hub', [self::class, 'shortcode']);
         add_action('init', [self::class, 'handle_forms']);
         add_action('wp_enqueue_scripts', [self::class, 'assets']);
+        add_action('wp_footer', [self::class, 'modal_script']);
     }
 
     public static function assets(): void {
@@ -101,24 +102,33 @@ final class MyHub {
                         <p class="bh-my-hub__muted">Add your children to personalise Bubba Hub around your family.</p>
                     <?php endif; ?>
 
-                    <form method="post" class="bh-my-hub__form">
-                        <?php wp_nonce_field('bh_my_hub_save_child', 'bh_my_hub_nonce'); ?>
-                        <input type="hidden" name="bh_my_hub_action" value="save_child">
-                        <h3>Add a child</h3>
-                        <div class="bh-my-hub__fields">
-                            <label>Name<input type="text" name="child_name" maxlength="100" required></label>
-                            <label>Gender
-                                <select name="child_gender">
-                                    <option value="">Prefer not to say</option>
-                                    <option value="girl">Girl</option>
-                                    <option value="boy">Boy</option>
-                                    <option value="other">Other</option>
-                                </select>
-                            </label>
-                            <label>Date of birth<input type="date" name="child_dob"></label>
+                    <button type="button" class="bh-my-hub__button bh-my-hub__open-modal" data-bh-modal="child">Add child</button>
+
+                    <div class="bh-my-hub__modal" data-bh-modal-panel="child" hidden>
+                        <div class="bh-my-hub__modal-backdrop" data-bh-modal-close></div>
+                        <div class="bh-my-hub__modal-dialog" role="dialog" aria-modal="true" aria-labelledby="bh-child-modal-title">
+                            <button type="button" class="bh-my-hub__modal-close" data-bh-modal-close aria-label="Close">×</button>
+                            <h3 id="bh-child-modal-title">Add a child</h3>
+                            <form method="post" class="bh-my-hub__form">
+                                <?php wp_nonce_field('bh_my_hub_save_child', 'bh_my_hub_nonce'); ?>
+                                <input type="hidden" name="bh_my_hub_action" value="save_child">
+                                <div class="bh-my-hub__fields">
+                                    <label>Name<input type="text" name="child_name" maxlength="100" required></label>
+                                    <label>Gender
+                                        <select name="child_gender">
+                                            <option value="">Prefer not to say</option>
+                                            <option value="girl">Girl</option>
+                                            <option value="boy">Boy</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </label>
+                                    <label>Date of birth<input type="date" name="child_dob"></label>
+                                </div>
+                                <button class="bh-my-hub__button" type="submit">Save child</button>
+                            </form>
                         </div>
-                        <button class="bh-my-hub__button" type="submit">Add child</button>
-                    </form>
+                    </div>
+
                 </section>
 
                 <section class="bh-my-hub__card">
@@ -145,16 +155,25 @@ final class MyHub {
                         <p class="bh-my-hub__muted">Add a bump if you're expecting, and Bubba Hub can use your due date later for personalised features.</p>
                     <?php endif; ?>
 
-                    <form method="post" class="bh-my-hub__form">
-                        <?php wp_nonce_field('bh_my_hub_save_bump', 'bh_my_hub_nonce'); ?>
-                        <input type="hidden" name="bh_my_hub_action" value="save_bump">
-                        <h3><?php echo $bump ? 'Update bump' : 'Add a bump'; ?></h3>
-                        <div class="bh-my-hub__fields">
-                            <label>Nickname<input type="text" name="bump_nickname" maxlength="100" value="<?php echo esc_attr($bump['nickname'] ?? ''); ?>"></label>
-                            <label>Due date<input type="date" name="bump_due_date" value="<?php echo esc_attr($bump['due_date'] ?? ''); ?>"></label>
+                    <button type="button" class="bh-my-hub__button bh-my-hub__open-modal" data-bh-modal="bump"><?php echo $bump ? 'Update bump' : 'Add bump'; ?></button>
+
+                    <div class="bh-my-hub__modal" data-bh-modal-panel="bump" hidden>
+                        <div class="bh-my-hub__modal-backdrop" data-bh-modal-close></div>
+                        <div class="bh-my-hub__modal-dialog" role="dialog" aria-modal="true" aria-labelledby="bh-bump-modal-title">
+                            <button type="button" class="bh-my-hub__modal-close" data-bh-modal-close aria-label="Close">×</button>
+                            <h3 id="bh-bump-modal-title"><?php echo $bump ? 'Update bump' : 'Add a bump'; ?></h3>
+                            <form method="post" class="bh-my-hub__form">
+                                <?php wp_nonce_field('bh_my_hub_save_bump', 'bh_my_hub_nonce'); ?>
+                                <input type="hidden" name="bh_my_hub_action" value="save_bump">
+                                <div class="bh-my-hub__fields">
+                                    <label>Nickname<input type="text" name="bump_nickname" maxlength="100" value="<?php echo esc_attr($bump['nickname'] ?? ''); ?>"></label>
+                                    <label>Due date<input type="date" name="bump_due_date" value="<?php echo esc_attr($bump['due_date'] ?? ''); ?>"></label>
+                                </div>
+                                <button class="bh-my-hub__button" type="submit"><?php echo $bump ? 'Save changes' : 'Save bump'; ?></button>
+                            </form>
                         </div>
-                        <button class="bh-my-hub__button" type="submit"><?php echo $bump ? 'Save bump' : 'Add bump'; ?></button>
-                    </form>
+                    </div>
+
                 </section>
 
                 <section class="bh-my-hub__card bh-my-hub__card--wide">
@@ -256,10 +275,51 @@ final class MyHub {
     }
 
     private static function redirect_saved(): void {
-        $url = wp_get_referer() ?: home_url('/');
+        $url = self::my_hub_url();
         $url = remove_query_arg('bh_hub_saved', $url);
         wp_safe_redirect(add_query_arg('bh_hub_saved', '1', $url));
         exit;
+    }
+
+    private static function my_hub_url(): string {
+        global $post;
+        if ($post instanceof \WP_Post && has_shortcode((string) $post->post_content, 'bh_my_hub')) {
+            return get_permalink($post);
+        }
+        $page = get_page_by_path('my-hub');
+        return $page instanceof \WP_Post ? get_permalink($page) : home_url('/');
+    }
+
+    public static function modal_script(): void {
+        if (!self::is_my_hub_page()) {
+            return;
+        }
+        ?>
+        <script>
+        document.addEventListener('DOMContentLoaded',function(){
+            document.querySelectorAll('[data-bh-modal]').forEach(function(button){
+                button.addEventListener('click',function(){
+                    var panel=document.querySelector('[data-bh-modal-panel="'+button.getAttribute('data-bh-modal')+'"]');
+                    if(panel){panel.hidden=false;document.body.classList.add('bh-modal-open');}
+                });
+            });
+            document.querySelectorAll('[data-bh-modal-close]').forEach(function(button){
+                button.addEventListener('click',function(){
+                    var panel=button.closest('.bh-my-hub__modal');
+                    if(panel){panel.hidden=true;document.body.classList.remove('bh-modal-open');}
+                });
+            });
+            document.addEventListener('keydown',function(event){
+                if(event.key==='Escape'){
+                    document.querySelectorAll('.bh-my-hub__modal:not([hidden])').forEach(function(panel){
+                        panel.hidden=true;
+                    });
+                    document.body.classList.remove('bh-modal-open');
+                }
+            });
+        });
+        </script>
+        <?php
     }
 
     private static function age_label(string $dob): string {
