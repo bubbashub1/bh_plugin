@@ -221,174 +221,181 @@ final class MyHub {
 
             <div class="bh-my-hub__grid">
                 <section id="bh-my-hub-family" class="bh-my-hub__card bh-my-hub__family-container">
-                    <div class="bh-my-hub__family-scroll">
-                    <div class="bh-my-hub__family-panel">
-                    <div class="bh-my-hub__card-head">
-                        <div><span class="bh-my-hub__icon">👨‍👩‍👧</span><h2>My Family</h2></div>
-                        <span class="bh-my-hub__count"><?php echo esc_html(count($children) + count($bumps)); ?></span>
-                    </div>
-                    <div class="bh-my-hub__family-actions">
-                        <button type="button" class="bh-my-hub__button bh-my-hub__open-modal" data-bh-modal="child">Add child</button>
-                        <button type="button" class="bh-my-hub__button bh-my-hub__button--outline bh-my-hub__open-modal" data-bh-modal="add-bump">Add bump</button>
-                    </div>
+    <div class="bh-my-hub__family-header">
+        <div class="bh-my-hub__card-head">
+            <div>
+                <span class="bh-my-hub__icon" aria-hidden="true">👨‍👩‍👧</span>
+                <div>
+                    <h2>My Family</h2>
+                    <p class="bh-my-hub__family-subtitle">Keep your family details together for a more personal Bubba Hub.</p>
+                </div>
+            </div>
+            <span class="bh-my-hub__count"><?php echo esc_html(count($children) + count($bumps)); ?></span>
+        </div>
 
-                    <?php if ($children || $bumps): ?>
-                        <div class="bh-my-hub__profiles">
-                            <?php foreach ($children as $child): ?>
-                                <?php
-                                $id = (int) $child->ID;
-                                $name = (string) get_field('child_name', $id);
-                                $dob = (string) get_field('child_date_of_birth', $id);
-                                $avatar = (string) get_field('field_bubbahub_child_avatar_url', $id);
-                                $gender = (string) get_field('field_bubbahub_child_gender', $id);
-                                $age_group = (string) get_field('field_bubbahub_child_age_group', $id);
-                                $school = self::school_tracker($id, $dob);
-                                ?>
-                                <article class="bh-my-hub__profile">
-                                    <?php if ($avatar): ?>
-                                        <img class="bh-my-hub__avatar" src="<?php echo esc_url($avatar); ?>" alt="">
-                                    <?php else: ?>
-                                        <span class="bh-my-hub__avatar bh-my-hub__avatar--placeholder" aria-hidden="true">👶</span>
-                                    <?php endif; ?>
-                                    <strong><?php echo esc_html($name ?: 'Child'); ?></strong>
-                                    <?php if ($dob): ?><span><?php echo esc_html(self::age_label($dob)); ?></span><?php endif; ?>
-                                    <?php if ($gender): ?><span><?php echo esc_html(ucwords(str_replace('_', ' ', $gender))); ?></span><?php endif; ?>
-                                    <?php if ($age_group): ?><span>Age group: <?php echo esc_html($age_group); ?></span><?php endif; ?>
+        <div class="bh-my-hub__family-actions">
+            <button type="button" class="bh-my-hub__button bh-my-hub__open-modal" data-bh-modal="child">+ Add child</button>
+            <button type="button" class="bh-my-hub__button bh-my-hub__button--outline bh-my-hub__open-modal" data-bh-modal="add-bump">+ Add bump</button>
+        </div>
+    </div>
 
-                                    <?php if ($school): ?>
-                                        <div class="bh-my-hub__school-tracker">
-                                            <strong>🎓 School tracker</strong>
-                                            <span><?php echo esc_html($school['label']); ?></span>
-                                            <small><?php echo esc_html($school['countdown']); ?></small>
-                                            <?php if (!empty($school['url'])): ?>
-                                                <a href="<?php echo esc_url($school['url']); ?>" target="_blank" rel="noopener">School admissions</a>
-                                            <?php endif; ?>
-                                        </div>
-                                    <?php endif; ?>
-
-                                    <button type="button" class="bh-my-hub__edit-link bh-my-hub__open-modal" data-bh-modal="edit-child-<?php echo esc_attr((string) $id); ?>">Edit</button>
-
-                                    <form method="post" class="bh-my-hub__delete">
-                                        <?php wp_nonce_field('bh_my_hub_delete_child_' . $id, 'bh_my_hub_nonce'); ?>
-                                        <input type="hidden" name="bh_my_hub_action" value="delete_child">
-                                        <input type="hidden" name="child_id" value="<?php echo esc_attr((string) $id); ?>">
-                                        <button type="submit">Remove</button>
-                                    </form>
-
-                                    <div class="bh-my-hub__modal" data-bh-modal-panel="edit-child-<?php echo esc_attr((string) $id); ?>" hidden>
-                                        <div class="bh-my-hub__modal-backdrop" data-bh-modal-close></div>
-                                        <div class="bh-my-hub__modal-dialog" role="dialog" aria-modal="true">
-                                            <button type="button" class="bh-my-hub__modal-close" data-bh-modal-close aria-label="Close">×</button>
-                                            <h3>Edit <?php echo esc_html($name ?: 'child'); ?></h3>
-                                            <form method="post" class="bh-my-hub__form" enctype="multipart/form-data">
-                                                <?php wp_nonce_field('bh_my_hub_edit_child_' . $id, 'bh_my_hub_nonce'); ?>
-                                                <input type="hidden" name="bh_my_hub_action" value="edit_child">
-                                                <input type="hidden" name="child_id" value="<?php echo esc_attr((string) $id); ?>">
-                                                <?php self::child_fields($id); ?>
-                                                <button class="bh-my-hub__button" type="submit">Save changes</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </article>
-                            <?php endforeach; ?>
-                            <?php foreach ($bumps as $bump): ?>
-                                <?php
-                                $bump_id = (int) $bump->ID;
-                                $nickname = (string) get_field('child_nickname', $bump_id);
-                                $due = (string) get_field('child_due_date', $bump_id);
-                                $tracker = $due ? self::antenatal_tracker($due) : [];
-                                $baby_is_here = $due ? self::bump_is_38_weeks($due) : false;
-                                ?>
-                                <article class="bh-my-hub__profile bh-my-hub__bump-profile">
-                                    <span class="bh-my-hub__avatar bh-my-hub__avatar--placeholder" aria-hidden="true">🤰</span>
-                                    <strong><?php echo esc_html($nickname ?: 'My bump'); ?></strong>
-                                    <?php if ($due): ?>
-                                        <span>Due <?php echo esc_html(wp_date(get_option('date_format'), strtotime($due))); ?></span>
-                                        <?php if ($tracker): ?>
-                                            <div class="bh-my-hub__antenatal-tracker">
-                                                <strong>🤰 Antenatal tracker</strong>
-                                                <span><?php echo esc_html($tracker['countdown']); ?></span>
-                                                <small><?php echo esc_html($tracker['classes']); ?></small>
-                                            </div>
-                                        <?php endif; ?>
-                                    <?php endif; ?>
-                                    <div class="bh-my-hub__profile-actions">
-                                        <button type="button" class="bh-my-hub__edit-link bh-my-hub__open-modal" data-bh-modal="edit-bump-<?php echo esc_attr((string) $bump_id); ?>">Edit bump</button>
-                                        <?php if ($baby_is_here): ?>
-                                            <form method="post" class="bh-my-hub__inline-form">
-                                                <?php wp_nonce_field('bh_my_hub_baby_is_here_' . $bump_id, 'bh_my_hub_nonce'); ?>
-                                                <input type="hidden" name="bh_my_hub_action" value="baby_is_here">
-                                                <input type="hidden" name="child_id" value="<?php echo esc_attr((string) $bump_id); ?>">
-                                                <button type="submit" class="bh-my-hub__button bh-my-hub__button--success">Baby is here</button>
-                                            </form>
-                                        <?php endif; ?>
-                                        <form method="post" class="bh-my-hub__delete">
-                                            <?php wp_nonce_field('bh_my_hub_delete_bump_' . $bump_id, 'bh_my_hub_nonce'); ?>
-                                            <input type="hidden" name="bh_my_hub_action" value="delete_bump">
-                                            <input type="hidden" name="child_id" value="<?php echo esc_attr((string) $bump_id); ?>">
-                                            <button type="submit">Remove bump</button>
-                                        </form>
-                                    </div>
-                                </article>
-
-                                <div class="bh-my-hub__modal" data-bh-modal-panel="edit-bump-<?php echo esc_attr((string) $bump_id); ?>" hidden>
-                                    <div class="bh-my-hub__modal-backdrop" data-bh-modal-close></div>
-                                    <div class="bh-my-hub__modal-dialog" role="dialog" aria-modal="true">
-                                        <button type="button" class="bh-my-hub__modal-close" data-bh-modal-close aria-label="Close">×</button>
-                                        <h3>Edit bump</h3>
-                                        <form method="post" class="bh-my-hub__form">
-                                            <?php wp_nonce_field('bh_my_hub_save_bump_' . $bump_id, 'bh_my_hub_nonce'); ?>
-                                            <input type="hidden" name="bh_my_hub_action" value="save_bump">
-                                            <input type="hidden" name="child_id" value="<?php echo esc_attr((string) $bump_id); ?>">
-                                            <div class="bh-my-hub__fields">
-                                                <label>Nickname<input type="text" name="bump_nickname" maxlength="100" value="<?php echo esc_attr($nickname); ?>"></label>
-                                                <label>Due date<input type="date" name="bump_due_date" value="<?php echo esc_attr($due); ?>" required></label>
-                                            </div>
-                                            <button class="bh-my-hub__button" type="submit">Save changes</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
+    <?php if ($children || $bumps): ?>
+        <div class="bh-my-hub__profiles">
+            <?php foreach ($children as $child): ?>
+                <?php
+                $id = (int) $child->ID;
+                $name = (string) get_field('field_bubbahub_child_name', $id);
+                $dob = (string) get_field('field_bubbahub_child_date_of_birth', $id);
+                $avatar = (string) get_field('field_bubbahub_child_avatar_url', $id);
+                $gender = (string) get_field('field_bubbahub_child_gender', $id);
+                ?>
+                <article class="bh-my-hub__profile bh-my-hub__family-profile bh-my-hub__family-profile--child">
+                    <div class="bh-my-hub__family-profile-top">
+                        <?php if ($avatar): ?>
+                            <img class="bh-my-hub__avatar" src="<?php echo esc_url($avatar); ?>" alt="">
+                        <?php else: ?>
+                            <span class="bh-my-hub__avatar bh-my-hub__avatar--placeholder" aria-hidden="true">👶</span>
+                        <?php endif; ?>
+                        <div class="bh-my-hub__family-profile-identity">
+                            <span class="bh-my-hub__family-profile-type">Child</span>
+                            <strong><?php echo esc_html($name ?: 'Child'); ?></strong>
                         </div>
-                    <?php else: ?>
-                        <p class="bh-my-hub__muted">Add your children or a bump to personalise Bubba Hub around your family.</p>
-                    <?php endif; ?>
+                    </div>
 
-                    <div class="bh-my-hub__modal" data-bh-modal-panel="child" hidden>
+                    <div class="bh-my-hub__family-profile-details">
+                        <?php if ($dob): ?><span>🎂 <?php echo esc_html(self::age_label($dob)); ?></span><?php endif; ?>
+                        <?php if ($gender): ?><span>♡ <?php echo esc_html(ucwords(str_replace('_', ' ', $gender))); ?></span><?php endif; ?>
+                    </div>
+
+                    <div class="bh-my-hub__family-profile-actions">
+                        <button type="button" class="bh-my-hub__family-action bh-my-hub__open-modal" data-bh-modal="edit-child-<?php echo esc_attr((string) $id); ?>">Edit</button>
+                        <form method="post">
+                            <?php wp_nonce_field('bh_my_hub_delete_child_' . $id, 'bh_my_hub_nonce'); ?>
+                            <input type="hidden" name="bh_my_hub_action" value="delete_child">
+                            <input type="hidden" name="child_id" value="<?php echo esc_attr((string) $id); ?>">
+                            <button type="submit" class="bh-my-hub__family-action bh-my-hub__family-action--remove">Remove</button>
+                        </form>
+                    </div>
+
+                    <div class="bh-my-hub__modal" data-bh-modal-panel="edit-child-<?php echo esc_attr((string) $id); ?>" hidden>
                         <div class="bh-my-hub__modal-backdrop" data-bh-modal-close></div>
                         <div class="bh-my-hub__modal-dialog" role="dialog" aria-modal="true">
                             <button type="button" class="bh-my-hub__modal-close" data-bh-modal-close aria-label="Close">×</button>
-                            <h3>Add a child</h3>
+                            <h3>Edit <?php echo esc_html($name ?: 'child'); ?></h3>
                             <form method="post" class="bh-my-hub__form" enctype="multipart/form-data">
-                                <?php wp_nonce_field('bh_my_hub_save_child', 'bh_my_hub_nonce'); ?>
-                                <input type="hidden" name="bh_my_hub_action" value="save_child">
-                                <?php self::child_fields(); ?>
-                                <button class="bh-my-hub__button" type="submit">Save child</button>
+                                <?php wp_nonce_field('bh_my_hub_edit_child_' . $id, 'bh_my_hub_nonce'); ?>
+                                <input type="hidden" name="bh_my_hub_action" value="edit_child">
+                                <input type="hidden" name="child_id" value="<?php echo esc_attr((string) $id); ?>">
+                                <?php self::child_fields($id); ?>
+                                <button class="bh-my-hub__button" type="submit">Save changes</button>
                             </form>
                         </div>
                     </div>
+                </article>
+            <?php endforeach; ?>
 
-                    <div class="bh-my-hub__modal" data-bh-modal-panel="add-bump" hidden>
+            <?php foreach ($bumps as $bump): ?>
+                <?php
+                $bump_id = (int) $bump->ID;
+                $nickname = (string) get_field('field_bubbahub_child_nickname', $bump_id);
+                $due = (string) get_field('field_bubbahub_child_due_date', $bump_id);
+                $baby_is_here = $due ? self::bump_is_38_weeks($due) : false;
+                ?>
+                <article class="bh-my-hub__profile bh-my-hub__family-profile bh-my-hub__family-profile--bump">
+                    <div class="bh-my-hub__family-profile-top">
+                        <span class="bh-my-hub__avatar bh-my-hub__avatar--placeholder" aria-hidden="true">🤰</span>
+                        <div class="bh-my-hub__family-profile-identity">
+                            <span class="bh-my-hub__family-profile-type">Expected baby</span>
+                            <strong><?php echo esc_html($nickname ?: 'My bump'); ?></strong>
+                        </div>
+                    </div>
+
+                    <div class="bh-my-hub__family-profile-details">
+                        <?php if ($due): ?><span>📅 Due <?php echo esc_html(wp_date(get_option('date_format'), strtotime($due))); ?></span><?php endif; ?>
+                    </div>
+
+                    <div class="bh-my-hub__family-profile-actions">
+                        <button type="button" class="bh-my-hub__family-action bh-my-hub__open-modal" data-bh-modal="edit-bump-<?php echo esc_attr((string) $bump_id); ?>">Edit</button>
+                        <?php if ($baby_is_here): ?>
+                            <form method="post">
+                                <?php wp_nonce_field('bh_my_hub_baby_is_here_' . $bump_id, 'bh_my_hub_nonce'); ?>
+                                <input type="hidden" name="bh_my_hub_action" value="baby_is_here">
+                                <input type="hidden" name="child_id" value="<?php echo esc_attr((string) $bump_id); ?>">
+                                <button type="submit" class="bh-my-hub__family-action bh-my-hub__family-action--success">Baby is here</button>
+                            </form>
+                        <?php endif; ?>
+                        <form method="post">
+                            <?php wp_nonce_field('bh_my_hub_delete_bump_' . $bump_id, 'bh_my_hub_nonce'); ?>
+                            <input type="hidden" name="bh_my_hub_action" value="delete_bump">
+                            <input type="hidden" name="child_id" value="<?php echo esc_attr((string) $bump_id); ?>">
+                            <button type="submit" class="bh-my-hub__family-action bh-my-hub__family-action--remove">Remove</button>
+                        </form>
+                    </div>
+
+                    <div class="bh-my-hub__modal" data-bh-modal-panel="edit-bump-<?php echo esc_attr((string) $bump_id); ?>" hidden>
                         <div class="bh-my-hub__modal-backdrop" data-bh-modal-close></div>
                         <div class="bh-my-hub__modal-dialog" role="dialog" aria-modal="true">
                             <button type="button" class="bh-my-hub__modal-close" data-bh-modal-close aria-label="Close">×</button>
-                            <h3>Add a bump</h3>
+                            <h3>Edit bump</h3>
                             <form method="post" class="bh-my-hub__form">
-                                <?php wp_nonce_field('bh_my_hub_save_bump', 'bh_my_hub_nonce'); ?>
+                                <?php wp_nonce_field('bh_my_hub_save_bump_' . $bump_id, 'bh_my_hub_nonce'); ?>
                                 <input type="hidden" name="bh_my_hub_action" value="save_bump">
-                                <input type="hidden" name="child_id" value="">
+                                <input type="hidden" name="child_id" value="<?php echo esc_attr((string) $bump_id); ?>">
                                 <div class="bh-my-hub__fields">
-                                    <label>Nickname<input type="text" name="bump_nickname" maxlength="100" value=""></label>
-                                    <label>Due date<input type="date" name="bump_due_date" value="" required></label>
+                                    <label>Nickname<input type="text" name="bump_nickname" maxlength="100" value="<?php echo esc_attr($nickname); ?>"></label>
+                                    <label>Due date<input type="date" name="bump_due_date" value="<?php echo esc_attr($due); ?>" required></label>
                                 </div>
-                                <button class="bh-my-hub__button" type="submit">Save bump</button>
+                                <button class="bh-my-hub__button" type="submit">Save changes</button>
                             </form>
                         </div>
                     </div>
-                    </div>
-                </section>
+                </article>
+            <?php endforeach; ?>
+        </div>
+    <?php else: ?>
+        <div class="bh-my-hub__family-empty">
+            <span aria-hidden="true">👨‍👩‍👧</span>
+            <div>
+                <strong>Add your family</strong>
+                <p>Add a child or bump to personalise your Bubba Hub.</p>
+            </div>
+        </div>
+    <?php endif; ?>
 
-                <section id="bh-my-hub-groups" class="bh-my-hub__card bh-my-hub__card--wide">
+    <div class="bh-my-hub__modal" data-bh-modal-panel="child" hidden>
+        <div class="bh-my-hub__modal-backdrop" data-bh-modal-close></div>
+        <div class="bh-my-hub__modal-dialog" role="dialog" aria-modal="true">
+            <button type="button" class="bh-my-hub__modal-close" data-bh-modal-close aria-label="Close">×</button>
+            <h3>Add a child</h3>
+            <form method="post" class="bh-my-hub__form" enctype="multipart/form-data">
+                <?php wp_nonce_field('bh_my_hub_save_child', 'bh_my_hub_nonce'); ?>
+                <input type="hidden" name="bh_my_hub_action" value="save_child">
+                <?php self::child_fields(); ?>
+                <button class="bh-my-hub__button" type="submit">Save child</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="bh-my-hub__modal" data-bh-modal-panel="add-bump" hidden>
+        <div class="bh-my-hub__modal-backdrop" data-bh-modal-close></div>
+        <div class="bh-my-hub__modal-dialog" role="dialog" aria-modal="true">
+            <button type="button" class="bh-my-hub__modal-close" data-bh-modal-close aria-label="Close">×</button>
+            <h3>Add a bump</h3>
+            <form method="post" class="bh-my-hub__form">
+                <?php wp_nonce_field('bh_my_hub_save_bump', 'bh_my_hub_nonce'); ?>
+                <input type="hidden" name="bh_my_hub_action" value="save_bump">
+                <input type="hidden" name="child_id" value="">
+                <div class="bh-my-hub__fields">
+                    <label>Nickname<input type="text" name="bump_nickname" maxlength="100" value=""></label>
+                    <label>Due date<input type="date" name="bump_due_date" value="" required></label>
+                </div>
+                <button class="bh-my-hub__button" type="submit">Save bump</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<section id="bh-my-hub-groups" class="bh-my-hub__card bh-my-hub__card--wide">
                     <div class="bh-my-hub__card-head">
                         <div><span class="bh-my-hub__icon">👥</span><h2>My Groups</h2></div>
                     </div>
