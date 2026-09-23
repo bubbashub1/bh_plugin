@@ -157,7 +157,7 @@ final class MyHub {
                     </div>
 
                     <div class="bh-my-hub__family-actions">
-                        <button type="button" class="bh-my-hub__button bh-my-hub__button--outline bh-my-hub__open-modal" data-bh-modal="bump"><?php echo $bump ? 'Update bump' : 'Add bump'; ?></button>
+                        <button type="button" class="bh-my-hub__button bh-my-hub__button--outline bh-my-hub__open-modal" data-bh-modal="bump"><?php echo $bump ? 'Edit bump' : 'Add bump'; ?></button>
                     </div>
 
                     <?php if ($bump): ?>
