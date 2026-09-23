@@ -143,6 +143,19 @@ final class MyHub {
         update_user_meta($user_id, 'bh_recently_viewed_listings', $recent);
     }
 
+    private static function listing_location_label(int $listing_id): string {
+        if ($listing_id < 1 || !taxonomy_exists('location')) {
+            return '';
+        }
+
+        $terms = wp_get_post_terms($listing_id, 'location', ['fields' => 'names']);
+        if (is_wp_error($terms) || empty($terms)) {
+            return '';
+        }
+
+        return (string) $terms[0];
+    }
+
     private static function recently_viewed_listing_ids(int $user_id): array {
         if ($user_id < 1) {
             return [];
@@ -505,7 +518,8 @@ final class MyHub {
                                         ?>
                                         <article class="bh-my-hub__group-card">
                                             <strong><?php echo esc_html($recent_title ?: 'Activity'); ?></strong>
-                                            <p>Recently viewed</p>
+                                            <?php $recent_location = self::listing_location_label((int) $recent_id); ?>
+                                            <?php if ($recent_location): ?><p><?php echo esc_html($recent_location); ?></p><?php endif; ?>
                                             <?php if ($recent_url): ?><a href="<?php echo esc_url($recent_url); ?>">View group</a><?php endif; ?>
                                         </article>
                                     <?php endforeach; ?>
@@ -536,7 +550,8 @@ final class MyHub {
                                         ?>
                                         <article class="bh-my-hub__group-card bh-my-hub__group-card--visited">
                                             <strong><?php echo esc_html($visited_title ?: 'Activity'); ?></strong>
-                                            <p>📍 Visited activity</p>
+                                            <?php $visited_location = self::listing_location_label((int) $visited_id); ?>
+                                            <?php if ($visited_location): ?><p><?php echo esc_html($visited_location); ?></p><?php endif; ?>
                                             <?php if ($visited_url): ?><a href="<?php echo esc_url($visited_url); ?>">View group</a><?php endif; ?>
                                         </article>
                                     <?php endforeach; ?>
@@ -567,7 +582,8 @@ final class MyHub {
                                         ?>
                                         <article class="bh-my-hub__group-card">
                                             <strong><?php echo esc_html($saved_title ?: 'Activity'); ?></strong>
-                                            <p>🔖 Saved group</p>
+                                            <?php $saved_location = self::listing_location_label((int) $saved_id); ?>
+                                            <?php if ($saved_location): ?><p><?php echo esc_html($saved_location); ?></p><?php endif; ?>
                                             <?php if ($saved_url): ?><a href="<?php echo esc_url($saved_url); ?>">View group</a><?php endif; ?>
                                         </article>
                                     <?php endforeach; ?>
