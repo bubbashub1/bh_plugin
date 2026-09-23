@@ -179,6 +179,7 @@ final class MyHub {
                                 $baby_is_here = $due ? self::bump_is_38_weeks($due) : false;
                                 ?>
                                 <article class="bh-my-hub__profile bh-my-hub__bump-profile">
+                                    <span class="bh-my-hub__avatar bh-my-hub__avatar--placeholder" aria-hidden="true">🤰</span>
                                     <strong><?php echo esc_html($nickname ?: 'My bump'); ?></strong>
                                     <?php if ($due): ?>
                                         <span>Due <?php echo esc_html(wp_date(get_option('date_format'), strtotime($due))); ?></span>
