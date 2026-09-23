@@ -15,50 +15,39 @@ final class Directory {
     }
 
     public static function bridge_directorist_listing($return, string $tag, array $attr, array $m) {
-        if ($tag !== 'directorist_all_listing' || self::$directorist_bridge_running || !Listing::is_available()) {
+        if ($tag !== 'directorist_all_listing' || self::$directorist_bridge_running || !Listing::is_available() || !is_page('all-listings')) {
             return $return;
         }
 
         $filters = self::filters();
-        $has_filter = false;
-        foreach (['search','category','age_range','region','town','saved_location','day','price','free_activity'] as $key) {
-            if ((string) ($filters[$key] ?? '') !== '') {
-                $has_filter = true;
-                break;
-            }
-        }
-        if (!$has_filter) {
-            return $return;
-        }
+        $has_location_filter = $filters['region'] !== '' || $filters['town'] !== '';
 
-        $filters['all_results'] = true;
-        $filters['posts_per_page'] = -1;
-        $filters['paged'] = 1;
-        $query = DirectoryQuery::run($filters);
-        $ids = array_values(array_unique(array_filter(array_map('absint', wp_list_pluck($query->posts, 'ID')))));
-
-        if (!empty($attr['ids'])) {
-            $native_ids = array_values(array_filter(array_map('absint', preg_split('/[,\\s]+/', (string) $attr['ids']))));
-            $ids = array_values(array_intersect($native_ids, $ids));
-        }
-
+        // Directorist still renders the listings. Bubba Hub only replaces the
+        // location controls on the All Listings page and supplies the filtered
+        // listing IDs when Region/Town is selected.
         $bridge_attr = $attr;
-        $bridge_attr['ids'] = $ids ? implode(',', $ids) : '0';
+        $bridge_attr['advanced_filter'] = 'no';
 
-        $sort_map = [
-            'az' => ['orderby'=>'title','order'=>'asc'],
-            'za' => ['orderby'=>'title','order'=>'desc'],
-            'latest' => ['orderby'=>'date','order'=>'desc'],
-            'oldest' => ['orderby'=>'date','order'=>'asc'],
-            'random' => ['orderby'=>'rand','order'=>'desc'],
-            'price_low' => ['orderby'=>'price','order'=>'asc'],
-            'price_high' => ['orderby'=>'price','order'=>'desc'],
-        ];
-        $sort = (string) ($filters['sort'] ?? 'latest');
-        if (isset($sort_map[$sort])) {
-            $bridge_attr += $sort_map[$sort];
+        if ($has_location_filter) {
+            $query_filters = $filters;
+            $query_filters['all_results'] = true;
+            $query_filters['posts_per_page'] = -1;
+            $query_filters['paged'] = 1;
+
+            $query = DirectoryQuery::run($query_filters);
+            $ids = array_values(array_unique(array_filter(array_map('absint', wp_list_pluck($query->posts, 'ID')))));
+
+            if (!empty($attr['ids'])) {
+                $native_ids = array_values(array_filter(array_map('absint', preg_split('/[,\\s]+/', (string) $attr['ids']))));
+                $ids = array_values(array_intersect($native_ids, $ids));
+            }
+
+            $bridge_attr['ids'] = $ids ? implode(',', $ids) : '0';
         }
-        $bridge_attr['listings_per_page'] = (string) self::per_page(12);
+
+        $bridge_attr['listings_per_page'] = isset($attr['listings_per_page'])
+            ? (string) absint($attr['listings_per_page'])
+            : '12';
 
         $parts = [];
         foreach ($bridge_attr as $key => $value) {
@@ -70,11 +59,15 @@ final class Directory {
 
         self::$directorist_bridge_running = true;
         try {
-            $output = do_shortcode($shortcode);
+            $listings = do_shortcode($shortcode);
         } finally {
             self::$directorist_bridge_running = false;
         }
-        return (string) $output;
+
+        return '<div class="bh-directory bh-directory--directorist-bridge">'
+            . DirectorySearch::location_form()
+            . '<div class="bh-directory__directorist-listings">' . $listings . '</div>'
+            . '</div>';
     }
 
     public static function shortcode(array $atts = []): string {
