@@ -56,7 +56,7 @@ final class Directory {
             </nav>
 
             <?php if (Planner::is_calendar_view($view)) : ?>
-                <section class="bh-planner-shell" aria-label="<?php echo esc_attr(ucfirst($view)); ?> activity planner">
+                <section class="bh-planner-shell" data-bh-planner aria-label="<?php echo esc_attr(ucfirst($view)); ?> activity planner">
                     <div class="bh-planner-shell__heading">
                         <div>
                             <h3><?php echo esc_html(ucfirst($view)); ?> planner</h3>
@@ -186,5 +186,7 @@ final class Directory {
         wp_enqueue_style('bh-planner');
         wp_register_script('bh-weekly-schedule', BH_PLUGIN_URL . 'assets/js/bh-weekly-schedule.js', [], BH_PLUGIN_VERSION, true);
         wp_enqueue_script('bh-weekly-schedule');
+        wp_register_script('bh-planner', BH_PLUGIN_URL . 'assets/js/bh-planner.js', [], BH_PLUGIN_VERSION, true);
+        wp_enqueue_script('bh-planner');
     }
 }
