@@ -32,3 +32,135 @@
 .bh-directory__filter-panel .bh-directory-search__advanced-grid{display:flex;flex-direction:column;grid-template-columns:none;gap:14px;margin-top:0}
 .bh-directory__filter-panel .bh-directory-search__field input,.bh-directory__filter-panel .bh-directory-search__field select{width:100%}
 @media(max-width:900px){.bh-directory__layout{grid-template-columns:1fr}.bh-directory__filter-drawer{margin-bottom:18px}}
+
+/* Final Bubba Hub activity filter sidebar polish. */
+.bh-directory__filter-drawer{
+  background:#fff;
+  border:1px solid #e3e7eb;
+  border-radius:16px;
+  padding:0;
+  box-shadow:0 4px 16px rgba(24,39,75,.05);
+  overflow:hidden;
+}
+.bh-directory__filter-toggle{
+  display:flex;
+  width:100%;
+  box-sizing:border-box;
+  min-height:58px;
+  margin:0;
+  padding:15px 18px;
+  border:0;
+  border-bottom:1px solid #edf0f3;
+  border-radius:0;
+  background:#fff;
+  color:#28323c;
+  font-size:1rem;
+  font-weight:800;
+  cursor:pointer;
+  align-items:center;
+  gap:10px;
+}
+.bh-directory__filter-toggle:hover{
+  background:#fbfafb;
+  transform:none;
+  box-shadow:none;
+}
+.bh-directory__filter-toggle-icon{
+  width:30px;
+  height:30px;
+  border-radius:9px;
+  background:rgba(216,155,184,.14);
+  color:var(--wp--preset--color--secondary,#d89bb8);
+  font-size:16px;
+}
+.bh-directory__filter-toggle-chevron{
+  color:#8a929b;
+  font-size:19px;
+}
+.bh-directory__filter-panel{
+  padding:17px 18px 20px;
+}
+.bh-directory__filter-help{display:none}
+.bh-directory__filter-panel .bh-directory-search__advanced{
+  width:100%;
+  padding:0;
+  margin:0;
+  border:0;
+}
+.bh-directory__filter-panel .bh-directory-search__advanced-grid{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  margin:0;
+}
+.bh-directory__filter-panel .bh-directory-search__field{
+  width:100%;
+}
+.bh-directory__filter-panel .bh-directory-search__field label{
+  display:block;
+  margin:0 0 6px;
+  color:#4c5661;
+  font-size:.78rem;
+  font-weight:800;
+}
+.bh-directory__filter-panel .bh-directory-search__field input,
+.bh-directory__filter-panel .bh-directory-search__field select{
+  width:100%;
+  min-height:44px;
+  padding:9px 11px;
+  border:1px solid #dfe3e8;
+  border-radius:9px;
+  background:#fff;
+}
+.bh-directory__filter-panel .bh-directory-search__field input:focus,
+.bh-directory__filter-panel .bh-directory-search__field select:focus{
+  border-color:var(--wp--preset--color--secondary,#d89bb8);
+  outline:3px solid rgba(216,155,184,.14);
+}
+.bh-directory__filter-panel .bh-directory-search__field--checkbox{
+  min-height:42px;
+  padding:10px 11px;
+  border:1px solid #e5e8ec;
+  border-radius:9px;
+  background:#fafbfc;
+}
+.bh-directory__filter-panel .bh-directory-search__actions{
+  display:flex;
+  gap:8px;
+  margin-top:2px;
+}
+.bh-directory__filter-panel .bh-directory-search__actions button{
+  width:100%;
+  min-height:44px;
+  border-radius:9px;
+  background:var(--wp--preset--color--primary,#28323c);
+}
+.bh-directory__filter-panel .bh-directory-search__actions a{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  white-space:nowrap;
+  padding:9px 6px;
+  font-size:.84rem;
+}
+@media(min-width:1001px){
+  .bh-directory__filter-drawer{position:sticky;top:20px}
+  .bh-directory__filter-toggle{cursor:default}
+  .bh-directory__filter-toggle-chevron{display:none}
+}
+@media(max-width:1000px){
+  .bh-directory__filter-drawer{
+    position:relative;
+    overflow:visible;
+  }
+  .bh-directory__filter-drawer:not([open]) .bh-directory__filter-panel{display:none}
+  .bh-directory__filter-drawer[open] .bh-directory__filter-panel{display:block}
+  .bh-directory__filter-toggle{
+    border-radius:16px;
+    border-bottom:0;
+  }
+}
+@media(max-width:650px){
+  .bh-directory__filter-toggle{min-height:54px;padding:13px 15px;border-radius:14px}
+  .bh-directory__filter-panel{padding:15px}
+}
