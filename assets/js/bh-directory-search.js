@@ -228,17 +228,25 @@
     }
 
     function initMobileFilterToggle(){
- document.querySelectorAll('.bh-directory__filter-toggle').forEach(function(button){
-  if(button.dataset.bhFilterBound==='1')return;
-  button.dataset.bhFilterBound='1';
-  button.addEventListener('click',function(){
-   var filters=button.closest('.bh-directory__filters');
-   if(!filters)return;
-   var open=filters.classList.toggle('is-open');
-   button.setAttribute('aria-expanded',open?'true':'false');
-  });
- });
-}
+        // Use delegated handling so the button still works after AJAX replaces the directory.
+        if(document.body.dataset.bhFilterToggleBound==='1'){
+            return;
+        }
+        document.body.dataset.bhFilterToggleBound='1';
+        document.addEventListener('click',function(event){
+            var button=event.target.closest('.bh-directory__filter-toggle');
+            if(!button){
+                return;
+            }
+            event.preventDefault();
+            var filters=button.closest('.bh-directory__filters');
+            if(!filters){
+                return;
+            }
+            var open=filters.classList.toggle('is-open');
+            button.setAttribute('aria-expanded',open?'true':'false');
+        });
+    }
 
 window.BubbaHubInitDirectorySearch = initDirectorySearch;
 
