@@ -2,7 +2,7 @@
 /* Mobile filter drawer */
 .bh-directory__filter-toggle{display:none}
 .bh-directory__filter-panel{display:block}
-@media(max-width:650px){
+@media(max-width:1000px){
  .bh-directory__filter-toggle{display:flex;width:100%;align-items:center;justify-content:center;gap:9px;min-height:46px;margin:0 0 12px;padding:10px 16px;border:1px solid #dfe3e8;border-radius:10px;background:var(--wp--preset--color--secondary,#d89bb8);color:#fff;font:inherit;font-weight:700;cursor:pointer}
  .bh-directory__filter-toggle-icon{font-size:18px;line-height:1}
  .bh-directory__filter-panel{display:none}
