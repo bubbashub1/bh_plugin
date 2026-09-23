@@ -101,8 +101,11 @@ final class Directory {
                 <h2><?php echo esc_html($atts['title']); ?></h2>
             </header>
 
-            <?php echo DirectorySearch::shortcode(); ?>
-
+            <div class="bh-directory__layout">
+                <aside class="bh-directory__filters" aria-label="Directory filters">
+                    <?php echo DirectorySearch::shortcode(); ?>
+                </aside>
+                <div class="bh-directory__results">
             <nav class="bh-directory-views" aria-label="Activity views">
                 <?php foreach ([
                     'list' => 'List',
@@ -227,7 +230,8 @@ final class Directory {
                 <?php else : ?>
                     <p class="bh-directory__empty">No family activities found.</p>
                 <?php endif; ?>
-            <?php endif; ?>
+                </div>
+            </div>
         </section>
         <?php
         wp_reset_postdata();
