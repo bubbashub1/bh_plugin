@@ -375,7 +375,6 @@ final class MyHub {
         ?>
         <div class="bh-my-hub__fields">
             <label>Name<input type="text" name="child_name" maxlength="100" value="<?php echo esc_attr($name); ?>" required></label>
-            <label>Nickname<input type="text" name="child_nickname" maxlength="100" value="<?php echo esc_attr($nickname); ?>"></label>
             <label>Gender
                 <select name="gender">
                     <option value="">Select gender</option>
@@ -384,83 +383,15 @@ final class MyHub {
                     <option value="prefer_not_to_say" <?php selected($gender, 'prefer_not_to_say'); ?>>Prefer not to say</option>
                 </select>
             </label>
-            <label>Profile type
-                <select name="child_status">
-                    <option value="born" <?php selected($status, 'born'); ?>>Child born</option>
-                    <option value="expecting" <?php selected($status, 'expecting'); ?>>Expecting a baby</option>
-                </select>
-            </label>
             <label>Date of birth<input type="date" name="child_dob" value="<?php echo esc_attr($dob); ?>"></label>
-            <label>Due date<input type="date" name="child_due_date" value="<?php echo esc_attr($due); ?>"></label>
-            <label>Location
-                <select name="child_location">
-                    <option value="">Select location</option>
-                    <?php if (!is_wp_error($locations)): foreach ($locations as $location): ?>
-                        <option value="<?php echo esc_attr((string) $location->term_id); ?>" <?php selected($selected_location, (int) $location->term_id); ?>><?php echo esc_html($location->name); ?></option>
-                    <?php endforeach; endif; ?>
-                </select>
+            <input type="hidden" name="child_status" value="born">
+
+            <label class="bh-my-hub__avatar-field">Avatar
+                <input type="file" name="child_avatar" accept="image/jpeg,image/png,image/webp">
+                <small>JPG, PNG or WebP</small>
             </label>
-            <label>Age group
-                <select name="child_age_group">
-                    <option value="">Auto-calculate from date of birth</option>
-                    <?php
-                    $age_choices = [
-                        '0-3' => '0–3 months',
-                        '3-6' => '3–6 months',
-                        '6-9' => '6–9 months',
-                        '9-12' => '9–12 months',
-                        '1-3' => '1–3 years',
-                        '2-4' => '2–4 years',
-                        '3-5' => '3–5 years',
-                        '5-plus' => '5+ years',
-                        'all' => 'All ages',
-                    ];
-                    foreach ($age_choices as $value => $label): ?>
-                        <option value="<?php echo esc_attr($value); ?>" <?php selected($age_group, $value); ?>><?php echo esc_html($label); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </label>
-            <label>Allergies<textarea name="child_allergies" rows="3"><?php echo esc_textarea($allergies); ?></textarea></label>
-            <label>Notes<textarea name="child_notes" rows="3"><?php echo esc_textarea($notes); ?></textarea></label>
-
-            <div class="bh-my-hub__field-group">
-                <strong>School information</strong>
-                <label>School name<input type="text" name="school_name" value="<?php echo esc_attr($school_name); ?>"></label>
-                <label>Application status<input type="text" name="school_application_status" value="<?php echo esc_attr($school_status); ?>"></label>
-                <label>Application deadline<input type="date" name="school_application_deadline" value="<?php echo esc_attr($school_deadline); ?>"></label>
-                <label>School year<input type="text" name="school_year" value="<?php echo esc_attr($school_year); ?>"></label>
-                <label>Ofsted rating<input type="text" name="ofsted_rating" value="<?php echo esc_attr($ofsted); ?>"></label>
-            </div>
-
-            <div class="bh-my-hub__field-group">
-                <strong>Nap schedule</strong>
-                <?php
-                $nap_days = [
-                    'monday' => 'Monday',
-                    'tuesday' => 'Tuesday',
-                    'wednesday' => 'Wednesday',
-                    'thursday' => 'Thursday',
-                    'friday' => 'Friday',
-                    'saturday' => 'Saturday',
-                    'sunday' => 'Sunday',
-                ];
-                foreach ($nap_days as $day_key => $day_label):
-                    $nap = $nap_by_day[$day_key] ?? [];
-                ?>
-                    <div class="bh-my-hub__nap-row">
-                        <label>
-                            <span><?php echo esc_html($day_label); ?></span>
-                            <input type="checkbox" name="nap_schedule[<?php echo esc_attr($day_key); ?>][enabled]" value="1" <?php checked(!empty($nap['enabled'])); ?>>
-                        </label>
-                        <input type="time" name="nap_schedule[<?php echo esc_attr($day_key); ?>][start_time]" value="<?php echo esc_attr((string) ($nap['start_time'] ?? '')); ?>">
-                        <input type="time" name="nap_schedule[<?php echo esc_attr($day_key); ?>][end_time]" value="<?php echo esc_attr((string) ($nap['end_time'] ?? '')); ?>">
-                    </div>
-                <?php endforeach; ?>
-            </div>
-
-            <label class="bh-my-hub__avatar-field">Avatar<input type="file" name="child_avatar" accept="image/jpeg,image/png,image/webp"><small>JPG, PNG or WebP</small></label>
-            <label class="bh-my-hub__avatar-field">Avatar URL<input type="url" name="child_avatar_url" value="<?php echo esc_attr($avatar); ?>" placeholder="https://..."><small>Or use an image URL.</small></label>
         </div>
+</div>
         <?php
     }
     public static function handle_forms(): void {
