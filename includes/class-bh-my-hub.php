@@ -104,12 +104,47 @@ final class MyHub {
                                             <small><?php echo esc_html($school_tracker['countdown']); ?></small>
                                         </div>
                                     <?php endif; ?>
+                                    <button type="button" class="bh-my-hub__edit-link bh-my-hub__open-modal" data-bh-modal="edit-child-<?php echo esc_attr((string) $index); ?>">Edit</button>
                                     <form method="post" class="bh-my-hub__delete">
                                         <?php wp_nonce_field('bh_my_hub_delete_child', 'bh_my_hub_nonce'); ?>
                                         <input type="hidden" name="bh_my_hub_action" value="delete_child">
                                         <input type="hidden" name="child_index" value="<?php echo esc_attr((string) $index); ?>">
                                         <button type="submit">Remove</button>
                                     </form>
+                                    <div class="bh-my-hub__modal" data-bh-modal-panel="edit-child-<?php echo esc_attr((string) $index); ?>" hidden>
+                                        <div class="bh-my-hub__modal-backdrop" data-bh-modal-close></div>
+                                        <div class="bh-my-hub__modal-dialog" role="dialog" aria-modal="true" aria-labelledby="bh-edit-child-<?php echo esc_attr((string) $index); ?>-title">
+                                            <button type="button" class="bh-my-hub__modal-close" data-bh-modal-close aria-label="Close">×</button>
+                                            <h3 id="bh-edit-child-<?php echo esc_attr((string) $index); ?>-title">Edit <?php echo esc_html($child['name'] ?? 'child'); ?></h3>
+                                            <form method="post" class="bh-my-hub__form">
+                                                <?php wp_nonce_field('bh_my_hub_edit_child', 'bh_my_hub_nonce'); ?>
+                                                <input type="hidden" name="bh_my_hub_action" value="edit_child">
+                                                <input type="hidden" name="child_index" value="<?php echo esc_attr((string) $index); ?>">
+                                                <div class="bh-my-hub__fields">
+                                                    <label>Name<input type="text" name="child_name" maxlength="100" value="<?php echo esc_attr($child['name'] ?? ''); ?>" required></label>
+                                                    <label>Gender
+                                                        <select name="child_gender">
+                                                            <option value="" <?php selected($child['gender'] ?? '', ''); ?>>Prefer not to say</option>
+                                                            <option value="girl" <?php selected($child['gender'] ?? '', 'girl'); ?>>Girl</option>
+                                                            <option value="boy" <?php selected($child['gender'] ?? '', 'boy'); ?>>Boy</option>
+                                                            <option value="other" <?php selected($child['gender'] ?? '', 'other'); ?>>Other</option>
+                                                        </select>
+                                                    </label>
+                                                    <label>Date of birth<input type="date" name="child_dob" value="<?php echo esc_attr($child['dob'] ?? ''); ?>"></label>
+                                                    <label>Local authority
+                                                        <select name="child_school_authority">
+                                                            <option value="">Select local authority</option>
+                                                            <option value="devon" <?php selected($child['school_authority'] ?? '', 'devon'); ?>>Devon</option>
+                                                            <option value="cornwall" <?php selected($child['school_authority'] ?? '', 'cornwall'); ?>>Cornwall</option>
+                                                            <option value="torbay" <?php selected($child['school_authority'] ?? '', 'torbay'); ?>>Torbay</option>
+                                                            <option value="plymouth" <?php selected($child['school_authority'] ?? '', 'plymouth'); ?>>Plymouth</option>
+                                                        </select>
+                                                    </label>
+                                                </div>
+                                                <button class="bh-my-hub__button" type="submit">Save changes</button>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </article>
                             <?php endforeach; ?>
                         </div>
@@ -267,6 +302,23 @@ final class MyHub {
                 'school_authority' => sanitize_key(wp_unslash($_POST['child_school_authority'] ?? '')),
             ];
             update_user_meta($user_id, self::CHILDREN_META, $children);
+            self::redirect_saved();
+        }
+
+        if ($action === 'edit_child') {
+            check_admin_referer('bh_my_hub_edit_child', 'bh_my_hub_nonce');
+            $children = get_user_meta($user_id, self::CHILDREN_META, true);
+            $children = is_array($children) ? $children : [];
+            $index = isset($_POST['child_index']) ? absint($_POST['child_index']) : -1;
+            if (isset($children[$index])) {
+                $children[$index] = [
+                    'name' => sanitize_text_field(wp_unslash($_POST['child_name'] ?? '')),
+                    'gender' => sanitize_key(wp_unslash($_POST['child_gender'] ?? '')),
+                    'dob' => sanitize_text_field(wp_unslash($_POST['child_dob'] ?? '')),
+                    'school_authority' => sanitize_key(wp_unslash($_POST['child_school_authority'] ?? '')),
+                ];
+                update_user_meta($user_id, self::CHILDREN_META, $children);
+            }
             self::redirect_saved();
         }
 
