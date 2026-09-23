@@ -356,7 +356,7 @@ final class MyHub {
                 $avatar = (string) get_field('field_bubbahub_child_avatar_url', $id);
                 $gender = (string) get_field('field_bubbahub_child_gender', $id);
                 ?>
-                <article class="bh-my-hub__profile bh-my-hub__family-profile bh-my-hub__family-profile--child">
+                <article class="bh-my-hub__profile bh-my-hub__family-profile bh-my-hub__family-profile-card bh-my-hub__family-profile--child">
                     <div class="bh-my-hub__family-profile-top">
                         <?php if ($avatar): ?>
                             <img class="bh-my-hub__avatar" src="<?php echo esc_url($avatar); ?>" alt="">
@@ -408,7 +408,7 @@ final class MyHub {
                 $due = (string) get_field('field_bubbahub_child_due_date', $bump_id);
                 $baby_is_here = $due ? self::bump_is_38_weeks($due) : false;
                 ?>
-                <article class="bh-my-hub__profile bh-my-hub__family-profile bh-my-hub__family-profile--bump">
+                <article class="bh-my-hub__profile bh-my-hub__family-profile bh-my-hub__family-profile-card bh-my-hub__family-profile--bump">
                     <div class="bh-my-hub__family-profile-top">
                         <span class="bh-my-hub__avatar bh-my-hub__avatar--placeholder" aria-hidden="true">🤰</span>
                         <div class="bh-my-hub__family-profile-identity">
