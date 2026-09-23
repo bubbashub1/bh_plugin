@@ -479,6 +479,7 @@ final class DirectorySearch {
                         <?php wp_nonce_field('bh_save_directory_search', 'bh_saved_search_nonce'); ?>
                         <input type="hidden" name="bh_saved_search_action" value="save">
                         <input type="hidden" name="bh_edit_saved_search_id" value="<?php echo esc_attr(isset($_GET['bh_edit_saved_search_id']) ? sanitize_text_field(wp_unslash($_GET['bh_edit_saved_search_id'])) : ''); ?>">
+                        <?php if (isset($_GET['bh_saved_search_path'])) : ?><input type="hidden" name="bh_saved_search_path" value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['bh_saved_search_path']))); ?>"><?php endif; ?>
                         <input type="hidden" name="bh_saved_search_url" value="<?php echo esc_attr($save_url); ?>">
                         <?php foreach (['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_day','bh_price','bh_free_activity','bh_view','bh_date'] as $saved_key) : ?>
                             <?php if (isset($_GET[$saved_key])) : ?>
