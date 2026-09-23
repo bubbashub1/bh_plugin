@@ -77,6 +77,11 @@ final class MyHub {
                         </div>
                         <span class="bh-my-hub__count"><?php echo esc_html(count($children)); ?></span>
                     </div>
+                    <div class="bh-my-hub__family-actions">
+                        <button type="button" class="bh-my-hub__button bh-my-hub__open-modal" data-bh-modal="child">Add child</button>
+                        <button type="button" class="bh-my-hub__button bh-my-hub__button--outline bh-my-hub__open-modal" data-bh-modal="bump"><?php echo $bump ? 'Update bump' : 'Add bump'; ?></button>
+                    </div>
+
 
                     <?php if ($children): ?>
                         <div class="bh-my-hub__profiles">
@@ -101,8 +106,6 @@ final class MyHub {
                     <?php else: ?>
                         <p class="bh-my-hub__muted">Add your children to personalise Bubba Hub around your family.</p>
                     <?php endif; ?>
-
-                    <button type="button" class="bh-my-hub__button bh-my-hub__open-modal" data-bh-modal="child">Add child</button>
 
                     <div class="bh-my-hub__modal" data-bh-modal-panel="child" hidden>
                         <div class="bh-my-hub__modal-backdrop" data-bh-modal-close></div>
@@ -138,6 +141,10 @@ final class MyHub {
                             <h2>My Bump</h2>
                         </div>
                     </div>
+                    <div class="bh-my-hub__family-actions">
+                        <button type="button" class="bh-my-hub__button bh-my-hub__button--outline bh-my-hub__open-modal" data-bh-modal="bump"><?php echo $bump ? 'Update bump' : 'Add bump'; ?></button>
+                    </div>
+
 
                     <?php if ($bump): ?>
                         <article class="bh-my-hub__profile">
@@ -154,8 +161,6 @@ final class MyHub {
                     <?php else: ?>
                         <p class="bh-my-hub__muted">Add a bump if you're expecting, and Bubba Hub can use your due date later for personalised features.</p>
                     <?php endif; ?>
-
-                    <button type="button" class="bh-my-hub__button bh-my-hub__open-modal" data-bh-modal="bump"><?php echo $bump ? 'Update bump' : 'Add bump'; ?></button>
 
                     <div class="bh-my-hub__modal" data-bh-modal-panel="bump" hidden>
                         <div class="bh-my-hub__modal-backdrop" data-bh-modal-close></div>
