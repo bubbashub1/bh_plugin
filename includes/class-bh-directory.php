@@ -230,6 +230,7 @@ final class Directory {
                 <?php else : ?>
                     <p class="bh-directory__empty">No family activities found.</p>
                 <?php endif; ?>
+            <?php endif; ?>
                 </div>
             </div>
         </section>
