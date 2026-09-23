@@ -134,3 +134,9 @@ body.bh-modal-open{overflow:hidden}
 .bh-my-hub__saved-search-action--delete{border-color:transparent;background:transparent;text-decoration:underline}
 .bh-my-hub__saved-search-delete{margin:0}
 @media(max-width:600px){.bh-my-hub__saved-search-card-actions{align-items:stretch}.bh-my-hub__saved-search-action{flex:1 1 auto}.bh-my-hub__saved-search-delete{display:flex;flex:1 1 auto}.bh-my-hub__saved-search-delete .bh-my-hub__saved-search-action{width:100%}}
+
+
+/* Family profiles: one profile per horizontal scroll item */
+.bh-my-hub__family-panel .bh-my-hub__profiles{display:flex;flex-wrap:nowrap;gap:14px;overflow-x:auto;overflow-y:hidden;padding:4px 2px 10px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.bh-my-hub__family-panel .bh-my-hub__profiles>.bh-my-hub__profile{flex:0 0 270px;min-width:270px;scroll-snap-align:start}
+@media(max-width:600px){.bh-my-hub__family-panel .bh-my-hub__profiles>.bh-my-hub__profile{flex-basis:calc(100vw - 72px);min-width:calc(100vw - 72px)}}
