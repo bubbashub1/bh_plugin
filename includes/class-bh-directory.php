@@ -110,6 +110,7 @@ final class Directory {
                             <?php self::hidden_listing_params(); ?>
                             <label><span>Sort by</span><select name="bh_sort" onchange="this.form.submit()"><?php foreach (self::sort_options() as $value => $label) : ?><option value="<?php echo esc_attr($value); ?>" <?php selected($filters['sort'], $value); ?>><?php echo esc_html($label); ?></option><?php endforeach; ?></select></label>
                             <label><span>Per page</span><select name="bh_per_page" onchange="this.form.submit()"><?php foreach ([6,12,18,24,36,48] as $number) : ?><option value="<?php echo esc_attr($number); ?>" <?php selected($filters['posts_per_page'], $number); ?>><?php echo esc_html($number); ?></option><?php endforeach; ?></select></label>
+                            <button class="bh-directory-share-button" type="button" data-bh-share-search aria-label="Share this search">Share</button>
                             <?php if ($view === 'grid') : ?>
                                 <label><span>Columns</span><select name="bh_columns" onchange="this.form.submit()"><?php foreach ([1,2,3,4,5] as $number) : ?><option value="<?php echo esc_attr($number); ?>" <?php selected($columns, $number); ?>><?php echo esc_html($number); ?></option><?php endforeach; ?></select></label>
                             <?php endif; ?>
@@ -211,7 +212,7 @@ final class Directory {
     }
 
     private static function hidden_listing_params(): void {
-        foreach (['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_day','bh_price','bh_free_activity','bh_view','bh_date'] as $key) {
+        foreach (['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_saved_location','bh_day','bh_price','bh_free_activity','bh_view','bh_date'] as $key) {
             if (isset($_GET[$key]) && !is_array($_GET[$key])) {
                 echo '<input type="hidden" name="' . esc_attr($key) . '" value="' . esc_attr(sanitize_text_field(wp_unslash($_GET[$key]))) . '">';
             }
