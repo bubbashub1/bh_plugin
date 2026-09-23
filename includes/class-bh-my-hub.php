@@ -227,6 +227,9 @@ final class MyHub {
         $dob = $post_id ? (string) get_field('child_date_of_birth', $post_id) : '';
         $due = $post_id ? (string) get_field('child_due_date', $post_id) : '';
         $avatar = $post_id ? (string) get_field('avatar_url', $post_id) : '';
+        $selected_locations = $post_id ? wp_get_post_terms($post_id, 'location', ['fields' => 'ids']) : [];
+        $selected_location = (!is_wp_error($selected_locations) && !empty($selected_locations)) ? (int) $selected_locations[0] : 0;
+        $locations = get_terms(['taxonomy' => 'location', 'hide_empty' => false]);
         ?>
         <div class="bh-my-hub__fields">
             <label>Name<input type="text" name="child_name" maxlength="100" value="<?php echo esc_attr($name); ?>" required></label>
@@ -239,6 +242,14 @@ final class MyHub {
             </label>
             <label>Date of birth<input type="date" name="child_dob" value="<?php echo esc_attr($dob); ?>"></label>
             <label>Due date<input type="date" name="child_due_date" value="<?php echo esc_attr($due); ?>"></label>
+            <label>Location
+                <select name="child_location">
+                    <option value="">Select location</option>
+                    <?php if (!is_wp_error($locations)): foreach ($locations as $location): ?>
+                        <option value="<?php echo esc_attr((string) $location->term_id); ?>" <?php selected($selected_location, (int) $location->term_id); ?>><?php echo esc_html($location->name); ?></option>
+                    <?php endforeach; endif; ?>
+                </select>
+            </label>
             <label class="bh-my-hub__avatar-field">Avatar URL<input type="url" name="child_avatar_url" value="<?php echo esc_attr($avatar); ?>" placeholder="https://..."><small>Optional image URL.</small></label>
         </div>
         <?php
@@ -301,6 +312,7 @@ final class MyHub {
         $dob = sanitize_text_field(wp_unslash($_POST['child_dob'] ?? ''));
         $due = sanitize_text_field(wp_unslash($_POST['child_due_date'] ?? ''));
         $avatar = esc_url_raw(wp_unslash($_POST['child_avatar_url'] ?? ''));
+        $location_id = absint($_POST['child_location'] ?? 0);
 
         if (!in_array($status, ['born','expecting'], true)) $status = 'born';
 
@@ -320,6 +332,10 @@ final class MyHub {
         update_field('field_bubbahub_child_due_date', $status === 'expecting' ? $due : '', $id);
         update_field('field_bubbahub_child_avatar_url', $avatar, $id);
         update_field('field_bubbahub_child_age_group', $status === 'born' ? self::age_group($dob) : '', $id);
+
+        if (taxonomy_exists('location')) {
+            wp_set_post_terms($id, $location_id ? [$location_id] : [], 'location', false);
+        }
 
         return $id;
     }
