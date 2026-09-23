@@ -12,6 +12,9 @@ final class MyHub {
         add_action('init', [self::class, 'handle_forms']);
         add_action('wp_enqueue_scripts', [self::class, 'assets']);
         add_action('wp_footer', [self::class, 'modal_script']);
+        // Directorist visited-listing integration (read/write only in Bubba Hub user meta).
+        add_action('atbdp_after_listing_tagline', [self::class, 'render_visited_listing_controls'], 20);
+        add_action('init', [self::class, 'handle_visited_listing']);
     }
 
     public static function assets(): void {
@@ -40,6 +43,131 @@ final class MyHub {
         }
         return has_shortcode((string) $post->post_content, 'bh_my_hub') || has_shortcode((string) $post->post_content, 'bh_planner');
     }
+
+    /**
+     * Return the Directorist listing ID currently being rendered.
+     * We deliberately use the native at_biz_dir post and the current WP loop/query
+     * rather than modifying Directorist templates or relying on version-specific
+     * hook arguments.
+     */
+    private static function current_directorist_listing_id(): int {
+        global $post;
+
+        $id = 0;
+        if ($post instanceof \\WP_Post) {
+            $id = (int) $post->ID;
+        }
+        if (!$id) {
+            $id = (int) get_queried_object_id();
+        }
+
+        if (!$id || get_post_type($id) !== 'at_biz_dir') {
+            return 0;
+        }
+
+        return $id;
+    }
+
+    private static function visited_listing_ids(int $user_id): array {
+        if ($user_id < 1) {
+            return [];
+        }
+
+        $visited = get_user_meta($user_id, 'bh_visited_listings', true);
+        if (!is_array($visited)) {
+            return [];
+        }
+
+        $ids = [];
+        foreach ($visited as $listing_id => $visited_at) {
+            $listing_id = (int) $listing_id;
+            if ($listing_id > 0 && get_post_type($listing_id) === 'at_biz_dir') {
+                $ids[$listing_id] = (string) $visited_at;
+            }
+        }
+
+        return $ids;
+    }
+
+    private static function has_visited_listing(int $user_id, int $listing_id): bool {
+        if ($user_id < 1 || $listing_id < 1) {
+            return false;
+        }
+
+        $visited = self::visited_listing_ids($user_id);
+        return isset($visited[$listing_id]);
+    }
+
+    public static function handle_visited_listing(): void {
+        if (!is_user_logged_in() || empty($_POST['bh_visited_action'])) {
+            return;
+        }
+
+        $action = sanitize_key(wp_unslash($_POST['bh_visited_action']));
+        if (!in_array($action, ['mark', 'unmark'], true)) {
+            return;
+        }
+
+        $listing_id = isset($_POST['listing_id']) ? absint($_POST['listing_id']) : 0;
+        $nonce = isset($_POST['bh_visited_nonce']) ? sanitize_text_field(wp_unslash($_POST['bh_visited_nonce'])) : '';
+
+        if (!$listing_id || get_post_type($listing_id) !== 'at_biz_dir' || !wp_verify_nonce($nonce, 'bh_visited_listing_' . $listing_id)) {
+            return;
+        }
+
+        $user_id = get_current_user_id();
+        $visited = self::visited_listing_ids($user_id);
+
+        if ('mark' === $action) {
+            $visited[$listing_id] = current_time('mysql');
+        } else {
+            unset($visited[$listing_id]);
+        }
+
+        update_user_meta($user_id, 'bh_visited_listings', $visited);
+
+        $redirect = wp_get_referer();
+        if (!$redirect) {
+            $redirect = get_permalink($listing_id);
+        }
+
+        wp_safe_redirect(remove_query_arg(['bh_visited'], $redirect));
+        exit;
+    }
+
+    public static function render_visited_listing_controls(): void {
+        if (!is_user_logged_in()) {
+            return;
+        }
+
+        $listing_id = self::current_directorist_listing_id();
+        if (!$listing_id) {
+            return;
+        }
+
+        $visited = self::has_visited_listing(get_current_user_id(), $listing_id);
+        ?>
+        <div class="bh-visited-listing" data-bh-visited-listing="<?php echo esc_attr((string) $listing_id); ?>">
+            <?php if ($visited): ?>
+                <span class="bh-visited-listing__badge" aria-label="Visited">✓ Visited</span>
+                <form method="post" class="bh-visited-listing__form">
+                    <?php wp_nonce_field('bh_visited_listing_' . $listing_id, 'bh_visited_nonce'); ?>
+                    <input type="hidden" name="bh_visited_action" value="unmark">
+                    <input type="hidden" name="listing_id" value="<?php echo esc_attr((string) $listing_id); ?>">
+                    <button type="submit" class="bh-visited-listing__button bh-visited-listing__button--remove">Remove visited</button>
+                </form>
+            <?php else: ?>
+                <form method="post" class="bh-visited-listing__form">
+                    <?php wp_nonce_field('bh_visited_listing_' . $listing_id, 'bh_visited_nonce'); ?>
+                    <input type="hidden" name="bh_visited_action" value="mark">
+                    <input type="hidden" name="listing_id" value="<?php echo esc_attr((string) $listing_id); ?>">
+                    <button type="submit" class="bh-visited-listing__button">📍 Mark as Visited</button>
+                </form>
+            <?php endif; ?>
+        </div>
+        <?php
+    }
+
 
     public static function shortcode(): string {
         if (!is_user_logged_in()) {
