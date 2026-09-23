@@ -103,13 +103,16 @@ final class Directory {
 
             <div class="bh-directory__layout">
                 <aside class="bh-directory__filters" aria-label="Directory filters">
-                    <button class="bh-directory__filter-toggle" type="button" aria-expanded="false" aria-controls="bh-directory-filter-panel">
-                        <span class="bh-directory__filter-toggle-icon" aria-hidden="true">☰</span>
-                        <span>Filters</span>
-                    </button>
-                    <div class="bh-directory__filter-panel" id="bh-directory-filter-panel">
-                        <?php echo DirectorySearch::shortcode(); ?>
-                    </div>
+                    <details class="bh-directory__filter-drawer">
+                        <summary class="bh-directory__filter-toggle">
+                            <span class="bh-directory__filter-toggle-icon" aria-hidden="true">⚙</span>
+                            <span>Filter activities</span>
+                            <span class="bh-directory__filter-toggle-chevron" aria-hidden="true">⌄</span>
+                        </summary>
+                        <div class="bh-directory__filter-panel" id="bh-directory-filter-panel">
+                            <?php echo DirectorySearch::shortcode(); ?>
+                        </div>
+                    </details>
                 </aside>
                 <div class="bh-directory__results">
             <nav class="bh-directory-views" aria-label="Activity views">
