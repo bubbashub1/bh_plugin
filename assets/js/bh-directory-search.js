@@ -210,6 +210,8 @@
         initAutoFilters();
     }
 
+    window.BubbaHubInitDirectorySearch = initDirectorySearch;
+
     document.addEventListener('DOMContentLoaded', initDirectorySearch);
 
     window.addEventListener('popstate', function () {
