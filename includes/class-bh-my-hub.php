@@ -210,10 +210,18 @@ final class MyHub {
 
 
                     <?php if ($bump): ?>
-                        <article class="bh-my-hub__profile">
+                        <article class="bh-my-hub__profile bh-my-hub__bump-profile">
                             <strong><?php echo esc_html($bump['nickname'] ?? 'My bump'); ?></strong>
                             <?php if (!empty($bump['due_date'])): ?>
+                                <?php $antenatal_tracker = self::antenatal_tracker($bump['due_date']); ?>
                                 <span>Due <?php echo esc_html(wp_date(get_option('date_format'), strtotime($bump['due_date']))); ?></span>
+                                <?php if ($antenatal_tracker): ?>
+                                    <div class="bh-my-hub__antenatal-tracker">
+                                        <strong>🤰 Antenatal tracker</strong>
+                                        <span><?php echo esc_html($antenatal_tracker['countdown']); ?></span>
+                                        <small><?php echo esc_html($antenatal_tracker['classes']); ?></small>
+                                    </div>
+                                <?php endif; ?>
                             <?php endif; ?>
                             <form method="post" class="bh-my-hub__delete">
                                 <?php wp_nonce_field('bh_my_hub_delete_bump', 'bh_my_hub_nonce'); ?>
@@ -437,6 +445,37 @@ final class MyHub {
         });
         </script>
         <?php
+    }
+
+    private static function antenatal_tracker(string $due_date): array {
+        try {
+            $due = new \DateTimeImmutable($due_date);
+            $today = new \DateTimeImmutable('today');
+
+            if ($due < $today) {
+                return [
+                    'countdown' => 'Due date has passed',
+                    'classes' => 'Antenatal classes: pregnancy complete',
+                ];
+            }
+
+            $diff = $today->diff($due);
+            $parts = [];
+            if ($diff->m) {
+                $parts[] = $diff->m . ' ' . ($diff->m === 1 ? 'month' : 'months');
+            }
+            $parts[] = $diff->d . ' ' . ($diff->d === 1 ? 'day' : 'days');
+
+            $class_start = $due->modify('-12 weeks');
+            $class_end = $due->modify('-8 weeks');
+
+            return [
+                'countdown' => implode(', ', $parts) . ' until due date',
+                'classes' => 'Antenatal classes: ' . $class_start->format('F') . ' to ' . $class_end->format('F'),
+            ];
+        } catch (\Exception $e) {
+            return [];
+        }
     }
 
     private static function school_tracker(string $dob, string $authority): array {
