@@ -46,7 +46,7 @@
         var saveForm = section.querySelector('.bh-directory-search__save-form');
         if (!searchForm || !saveForm) return;
 
-        var keys = ['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_day','bh_price','bh_free_activity','bh_view','bh_date'];
+        var keys = ['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_day','bh_price','bh_free_activity','bh_view','bh_date','bh_saved_search_path'];
 
         keys.forEach(function (key) {
             saveForm.querySelectorAll('input[name="' + key + '"]').forEach(function (input) {
