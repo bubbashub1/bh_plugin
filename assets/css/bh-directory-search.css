@@ -51,3 +51,8 @@
 .bh-directory-search__advanced .bh-directory-search__actions a{font-weight:700}
 @media(max-width:1050px){.bh-directory-search__form{grid-template-columns:2fr 1fr 1fr}.bh-directory-search__field--search{grid-column:span 2}.bh-directory-search__actions--primary{grid-column:auto}.bh-directory-search__advanced-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.bh-directory-search{padding:16px;border-radius:14px}.bh-directory-search__form{grid-template-columns:1fr}.bh-directory-search__field--search{grid-column:auto}.bh-directory-search__actions--primary{grid-column:auto}.bh-directory-search__actions--primary button{width:100%}.bh-directory-search__advanced{grid-column:auto}.bh-directory-search__advanced-grid{grid-template-columns:1fr}.bh-directory-search__field input,.bh-directory-search__field select{min-height:46px}}
+
+/* Highlight the main search field with the site's secondary colour. */
+.bh-directory-search__field--search label{color:var(--wp--preset--color--secondary,#d89bb8)}
+.bh-directory-search__field--search input{border:2px solid var(--wp--preset--color--secondary,#d89bb8);border-radius:10px;background:#fff}
+.bh-directory-search__field--search input:focus{border-color:var(--wp--preset--color--secondary,#d89bb8);box-shadow:0 0 0 3px color-mix(in srgb,var(--wp--preset--color--secondary,#d89bb8) 18%,transparent)}
