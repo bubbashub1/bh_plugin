@@ -46,10 +46,13 @@
 .bh-planner__month-event span{opacity:.75;margin-top:2px}
 .bh-planner__more{font-size:.68rem;font-weight:600;opacity:.7;padding:2px 5px}
 @media (max-width:700px){
- .bh-planner-shell__heading{align-items:flex-start;flex-direction:column}
- .bh-planner-shell__navigation{width:100%;justify-content:flex-start}
- .bh-directory-views{gap:5px}
- .bh-directory-views__item{flex:1 1 calc(33.333% - 5px);padding-inline:8px}
+ .bh-planner-shell__heading{align-items:stretch;flex-direction:column;gap:12px}
+ .bh-planner-shell__heading h3{font-size:1.15rem}
+ .bh-planner-shell__navigation{width:100%;justify-content:stretch;gap:6px}
+ .bh-planner-shell__navigation a{flex:1;min-width:0;min-height:44px}
+ .bh-planner-shell__navigation a:first-child,.bh-planner-shell__navigation a:last-child{font-size:1.2rem}
+ .bh-directory-views{gap:6px;margin-bottom:16px}
+ .bh-directory-views__item{flex:1 1 calc(50% - 6px);min-height:44px;padding:8px 6px}
  .bh-directory__grid--list .bh-directory-card__link{grid-template-columns:1fr}
  .bh-directory__grid--list .bh-directory-card__image img{min-height:170px;height:170px}
  .bh-planner--daily,.bh-planner--weekly{min-width:560px}
@@ -62,6 +65,14 @@
  .bh-planner__month-grid{grid-auto-rows:minmax(100px,1fr);min-width:620px}
  .bh-planner--monthly{overflow-x:auto}
  .bh-planner__month-head{min-width:620px}
+}
+@media (max-width:420px){
+ .bh-planner-shell__date{font-size:.9rem}
+ .bh-planner__month-grid{min-width:580px}
+ .bh-planner__month-head{min-width:580px}
+ .bh-planner__month-day{padding:6px}
+ .bh-planner__month-event{padding:4px 5px}
+ .bh-directory-views__item{font-size:.9rem}
 }
 
 
