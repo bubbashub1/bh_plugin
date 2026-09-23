@@ -251,6 +251,14 @@ final class MyHub {
                 </section>
 
                 <section id="bh-my-hub-planner" class="bh-my-hub__card bh-my-hub__card--wide">
+                    <div class="bh-my-hub__card-head"><div><span class="bh-my-hub__icon">📅</span><h2>My Planner</h2></div></div>
+                    <div class="bh-my-hub__coming">
+                        <strong>Your family planner is coming next.</strong>
+                        <p>Stage 2 will connect your children and saved activities to a simple weekly family planner.</p>
+                    </div>
+                </section>
+
+                <section id="bh-my-hub-saved-searches" class="bh-my-hub__card bh-my-hub__card--wide">
                     <div class="bh-my-hub__saved-searches">
                         <div class="bh-my-hub__saved-searches-head">
                             <div>
