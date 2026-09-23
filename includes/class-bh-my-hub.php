@@ -79,7 +79,9 @@ final class MyHub {
                                 $id = (int) $child->ID;
                                 $name = (string) get_field('child_name', $id);
                                 $dob = (string) get_field('child_date_of_birth', $id);
-                                $avatar = (string) get_field('avatar_url', $id);
+                                $avatar = (string) get_field('field_bubbahub_child_avatar_url', $id);
+                                $gender = (string) get_field('field_bubbahub_child_gender', $id);
+                                $age_group = (string) get_field('field_bubbahub_child_age_group', $id);
                                 $school = self::school_tracker($id, $dob);
                                 ?>
                                 <article class="bh-my-hub__profile">
@@ -90,6 +92,8 @@ final class MyHub {
                                     <?php endif; ?>
                                     <strong><?php echo esc_html($name ?: 'Child'); ?></strong>
                                     <?php if ($dob): ?><span><?php echo esc_html(self::age_label($dob)); ?></span><?php endif; ?>
+                                    <?php if ($gender): ?><span><?php echo esc_html(ucwords(str_replace('_', ' ', $gender))); ?></span><?php endif; ?>
+                                    <?php if ($age_group): ?><span>Age group: <?php echo esc_html($age_group); ?></span><?php endif; ?>
 
                                     <?php if ($school): ?>
                                         <div class="bh-my-hub__school-tracker">
@@ -221,13 +225,28 @@ final class MyHub {
     }
 
     private static function child_fields(int $post_id = 0): void {
-        $name = $post_id ? (string) get_field('child_name', $post_id) : '';
-        $nickname = $post_id ? (string) get_field('child_nickname', $post_id) : '';
-        $gender = $post_id ? (string) get_field('gender', $post_id) : '';
-        $status = $post_id ? (string) get_field('child_status', $post_id) : 'born';
-        $dob = $post_id ? (string) get_field('child_date_of_birth', $post_id) : '';
-        $due = $post_id ? (string) get_field('child_due_date', $post_id) : '';
-        $avatar = $post_id ? (string) get_field('avatar_url', $post_id) : '';
+        $name = $post_id ? (string) get_field('field_bubbahub_child_name', $post_id) : '';
+        $nickname = $post_id ? (string) get_field('field_bubbahub_child_nickname', $post_id) : '';
+        $gender = $post_id ? (string) get_field('field_bubbahub_child_gender', $post_id) : '';
+        $status = $post_id ? (string) get_field('field_bubbahub_child_status', $post_id) : 'born';
+        $dob = $post_id ? (string) get_field('field_bubbahub_child_date_of_birth', $post_id) : '';
+        $due = $post_id ? (string) get_field('field_bubbahub_child_due_date', $post_id) : '';
+        $avatar = $post_id ? (string) get_field('field_bubbahub_child_avatar_url', $post_id) : '';
+        $allergies = $post_id ? (string) get_field('field_bubbahub_child_allergies', $post_id) : '';
+        $notes = $post_id ? (string) get_field('field_bubbahub_child_notes', $post_id) : '';
+        $age_group = $post_id ? (string) get_field('field_bubbahub_child_age_group', $post_id) : '';
+        $school_name = $post_id ? (string) get_field('field_bubbahub_child_school_name', $post_id) : '';
+        $school_status = $post_id ? (string) get_field('field_bubbahub_child_school_application_status', $post_id) : '';
+        $school_deadline = $post_id ? (string) get_field('field_bubbahub_child_school_application_deadline', $post_id) : '';
+        $school_year = $post_id ? (string) get_field('field_bubbahub_child_school_year', $post_id) : '';
+        $ofsted = $post_id ? (string) get_field('field_bubbahub_child_ofsted_rating', $post_id) : '';
+        $nap_schedule = $post_id ? get_field('field_bubbahub_child_nap_schedule', $post_id) : [];
+        if (!is_array($nap_schedule)) $nap_schedule = [];
+        $nap_by_day = [];
+        foreach ($nap_schedule as $nap) {
+            if (!empty($nap['day_name'])) $nap_by_day[$nap['day_name']] = $nap;
+        }
+
         $selected_locations = $post_id ? wp_get_post_terms($post_id, 'location', ['fields' => 'ids']) : [];
         $selected_location = (!is_wp_error($selected_locations) && !empty($selected_locations)) ? (int) $selected_locations[0] : 0;
         $locations = get_terms(['taxonomy' => 'location', 'hide_empty' => false]);
@@ -259,12 +278,69 @@ final class MyHub {
                     <?php endforeach; endif; ?>
                 </select>
             </label>
+            <label>Age group
+                <select name="child_age_group">
+                    <option value="">Auto-calculate from date of birth</option>
+                    <?php
+                    $age_choices = [
+                        '0-3' => '0–3',
+                        '3-6' => '3–6',
+                        '6-9' => '6–9',
+                        '9-12' => '9–12',
+                        '1-3' => '1–3',
+                        '2-4' => '2–4',
+                        '3-5' => '3–5',
+                        '5-plus' => '5+',
+                        'all' => 'All ages',
+                    ];
+                    foreach ($age_choices as $value => $label): ?>
+                        <option value="<?php echo esc_attr($value); ?>" <?php selected($age_group, $value); ?>><?php echo esc_html($label); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+            <label>Allergies<textarea name="child_allergies" rows="3"><?php echo esc_textarea($allergies); ?></textarea></label>
+            <label>Notes<textarea name="child_notes" rows="3"><?php echo esc_textarea($notes); ?></textarea></label>
+
+            <div class="bh-my-hub__field-group">
+                <strong>School information</strong>
+                <label>School name<input type="text" name="school_name" value="<?php echo esc_attr($school_name); ?>"></label>
+                <label>Application status<input type="text" name="school_application_status" value="<?php echo esc_attr($school_status); ?>"></label>
+                <label>Application deadline<input type="date" name="school_application_deadline" value="<?php echo esc_attr($school_deadline); ?>"></label>
+                <label>School year<input type="text" name="school_year" value="<?php echo esc_attr($school_year); ?>"></label>
+                <label>Ofsted rating<input type="text" name="ofsted_rating" value="<?php echo esc_attr($ofsted); ?>"></label>
+            </div>
+
+            <div class="bh-my-hub__field-group">
+                <strong>Nap schedule</strong>
+                <?php
+                $nap_days = [
+                    'monday' => 'Monday',
+                    'tuesday' => 'Tuesday',
+                    'wednesday' => 'Wednesday',
+                    'thursday' => 'Thursday',
+                    'friday' => 'Friday',
+                    'saturday' => 'Saturday',
+                    'sunday' => 'Sunday',
+                ];
+                foreach ($nap_days as $day_key => $day_label):
+                    $nap = $nap_by_day[$day_key] ?? [];
+                ?>
+                    <div class="bh-my-hub__nap-row">
+                        <label>
+                            <span><?php echo esc_html($day_label); ?></span>
+                            <input type="checkbox" name="nap_schedule[<?php echo esc_attr($day_key); ?>][enabled]" value="1" <?php checked(!empty($nap['enabled'])); ?>>
+                        </label>
+                        <input type="time" name="nap_schedule[<?php echo esc_attr($day_key); ?>][start_time]" value="<?php echo esc_attr((string) ($nap['start_time'] ?? '')); ?>">
+                        <input type="time" name="nap_schedule[<?php echo esc_attr($day_key); ?>][end_time]" value="<?php echo esc_attr((string) ($nap['end_time'] ?? '')); ?>">
+                    </div>
+                <?php endforeach; ?>
+            </div>
+
             <label class="bh-my-hub__avatar-field">Avatar<input type="file" name="child_avatar" accept="image/jpeg,image/png,image/webp"><small>JPG, PNG or WebP</small></label>
             <label class="bh-my-hub__avatar-field">Avatar URL<input type="url" name="child_avatar_url" value="<?php echo esc_attr($avatar); ?>" placeholder="https://..."><small>Or use an image URL.</small></label>
         </div>
         <?php
     }
-
     public static function handle_forms(): void {
         if (!is_user_logged_in() || empty($_POST['bh_my_hub_action'])) return;
 
@@ -324,6 +400,32 @@ final class MyHub {
         $due = sanitize_text_field(wp_unslash($_POST['child_due_date'] ?? ''));
         $avatar = esc_url_raw(wp_unslash($_POST['child_avatar_url'] ?? ''));
         $location_id = absint($_POST['child_location'] ?? 0);
+        $manual_age_group = sanitize_key(wp_unslash($_POST['child_age_group'] ?? ''));
+        $allergies = sanitize_textarea_field(wp_unslash($_POST['child_allergies'] ?? ''));
+        $notes = sanitize_textarea_field(wp_unslash($_POST['child_notes'] ?? ''));
+        $school_name = sanitize_text_field(wp_unslash($_POST['school_name'] ?? ''));
+        $school_status = sanitize_text_field(wp_unslash($_POST['school_application_status'] ?? ''));
+        $school_deadline = sanitize_text_field(wp_unslash($_POST['school_application_deadline'] ?? ''));
+        $school_year = sanitize_text_field(wp_unslash($_POST['school_year'] ?? ''));
+        $ofsted = sanitize_text_field(wp_unslash($_POST['ofsted_rating'] ?? ''));
+        $posted_naps = isset($_POST['nap_schedule']) && is_array($_POST['nap_schedule']) ? wp_unslash($_POST['nap_schedule']) : [];
+        $nap_schedule = [];
+
+        $valid_nap_days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+        foreach ($valid_nap_days as $day) {
+            $row = isset($posted_naps[$day]) && is_array($posted_naps[$day]) ? $posted_naps[$day] : [];
+            $enabled = !empty($row['enabled']) ? 1 : 0;
+            $start_time = preg_match('/^([01]\\d|2[0-3]):[0-5]\\d$/', (string) ($row['start_time'] ?? '')) ? (string) $row['start_time'] : '';
+            $end_time = preg_match('/^([01]\\d|2[0-3]):[0-5]\\d$/', (string) ($row['end_time'] ?? '')) ? (string) $row['end_time'] : '';
+            if ($enabled || $start_time || $end_time) {
+                $nap_schedule[] = [
+                    'day_name' => $day,
+                    'enabled' => $enabled,
+                    'start_time' => $start_time,
+                    'end_time' => $end_time,
+                ];
+            }
+        }
 
         if (!empty($_FILES['child_avatar']['name'])) {
             require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -357,12 +459,20 @@ final class MyHub {
 
         update_field('field_bubbahub_child_name', $name, $id);
         update_field('field_bubbahub_child_nickname', $nickname, $id);
-        update_field('gender', $gender, $id);
+        update_field('field_bubbahub_child_gender', $gender, $id);
         update_field('field_bubbahub_child_status', $status, $id);
         update_field('field_bubbahub_child_date_of_birth', $status === 'born' ? $dob : '', $id);
         update_field('field_bubbahub_child_due_date', $status === 'expecting' ? $due : '', $id);
         update_field('field_bubbahub_child_avatar_url', $avatar, $id);
-        update_field('field_bubbahub_child_age_group', $status === 'born' ? self::age_group($dob) : '', $id);
+        update_field('field_bubbahub_child_age_group', $status === 'born' ? ($manual_age_group ?: self::age_group($dob)) : '', $id);
+        update_field('field_bubbahub_child_allergies', $allergies, $id);
+        update_field('field_bubbahub_child_notes', $notes, $id);
+        update_field('field_bubbahub_child_school_name', $school_name, $id);
+        update_field('field_bubbahub_child_school_application_status', $school_status, $id);
+        update_field('field_bubbahub_child_school_application_deadline', $school_deadline, $id);
+        update_field('field_bubbahub_child_school_year', $school_year, $id);
+        update_field('field_bubbahub_child_ofsted_rating', $ofsted, $id);
+        update_field('field_bubbahub_child_nap_schedule', $nap_schedule, $id);
 
         if (taxonomy_exists('location')) {
             wp_set_post_terms($id, $location_id ? [$location_id] : [], 'location', false);
@@ -422,8 +532,11 @@ final class MyHub {
             $id = wp_insert_post(['post_type'=>self::CHILD_POST_TYPE,'post_status'=>'publish','post_author'=>$user_id,'post_title'=>$name], true);
             if (is_wp_error($id)) continue;
             $dob = sanitize_text_field($child['dob'] ?? '');
+            $legacy_gender = sanitize_key($child['gender'] ?? '');
+            if (!in_array($legacy_gender, ['girl','boy','prefer_not_to_say'], true)) $legacy_gender = '';
             update_field('field_bubbahub_child_name',$name,$id);
             update_field('field_bubbahub_child_status','born',$id);
+            update_field('field_bubbahub_child_gender',$legacy_gender,$id);
             update_field('field_bubbahub_child_date_of_birth',$dob,$id);
             update_field('field_bubbahub_child_age_group',self::age_group($dob),$id);
             if (!empty($child['avatar_id'])) {
