@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Bubba Hub
  * Description: Family platform layer for Bubba Hub. Uses free Directorist for directory listings, search and listing management.
- * Version: 1.5.4
+ * Version: 1.5.5
  * Author: Bubba Hub
  * Requires at least: 6.4
  * Requires PHP: 8.0
@@ -11,7 +11,7 @@
 defined('ABSPATH') || exit;
 
 if (!defined('BH_PLUGIN_VERSION')) {
-    define('BH_PLUGIN_VERSION', '1.5.4');
+    define('BH_PLUGIN_VERSION', '1.5.5');
 }
 if (!defined('BH_PLUGIN_FILE')) {
     define('BH_PLUGIN_FILE', __FILE__);
