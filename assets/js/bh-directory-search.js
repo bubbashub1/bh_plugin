@@ -325,6 +325,8 @@ function positionPanel(trigger,panel){
 }
 function openSearchPopover(trigger){
  var field=trigger.closest('.bh-search-popover-field'); if(!field)return;
+ var form=trigger.closest('.bh-directory-search__form');
+ if(form){if(!form.id)form.id='bh-search-form-'+Math.random().toString(36).slice(2,9); field.dataset.bhFormId=form.id;}
  var key=trigger.getAttribute('data-bh-search-popover');
  var panel=field.querySelector('[data-bh-popover-panel="'+key+'"]'); if(!panel)return;
  closeSearchPopovers();
@@ -348,7 +350,7 @@ function initSearchPopovers(){
   if(choice.dataset.bhChoiceBound==='1')return;
   choice.dataset.bhChoiceBound='1';
   choice.addEventListener('click',function(){
-   var form=choice.closest('.bh-directory-search__form'); if(!form)return;
+   var fieldWrap=choice.closest('.bh-search-popover-field'); var formId=fieldWrap?fieldWrap.dataset.bhFormId:''; var form=formId?document.getElementById(formId):null; if(!form)return;
    var field=form.querySelector('#'+choice.getAttribute('data-bh-choice-for')); if(!field)return;
    field.value=choice.getAttribute('data-value')||'';
    var trigger=choice.closest('.bh-search-popover-field')?.querySelector('.bh-search-popover-trigger');
@@ -361,13 +363,13 @@ function initSearchPopovers(){
   if(input.dataset.bhInputBound==='1')return;
   input.dataset.bhInputBound='1';
   input.addEventListener('input',function(){
-   var field=input.closest('.bh-search-popover-field'); var hidden=field?field.querySelector('input[name="bh_search"].bh-search-popover-value'):null;
+   var field=input.closest('.bh-search-popover-field'); var formId=field?field.dataset.bhFormId:''; var form=formId?document.getElementById(formId):null; var hidden=form?form.querySelector('input[name="bh_search"].bh-search-popover-value'):null;
    if(!hidden)return;
    hidden.value=input.value;
    var out=field.querySelector('.bh-search-popover-trigger__value'); if(out)out.textContent=input.value||'Groups, classes, activities…';
   });
   input.addEventListener('keydown',function(e){
-   if(e.key==='Enter'){e.preventDefault();var form=input.closest('.bh-directory-search__form');if(form){closeSearchPopovers();submitFilters(form)}}
+   if(e.key==='Enter'){e.preventDefault();var field=input.closest('.bh-search-popover-field'); var formId=field?field.dataset.bhFormId:''; var form=formId?document.getElementById(formId):null; if(form){closeSearchPopovers();submitFilters(form)}}
   });
  });
  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSearchPopovers()});
