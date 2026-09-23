@@ -15,6 +15,7 @@ final class Directory {
         $atts = shortcode_atts([
             'posts_per_page' => 12,
             'title' => 'Find Family Activities',
+            'columns' => 3,
         ], $atts, 'bh_directory');
 
         if (!Listing::is_available()) {
@@ -23,7 +24,8 @@ final class Directory {
 
         $view = Planner::view();
         $filters = self::filters();
-        $filters['posts_per_page'] = (int) $atts['posts_per_page'];
+        $filters['posts_per_page'] = self::per_page($atts['posts_per_page']);
+        $columns = self::columns($atts['columns']);
         $filters['paged'] = max(1, (int) ($_GET['bh_page'] ?? 1));
 
         if (Planner::is_calendar_view($view)) {
@@ -101,14 +103,24 @@ final class Directory {
                     </div>
                 </section>
             <?php else : ?>
-                <div class="bh-directory__header">
+                <div class="bh-directory__header bh-directory__header--controls">
                     <p class="bh-directory__count"><?php echo esc_html(number_format_i18n((int) $query->found_posts)); ?> <?php echo esc_html((int) $query->found_posts === 1 ? 'activity' : 'activities'); ?> found</p>
+                    <?php if ($view !== 'map') : ?>
+                        <form class="bh-directory-listing-controls" method="get" aria-label="Listing display options">
+                            <?php self::hidden_listing_params(); ?>
+                            <label><span>Sort by</span><select name="bh_sort" onchange="this.form.submit()"><?php foreach (self::sort_options() as $value => $label) : ?><option value="<?php echo esc_attr($value); ?>" <?php selected($filters['sort'], $value); ?>><?php echo esc_html($label); ?></option><?php endforeach; ?></select></label>
+                            <label><span>Per page</span><select name="bh_per_page" onchange="this.form.submit()"><?php foreach ([6,12,18,24,36,48] as $number) : ?><option value="<?php echo esc_attr($number); ?>" <?php selected($filters['posts_per_page'], $number); ?>><?php echo esc_html($number); ?></option><?php endforeach; ?></select></label>
+                            <?php if ($view === 'grid') : ?>
+                                <label><span>Columns</span><select name="bh_columns" onchange="this.form.submit()"><?php foreach ([1,2,3,4,5] as $number) : ?><option value="<?php echo esc_attr($number); ?>" <?php selected($columns, $number); ?>><?php echo esc_html($number); ?></option><?php endforeach; ?></select></label>
+                            <?php endif; ?>
+                        </form>
+                    <?php endif; ?>
                 </div>
 
                 <?php if ($view === 'map') : ?>
                     <?php echo self::render_map($query); ?>
                 <?php elseif ($query->have_posts()) : ?>
-                    <div class="bh-directory__grid<?php echo $view === 'list' ? ' bh-directory__grid--list' : ''; ?>">
+                    <div class="bh-directory__grid<?php echo $view === 'list' ? ' bh-directory__grid--list' : ''; ?> bh-directory__grid--columns-<?php echo esc_attr($columns); ?>">
                         <?php while ($query->have_posts()) : $query->the_post(); ?>
                             <?php $card = DirectoryCard::meta((int) get_the_ID()); ?>
                             <article class="bh-directory-card">
@@ -170,7 +182,40 @@ final class Directory {
             'day' => isset($_GET['bh_day']) ? sanitize_title(wp_unslash($_GET['bh_day'])) : '',
             'price' => isset($_GET['bh_price']) ? sanitize_text_field(wp_unslash($_GET['bh_price'])) : '',
             'free_activity' => isset($_GET['bh_free_activity']) ? sanitize_text_field(wp_unslash($_GET['bh_free_activity'])) : '',
+            'sort' => isset($_GET['bh_sort']) ? sanitize_key(wp_unslash($_GET['bh_sort'])) : 'latest',
         ];
+    }
+
+    private static function sort_options(): array {
+        return [
+            'az' => 'A to Z',
+            'za' => 'Z to A',
+            'latest' => 'Latest listings',
+            'oldest' => 'Oldest listings',
+            'popular' => 'Popular listings',
+            'price_low' => 'Price (low to high)',
+            'price_high' => 'Price (high to low)',
+            'random' => 'Random listings',
+        ];
+    }
+
+    private static function per_page($default): int {
+        $value = isset($_GET['bh_per_page']) ? absint($_GET['bh_per_page']) : absint($default);
+        return in_array($value, [6,12,18,24,36,48], true) ? $value : 12;
+    }
+
+    private static function columns($default): int {
+        $value = isset($_GET['bh_columns']) ? absint($_GET['bh_columns']) : absint($default);
+        return in_array($value, [1,2,3,4,5], true) ? $value : 3;
+    }
+
+    private static function hidden_listing_params(): void {
+        foreach (['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_day','bh_price','bh_free_activity','bh_view','bh_date'] as $key) {
+            if (isset($_GET[$key]) && !is_array($_GET[$key])) {
+                echo '<input type="hidden" name="' . esc_attr($key) . '" value="' . esc_attr(sanitize_text_field(wp_unslash($_GET[$key]))) . '">';
+            }
+        }
+        echo '<input type="hidden" name="bh_page" value="1">';
     }
 
     private static function render_map(\WP_Query $query): string {
