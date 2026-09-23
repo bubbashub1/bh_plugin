@@ -29,7 +29,7 @@ final class MyHub {
             'bh-my-hub',
             BH_PLUGIN_URL . 'assets/css/bh-my-hub.css',
             [],
-            BH_PLUGIN_VERSION
+            BH_PLUGIN_VERSION . '-' . filemtime(BH_PLUGIN_DIR . 'assets/css/bh-my-hub.css')
         );
         wp_enqueue_style('bh-saved-searches', BH_PLUGIN_URL . 'assets/css/bh-saved-searches.css', [], BH_PLUGIN_VERSION);
         wp_enqueue_script('bh-saved-searches', BH_PLUGIN_URL . 'assets/js/bh-saved-searches.js', [], BH_PLUGIN_VERSION, true);
