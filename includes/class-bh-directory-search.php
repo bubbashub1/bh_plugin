@@ -237,6 +237,12 @@ final class DirectorySearch {
     }
 
     private static function age_range_label(string $value): string {
+        foreach (DirectoristFields::options('age_range') as $option) {
+            if ((string) ($option['value'] ?? '') === $value) {
+                return (string) ($option['label'] ?? $value);
+            }
+        }
+
         $labels = [
             '0-3' => '0–3 months',
             '3-6' => '3–6 months',
