@@ -14,7 +14,7 @@ final class Directory {
         add_filter('pre_do_shortcode_tag', [self::class, 'bridge_directorist_listing'], 10, 4);
     }
 
-    public static function bridge_directorist_listing($return, string $tag, array $attr, array $m): ?string {
+    public static function bridge_directorist_listing($return, string $tag, array $attr, array $m) {
         if ($tag !== 'directorist_all_listing' || self::$directorist_bridge_running || !Listing::is_available()) {
             return $return;
         }
