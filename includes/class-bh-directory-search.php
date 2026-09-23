@@ -11,6 +11,7 @@ final class DirectorySearch {
         add_shortcode('bh_saved_searches', [self::class, 'saved_searches_shortcode']);
         add_action('wp_ajax_bh_get_towns', [self::class, 'ajax_towns']);
         add_action('wp_ajax_nopriv_bh_get_towns', [self::class, 'ajax_towns']);
+        add_action('wp_ajax_bh_edit_saved_search', [self::class, 'ajax_edit_saved_search']);
         add_action('init', [self::class, 'handle_saved_search']);
         add_action('init', [self::class, 'handle_delete_saved_search']);
     }
@@ -28,6 +29,7 @@ final class DirectorySearch {
 
         check_admin_referer('bh_save_directory_search', 'bh_saved_search_nonce');
 
+        $edit_id = sanitize_text_field(wp_unslash($_POST['bh_edit_saved_search_id'] ?? ''));
         $name = sanitize_text_field(wp_unslash($_POST['bh_saved_search_name'] ?? ''));
         if ($name === '') {
             $name = 'Saved search';
@@ -61,11 +63,12 @@ final class DirectorySearch {
             $saved = [];
         }
 
-        $id = wp_generate_uuid4();
+        $id = $edit_id !== '' && isset($saved[$edit_id]) ? $edit_id : wp_generate_uuid4();
+        $created = isset($saved[$id]['created']) ? (string) $saved[$id]['created'] : current_time('mysql');
         $saved[$id] = [
             'name' => $name,
             'url' => $saved_url,
-            'created' => current_time('mysql'),
+            'created' => $created,
         ];
 
         if (count($saved) > 25) {
@@ -133,6 +136,17 @@ final class DirectorySearch {
             [],
             BH_PLUGIN_VERSION
         );
+        wp_enqueue_script(
+            'bh-saved-searches',
+            BH_PLUGIN_URL . 'assets/js/bh-saved-searches.js',
+            [],
+            BH_PLUGIN_VERSION,
+            true
+        );
+        wp_localize_script('bh-saved-searches', 'BubbaHubSavedSearches', [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('bh_edit_saved_search'),
+        ]);
 
         $saved = get_user_meta(get_current_user_id(), '_bh_saved_searches', true);
         if (!is_array($saved)) {
@@ -181,7 +195,8 @@ final class DirectorySearch {
                             </div>
                             <div class="bh-saved-searches__actions">
                                 <?php if ($url): ?>
-                                    <a class="bh-saved-searches__button" href="<?php echo esc_url($url); ?>">Re-run Search</a>
+                                    <button class="bh-saved-searches__button bh-saved-searches__edit" type="button" data-bh-edit-search="<?php echo esc_attr($search_id); ?>">Edit</button>
+                                    <a class="bh-saved-searches__button" href="<?php echo esc_url($url); ?>">Search Again</a>
                                 <?php endif; ?>
                                 <form method="post" class="bh-saved-searches__delete">
                                     <?php wp_nonce_field('bh_delete_saved_search', 'bh_delete_saved_search_nonce'); ?>
@@ -276,6 +291,43 @@ final class DirectorySearch {
             'all' => 'All ages',
         ];
         return $labels[$value] ?? ucwords(str_replace(['-', '_'], ' ', $value));
+    }
+
+    public static function ajax_edit_saved_search(): void {
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'Please log in to edit saved searches.'], 403);
+        }
+
+        check_ajax_referer('bh_edit_saved_search', 'nonce');
+
+        $id = isset($_POST['id']) ? sanitize_text_field(wp_unslash($_POST['id'])) : '';
+        $saved = get_user_meta(get_current_user_id(), '_bh_saved_searches', true);
+        if (!is_array($saved) || $id === '' || empty($saved[$id]) || !is_array($saved[$id])) {
+            wp_send_json_error(['message' => 'Saved search not found.'], 404);
+        }
+
+        $url = (string) ($saved[$id]['url'] ?? '');
+        if ($url === '') {
+            wp_send_json_error(['message' => 'Saved search has no filters to edit.'], 400);
+        }
+
+        $parts = wp_parse_url($url);
+        $query = [];
+        if (!empty($parts['query'])) {
+            parse_str($parts['query'], $query);
+        }
+        $query['bh_edit_saved_search_id'] = $id;
+        $query['bh_modal_editor'] = '1';
+
+        $original_get = $_GET;
+        $_GET = $query;
+        $html = self::shortcode();
+        $_GET = $original_get;
+
+        wp_send_json_success([
+            'html' => $html,
+            'name' => (string) ($saved[$id]['name'] ?? 'Saved search'),
+        ]);
     }
 
     public static function ajax_towns(): void {
@@ -419,6 +471,7 @@ final class DirectorySearch {
                     <form method="post" class="bh-directory-search__save-form">
                         <?php wp_nonce_field('bh_save_directory_search', 'bh_saved_search_nonce'); ?>
                         <input type="hidden" name="bh_saved_search_action" value="save">
+                        <input type="hidden" name="bh_edit_saved_search_id" value="<?php echo esc_attr(isset($_GET['bh_edit_saved_search_id']) ? sanitize_text_field(wp_unslash($_GET['bh_edit_saved_search_id'])) : ''); ?>">
                         <input type="hidden" name="bh_saved_search_url" value="<?php echo esc_attr($save_url); ?>">
                         <?php foreach (['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_day','bh_price','bh_free_activity','bh_view','bh_date'] as $saved_key) : ?>
                             <?php if (isset($_GET[$saved_key])) : ?>
