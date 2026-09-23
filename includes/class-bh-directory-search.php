@@ -8,6 +8,22 @@ final class DirectorySearch {
 
     public static function register(): void {
         add_shortcode('bh_directory_search', [self::class, 'shortcode']);
+        add_action('wp_ajax_bh_get_towns', [self::class, 'ajax_towns']);
+        add_action('wp_ajax_nopriv_bh_get_towns', [self::class, 'ajax_towns']);
+    }
+
+    public static function ajax_towns(): void {
+        check_ajax_referer('bh_directory_search', 'nonce');
+
+        $region = isset($_POST['region']) ? sanitize_title(wp_unslash($_POST['region'])) : '';
+        $towns = self::towns($region);
+
+        wp_send_json_success(array_map(static function ($term): array {
+            return [
+                'value' => $term->slug,
+                'label' => $term->name,
+            ];
+        }, $towns));
     }
 
     public static function shortcode(): string {
