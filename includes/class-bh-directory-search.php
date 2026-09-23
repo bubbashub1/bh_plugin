@@ -351,6 +351,41 @@ final class DirectorySearch {
         }, $towns));
     }
 
+    public static function location_form(): string {
+        $region = isset($_GET['bh_region']) ? sanitize_title(wp_unslash($_GET['bh_region'])) : '';
+        $town = isset($_GET['bh_town']) ? sanitize_title(wp_unslash($_GET['bh_town'])) : '';
+        $regions = self::regions();
+        $towns = self::towns($region);
+
+        ob_start();
+        ?>
+        <div class="bh-directory-search bh-directory-search--location">
+            <form class="bh-directory-search__form" method="get" aria-label="Search by location">
+                <div class="bh-directory-search__field">
+                    <label for="bh-region">Region</label>
+                    <select id="bh-region" name="bh_region">
+                        <option value="">All regions</option>
+                        <?php foreach ($regions as $term) : ?>
+                            <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($region, $term->slug); ?>><?php echo esc_html($term->name); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="bh-directory-search__field">
+                    <label for="bh-town">Town</label>
+                    <select id="bh-town" name="bh_town" <?php disabled($region, ''); ?>>
+                        <option value=""><?php echo $region ? 'All towns' : 'Select a region first'; ?></option>
+                        <?php foreach ($towns as $term) : ?>
+                            <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($town, $term->slug); ?>><?php echo esc_html($term->name); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <?php
+        return (string) ob_get_clean();
+    }
+
     public static function shortcode(): string {
         $values = [
             'search' => isset($_GET['bh_search']) ? sanitize_text_field(wp_unslash($_GET['bh_search'])) : '',
