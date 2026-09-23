@@ -140,3 +140,17 @@ body.bh-modal-open{overflow:hidden}
 .bh-my-hub__family-panel .bh-my-hub__profiles{display:flex;flex-wrap:nowrap;gap:14px;overflow-x:auto;overflow-y:hidden;padding:4px 2px 10px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
 .bh-my-hub__family-panel .bh-my-hub__profiles>.bh-my-hub__profile{flex:0 0 270px;min-width:270px;scroll-snap-align:start}
 @media(max-width:600px){.bh-my-hub__family-panel .bh-my-hub__profiles>.bh-my-hub__profile{flex-basis:calc(100vw - 72px);min-width:calc(100vw - 72px)}}
+
+
+/* My Family layout: theme-native dashboard row inspired by the supplied reference */
+.bh-my-hub__family-scroll{gap:18px}
+.bh-my-hub__family-scroll>.bh-my-hub__family-panel{flex:0 0 100%;box-sizing:border-box}
+.bh-my-hub__family-panel .bh-my-hub__profiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;overflow:visible;padding:4px 0 8px;margin-bottom:0}
+.bh-my-hub__family-panel .bh-my-hub__profiles>.bh-my-hub__profile{min-width:0;flex:initial;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:10px;padding:14px;border:1px solid rgba(0,0,0,.08);border-radius:14px;background:rgba(255,255,255,.72);box-shadow:0 2px 8px rgba(0,0,0,.03)}
+.bh-my-hub__family-panel .bh-my-hub__profiles>.bh-my-hub__profile strong{margin:0}
+.bh-my-hub__family-panel .bh-my-hub__profiles>.bh-my-hub__profile .bh-my-hub__school-tracker,
+.bh-my-hub__family-panel .bh-my-hub__profiles>.bh-my-hub__profile .bh-my-hub__antenatal-tracker{grid-column:1/-1;width:100%;box-sizing:border-box}
+.bh-my-hub__family-panel .bh-my-hub__profiles>.bh-my-hub__profile .bh-my-hub__edit-link,
+.bh-my-hub__family-panel .bh-my-hub__profiles>.bh-my-hub__profile .bh-my-hub__delete{grid-column:auto}
+@media(max-width:900px){.bh-my-hub__family-panel .bh-my-hub__profiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.bh-my-hub__family-panel .bh-my-hub__profiles{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;padding-bottom:10px}.bh-my-hub__family-panel .bh-my-hub__profiles>.bh-my-hub__profile{flex:0 0 calc(100vw - 72px);scroll-snap-align:start}}
