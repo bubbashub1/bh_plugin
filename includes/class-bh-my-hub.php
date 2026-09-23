@@ -48,6 +48,7 @@ final class MyHub {
         }
         if (!$load) { return; }
         wp_enqueue_style('bh-visited-listing', BH_PLUGIN_URL . 'assets/css/bh-visited.css', [], BH_PLUGIN_VERSION);
+        wp_enqueue_script('bh-visited-listing', BH_PLUGIN_URL . 'assets/js/bh-visited.js', [], BH_PLUGIN_VERSION, true);
     }
 
     private static function is_my_hub_page(): bool {
