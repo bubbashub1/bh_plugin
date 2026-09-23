@@ -1,2 +1,23 @@
 .bh-directory{width:100%;box-sizing:border-box}.bh-directory__header{margin-bottom:24px}.bh-directory__header h2{margin:0}.bh-directory__grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}.bh-directory-card{min-width:0;border:1px solid rgba(0,0,0,.08);border-radius:16px;overflow:hidden;background:#fff}.bh-directory-card__link{display:block;color:inherit;text-decoration:none;height:100%}.bh-directory-card__image img{display:block;width:100%;height:180px;object-fit:cover}.bh-directory-card__body{padding:18px}.bh-directory-card h3{margin:0 0 8px}.bh-directory-card p{margin:0}.bh-directory__pagination{margin-top:28px}.bh-directory__pagination ul{display:flex;flex-wrap:wrap;gap:8px;list-style:none;margin:0;padding:0}.bh-directory__pagination a,.bh-directory__pagination span{display:inline-block;padding:8px 12px;border-radius:10px}.bh-directory--notice{padding:20px;border-radius:14px;background:#f7f7f7}@media (max-width:600px){.bh-directory__grid{grid-template-columns:1fr}.bh-directory-card__image img{height:170px}}
 .bh-directory-map .directorist-type-nav{display:none!important}
+
+
+.bh-directory__header--controls{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.bh-directory-listing-controls{display:flex;align-items:end;gap:10px;flex-wrap:wrap}
+.bh-directory-listing-controls label{display:flex;flex-direction:column;gap:4px;font-size:.8rem;font-weight:600}
+.bh-directory-listing-controls select{min-height:38px;padding:6px 30px 6px 10px;border:1px solid rgba(0,0,0,.15);border-radius:8px;background:#fff;font:inherit;font-size:.9rem}
+.bh-directory__grid--columns-1{grid-template-columns:1fr}
+.bh-directory__grid--columns-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.bh-directory__grid--columns-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.bh-directory__grid--columns-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.bh-directory__grid--columns-5{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media(max-width:900px){
+    .bh-directory__grid--columns-4,.bh-directory__grid--columns-5{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:600px){
+    .bh-directory__header--controls{align-items:stretch;flex-direction:column}
+    .bh-directory-listing-controls{display:grid;grid-template-columns:1fr 1fr;align-items:stretch}
+    .bh-directory-listing-controls label{min-width:0}
+    .bh-directory-listing-controls select{width:100%}
+    .bh-directory__grid--columns-2,.bh-directory__grid--columns-3,.bh-directory__grid--columns-4,.bh-directory__grid--columns-5{grid-template-columns:1fr}
+}
