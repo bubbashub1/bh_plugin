@@ -107,3 +107,192 @@ body.bh-search-popover-open{overflow:hidden}
  .bh-directory-search__actions--primary{grid-column:auto;padding:8px}
  .bh-directory-search__actions--primary button{width:100%}
 }
+
+
+/* Mobile search refinement */
+@media (max-width: 700px) {
+  .bh-directory-search {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 18px;
+    padding: 12px;
+    border-radius: 14px;
+    box-sizing: border-box;
+  }
+
+  .bh-directory-search__form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+    border-radius: 12px;
+    overflow: visible;
+    box-sizing: border-box;
+  }
+
+  .bh-search-popover-field {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    border-bottom: 1px solid #e7e9ed;
+    box-sizing: border-box;
+  }
+
+  .bh-search-popover-field:last-of-type {
+    border-bottom: 0;
+  }
+
+  .bh-search-popover-trigger {
+    width: 100%;
+    min-height: 58px;
+    padding: 10px 14px;
+    border-radius: 10px !important;
+    box-sizing: border-box;
+  }
+
+  .bh-search-popover-trigger__label {
+    font-size: .75rem;
+  }
+
+  .bh-search-popover-trigger__value {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bh-directory-search__actions--primary {
+    width: 100%;
+    padding: 8px 0 0;
+    box-sizing: border-box;
+  }
+
+  .bh-directory-search__actions--primary button {
+    width: 100%;
+    min-height: 50px;
+    min-width: 0;
+    border-radius: 10px;
+  }
+
+  .bh-directory-search__advanced {
+    width: 100%;
+    margin-top: 4px;
+    padding-top: 12px;
+    box-sizing: border-box;
+  }
+
+  .bh-directory-search__advanced-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .bh-directory-search__field,
+  .bh-directory-search__field input,
+  .bh-directory-search__field select {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .bh-directory-search__field input,
+  .bh-directory-search__field select {
+    min-height: 46px;
+  }
+
+  .bh-directory-search__actions {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .bh-directory-search__actions a {
+    padding: 8px 0;
+  }
+
+  /* Mobile popovers: use a bottom-sheet style panel. */
+  .bh-search-popover-backdrop {
+    background: rgba(20, 28, 35, .28);
+  }
+
+  .bh-search-popover-panel {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: min(78vh, 620px);
+    margin: 0 !important;
+    padding: 20px 16px calc(20px + env(safe-area-inset-bottom)) !important;
+    border: 0;
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -12px 40px rgba(24, 39, 75, .18);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    box-sizing: border-box;
+  }
+
+  .bh-search-popover-panel__title {
+    font-size: 1rem;
+    margin-bottom: 12px;
+  }
+
+  .bh-search-popover-panel__grid,
+  .bh-search-choice-list,
+  .bh-search-choice-list--chips {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: none;
+    gap: 8px;
+  }
+
+  .bh-search-popover-panel select,
+  .bh-search-popover-input {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .bh-search-choice-list button {
+    width: 100%;
+    min-height: 46px;
+    box-sizing: border-box;
+  }
+
+  .bh-directory-search__save {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .bh-directory-search__save-trigger,
+  .bh-directory-search__saved-link {
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
+  }
+
+  .bh-directory-search__save-trigger {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 380px) {
+  .bh-directory-search {
+    padding: 8px;
+  }
+
+  .bh-search-popover-trigger {
+    min-height: 54px;
+    padding: 9px 12px;
+  }
+
+  .bh-search-popover-panel {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+}
