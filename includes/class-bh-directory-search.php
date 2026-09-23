@@ -8,9 +8,11 @@ final class DirectorySearch {
 
     public static function register(): void {
         add_shortcode('bh_directory_search', [self::class, 'shortcode']);
+        add_shortcode('bh_saved_searches', [self::class, 'saved_searches_shortcode']);
         add_action('wp_ajax_bh_get_towns', [self::class, 'ajax_towns']);
         add_action('wp_ajax_nopriv_bh_get_towns', [self::class, 'ajax_towns']);
         add_action('init', [self::class, 'handle_saved_search']);
+        add_action('init', [self::class, 'handle_delete_saved_search']);
     }
 
 
@@ -71,8 +73,182 @@ final class DirectorySearch {
         }
 
         update_user_meta(get_current_user_id(), '_bh_saved_searches', $saved);
-        wp_safe_redirect($saved_url);
+        wp_safe_redirect(add_query_arg('bh_saved', '1', self::saved_searches_url()));
         exit;
+    }
+
+    public static function saved_searches_url(): string {
+        $page = get_page_by_path('saved-searches');
+        return $page instanceof \\WP_Post ? get_permalink($page) : home_url('/saved-searches/');
+    }
+
+    public static function handle_delete_saved_search(): void {
+        if (!is_user_logged_in() || empty($_POST['bh_delete_saved_search'])) {
+            return;
+        }
+
+        check_admin_referer('bh_delete_saved_search', 'bh_delete_saved_search_nonce');
+        $id = sanitize_text_field(wp_unslash($_POST['bh_delete_saved_search']));
+        $saved = get_user_meta(get_current_user_id(), '_bh_saved_searches', true);
+
+        if (is_array($saved) && isset($saved[$id])) {
+            unset($saved[$id]);
+            update_user_meta(get_current_user_id(), '_bh_saved_searches', $saved);
+        }
+
+        wp_safe_redirect(self::saved_searches_url());
+        exit;
+    }
+
+    public static function saved_searches_shortcode(): string {
+        if (!is_user_logged_in()) {
+            $url = function_exists('um_get_core_page') ? um_get_core_page('login') : wp_login_url(get_permalink());
+            return '<div class="bh-saved-searches bh-saved-searches--login"><h1>Saved Searches</h1><p>Please log in to view your saved searches.</p><a class="bh-saved-searches__button" href="' . esc_url($url) . '">Log in</a></div>';
+        }
+
+        wp_enqueue_style(
+            'bh-saved-searches',
+            BH_PLUGIN_URL . 'assets/css/bh-saved-searches.css',
+            [],
+            BH_PLUGIN_VERSION
+        );
+
+        $saved = get_user_meta(get_current_user_id(), '_bh_saved_searches', true);
+        if (!is_array($saved)) {
+            $saved = [];
+        }
+
+        ob_start();
+        ?>
+        <section class="bh-saved-searches">
+            <div class="bh-saved-searches__intro">
+                <div>
+                    <p class="bh-saved-searches__eyebrow">My Bubba Hub</p>
+                    <h1>Saved Searches</h1>
+                    <p>Keep your favourite group searches here and reopen them whenever you need them.</p>
+                </div>
+                <a class="bh-saved-searches__back" href="<?php echo esc_url(home_url('/my-hub/')); ?>">← My Hub</a>
+            </div>
+
+            <?php if (isset($_GET['bh_saved'])): ?>
+                <div class="bh-saved-searches__notice" role="status">Search saved. You can run it whenever you like.</div>
+            <?php endif; ?>
+
+            <?php if ($saved): ?>
+                <div class="bh-saved-searches__list">
+                    <?php foreach ($saved as $search_id => $item): ?>
+                        <?php
+                        $name = is_array($item) ? (string) ($item['name'] ?? 'Saved search') : 'Saved search';
+                        $url = is_array($item) ? (string) ($item['url'] ?? '') : '';
+                        $criteria = self::saved_search_criteria($url);
+                        ?>
+                        <article class="bh-saved-searches__card">
+                            <div class="bh-saved-searches__card-content">
+                                <h2><?php echo esc_html($name); ?></h2>
+                                <?php if ($criteria): ?>
+                                    <dl class="bh-saved-searches__criteria">
+                                        <?php foreach ($criteria as $label => $value): ?>
+                                            <div>
+                                                <dt><?php echo esc_html($label); ?>:</dt>
+                                                <dd><?php echo esc_html($value); ?></dd>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </dl>
+                                <?php else: ?>
+                                    <p class="bh-saved-searches__empty-criteria">No filters were saved with this search.</p>
+                                <?php endif; ?>
+                            </div>
+                            <div class="bh-saved-searches__actions">
+                                <?php if ($url): ?>
+                                    <a class="bh-saved-searches__button" href="<?php echo esc_url($url); ?>">Run Search</a>
+                                <?php endif; ?>
+                                <form method="post" class="bh-saved-searches__delete">
+                                    <?php wp_nonce_field('bh_delete_saved_search', 'bh_delete_saved_search_nonce'); ?>
+                                    <input type="hidden" name="bh_delete_saved_search" value="<?php echo esc_attr($search_id); ?>">
+                                    <button type="submit">Delete</button>
+                                </form>
+                            </div>
+                        </article>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <div class="bh-saved-searches__empty">
+                    <strong>No saved searches yet</strong>
+                    <p>Run a search in the Bubba Hub directory and save it to see it here.</p>
+                    <a class="bh-saved-searches__button" href="<?php echo esc_url(home_url('/directory/')); ?>">Browse the directory</a>
+                </div>
+            <?php endif; ?>
+        </section>
+        <?php
+        return (string) ob_get_clean();
+    }
+
+    private static function saved_search_criteria(string $url): array {
+        if ($url === '') {
+            return [];
+        }
+
+        $parts = wp_parse_url($url);
+        $query = [];
+        if (!empty($parts['query'])) {
+            parse_str($parts['query'], $query);
+        }
+
+        $criteria = [];
+        $map = [
+            'bh_search' => 'Search',
+            'bh_age_range' => 'Age range',
+            'bh_category' => 'Category',
+            'bh_region' => 'Region',
+            'bh_town' => 'Town',
+            'bh_day' => 'Day',
+            'bh_price' => 'Price',
+        ];
+
+        foreach ($map as $key => $label) {
+            if (!isset($query[$key]) || is_array($query[$key]) || trim((string) $query[$key]) === '') {
+                continue;
+            }
+            $value = sanitize_text_field((string) $query[$key]);
+            if ($key === 'bh_age_range') {
+                $value = self::age_range_label($value);
+            } elseif ($key === 'bh_category') {
+                $value = self::term_label($value, 'at_biz_dir-category');
+            } elseif ($key === 'bh_region' || $key === 'bh_town') {
+                $value = self::term_label($value, self::LOCATION_TAXONOMY);
+            } elseif ($key === 'bh_day') {
+                $value = ucfirst($value);
+            }
+            if ($value !== '') {
+                $criteria[$label] = $value;
+            }
+        }
+
+        if (!empty($query['bh_free_activity'])) {
+            $criteria['Free activity'] = 'Yes';
+        }
+
+        return $criteria;
+    }
+
+    private static function term_label(string $slug, string $taxonomy): string {
+        $term = get_term_by('slug', sanitize_title($slug), $taxonomy);
+        return $term && !is_wp_error($term) ? $term->name : ucwords(str_replace(['-', '_'], ' ', $slug));
+    }
+
+    private static function age_range_label(string $value): string {
+        $labels = [
+            '0-3' => '0–3 months',
+            '3-6' => '3–6 months',
+            '6-9' => '6–9 months',
+            '9-12' => '9–12 months',
+            '1-3' => '1–3 years',
+            '2-4' => '2–4 years',
+            '3-5' => '3–5 years',
+            '5-plus' => '5+ years',
+            'all' => 'All ages',
+        ];
+        return $labels[$value] ?? ucwords(str_replace(['-', '_'], ' ', $value));
     }
 
     public static function ajax_towns(): void {
