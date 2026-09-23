@@ -225,6 +225,9 @@
         initRegionTown();
         initAutoFilters();
         initMobileFilterToggle();
+        if (typeof initSearchPopovers === 'function') {
+            initSearchPopovers();
+        }
     }
 
     function initMobileFilterToggle(){
