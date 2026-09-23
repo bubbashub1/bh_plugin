@@ -84,6 +84,21 @@ final class MyHub {
         return $id;
     }
 
+
+    private static function age_label(string $dob): string {
+        try {
+            $birth = new \DateTime($dob);
+            $today = new \DateTime('today');
+            if ($birth > $today) {
+                return '';
+            }
+            $age = $birth->diff($today)->y;
+            return (string) $age;
+        } catch (\Exception $e) {
+            return '';
+        }
+    }
+
     private static function visited_listing_ids(int $user_id): array {
         if ($user_id < 1) {
             return [];
