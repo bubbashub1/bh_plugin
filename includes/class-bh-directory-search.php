@@ -255,7 +255,7 @@ final class DirectorySearch {
                 $value = self::age_range_label($value);
             } elseif ($key === 'bh_category') {
                 $value = self::term_label($value, 'at_biz_dir-category');
-            } elseif ($key === 'bh_region' || $key === 'bh_town') {
+            } elseif ($key === 'bh_region' || $key === 'bh_town' || $key === 'bh_saved_location') {
                 $value = self::term_label($value, self::LOCATION_TAXONOMY);
             } elseif ($key === 'bh_day') {
                 $value = ucfirst($value);
