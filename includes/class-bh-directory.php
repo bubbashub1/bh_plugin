@@ -95,6 +95,10 @@ final class Directory {
                         <a class="bh-planner-actions__button" href="<?php echo esc_url($calendar_export_url); ?>" download>Subscribe</a>
                         <button class="bh-planner-actions__button" type="button" data-bh-print-calendar>Print</button>
                     </div>
+                    <div class="bh-print-footer" aria-hidden="true">
+                        <span>www.bubbahub.co.uk</span>
+                        <span><?php echo esc_html(wp_date(get_option('date_format'), current_datetime()->getTimestamp(), wp_timezone())); ?></span>
+                    </div>
                 </section>
             <?php else : ?>
                 <div class="bh-directory__header">
