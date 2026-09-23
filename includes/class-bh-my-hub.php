@@ -218,7 +218,7 @@ final class MyHub {
                         <button type="button" class="bh-my-hub__button bh-my-hub__button--outline bh-my-hub__open-modal" data-bh-modal="add-bump">Add bump</button>
                     </div>
 
-                    <?php if ($children): ?>
+                    <?php if ($children || $bumps): ?>
                         <div class="bh-my-hub__profiles">
                             <?php foreach ($children as $child): ?>
                                 <?php
@@ -277,28 +277,6 @@ final class MyHub {
                                     </div>
                                 </article>
                             <?php endforeach; ?>
-                        </div>
-                    <?php else: ?>
-                        <p class="bh-my-hub__muted">Add your children to personalise Bubba Hub around your family.</p>
-                    <?php endif; ?>
-
-                    <div class="bh-my-hub__modal" data-bh-modal-panel="child" hidden>
-                        <div class="bh-my-hub__modal-backdrop" data-bh-modal-close></div>
-                        <div class="bh-my-hub__modal-dialog" role="dialog" aria-modal="true">
-                            <button type="button" class="bh-my-hub__modal-close" data-bh-modal-close aria-label="Close">×</button>
-                            <h3>Add a child</h3>
-                            <form method="post" class="bh-my-hub__form" enctype="multipart/form-data">
-                                <?php wp_nonce_field('bh_my_hub_save_child', 'bh_my_hub_nonce'); ?>
-                                <input type="hidden" name="bh_my_hub_action" value="save_child">
-                                <?php self::child_fields(); ?>
-                                <button class="bh-my-hub__button" type="submit">Save child</button>
-                            </form>
-                        </div>
-                    </div>
-                    <?php if ($bumps): ?>
-                        <?php if (!$children): ?>
-                            <div class="bh-my-hub__profiles">
-                        <?php endif; ?>
                             <?php foreach ($bumps as $bump): ?>
                                 <?php
                                 $bump_id = (int) $bump->ID;
@@ -357,13 +335,9 @@ final class MyHub {
                                     </div>
                                 </div>
                             <?php endforeach; ?>
-                        <?php if (!$children): ?>
-                            </div>
-                        <?php endif; ?>
+                        </div>
                     <?php else: ?>
-                        <?php if (!$children): ?>
-                            <div class="bh-my-hub__muted">Add a bump if you're expecting. You can add more than one for a multiple pregnancy.</div>
-                        <?php endif; ?>
+                        <p class="bh-my-hub__muted">Add your children or a bump to personalise Bubba Hub around your family.</p>
                     <?php endif; ?>
 
                     <div class="bh-my-hub__modal" data-bh-modal-panel="add-bump" hidden>
