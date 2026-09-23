@@ -471,7 +471,7 @@ final class MyHub {
 
             return [
                 'countdown' => implode(', ', $parts) . ' until due date',
-                'classes' => 'Antenatal classes: ' . $class_start->format('F') . ' to ' . $class_end->format('F'),
+                'classes' => 'Attend Antenatal classes: ' . $class_start->format('F') . ' to ' . $class_end->format('F'),
             ];
         } catch (\Exception $e) {
             return [];
