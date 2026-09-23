@@ -16,7 +16,7 @@
 .bh-directory-search__save-trigger{min-height:38px;padding:8px 14px;border:0;border-radius:9px;cursor:pointer;font:inherit;font-weight:600}
 .bh-directory-search__saved-link{font-size:.9rem;font-weight:600;text-decoration:none}
 .bh-save-search-modal[hidden]{display:none!important}
-.bh-save-search-modal{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box}
+.bh-save-search-modal{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box}
 .bh-save-search-modal__backdrop{position:absolute;inset:0;background:rgba(20,28,35,.45)}
 .bh-save-search-modal__dialog{position:relative;width:min(460px,100%);padding:28px;border-radius:18px;background:#fff;box-shadow:0 18px 55px rgba(0,0,0,.2);box-sizing:border-box}
 .bh-save-search-modal__close{position:absolute;top:10px;right:12px;width:36px;height:36px;border:0;background:transparent;border-radius:50%;font-size:26px;line-height:1;cursor:pointer}
@@ -30,3 +30,4 @@
 .bh-save-search-modal__actions button{min-height:40px;padding:8px 15px;border:0;border-radius:9px;cursor:pointer;font:inherit}
 .bh-save-search-modal__cancel{background:transparent!important;border:1px solid rgba(0,0,0,.15)!important}
 @media(max-width:520px){.bh-directory-search__save{flex-wrap:wrap}.bh-save-search-modal{padding:14px}.bh-save-search-modal__dialog{padding:24px 18px}}
+\n.bh-save-search-open{overflow:hidden}\n
