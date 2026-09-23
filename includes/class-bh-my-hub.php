@@ -17,6 +17,7 @@ final class MyHub {
         add_action('directorist_single_listing_after_title', [self::class, 'render_visited_listing_controls'], 20);
         add_action('atbdp_after_listing_tagline', [self::class, 'render_visited_listing_controls'], 20);
         add_action('init', [self::class, 'handle_visited_listing']);
+        add_action('wp', [self::class, 'track_recently_viewed_listing']);
     }
 
     public static function assets(): void {
@@ -112,6 +113,79 @@ final class MyHub {
         $visited = self::visited_listing_ids($user_id);
         return isset($visited[$listing_id]);
     }
+
+    /**
+     * Record the Directorist group a logged-in member actually views.
+     * This is separate from the manual Visited badge.
+     */
+    public static function track_recently_viewed_listing(): void {
+        if (!is_user_logged_in() || !is_singular('at_biz_dir')) {
+            return;
+        }
+
+        $listing_id = self::current_directorist_listing_id();
+        if (!$listing_id || get_post_status($listing_id) !== 'publish') {
+            return;
+        }
+
+        $user_id = get_current_user_id();
+        $recent = get_user_meta($user_id, 'bh_recently_viewed_listings', true);
+        if (!is_array($recent)) {
+            $recent = [];
+        }
+
+        // Keep listing IDs as keys so a repeat view moves the group to the front.
+        $recent[$listing_id] = current_time('timestamp');
+        arsort($recent, SORT_NUMERIC);
+
+        // Keep a small, fast history for My Hub.
+        $recent = array_slice($recent, 0, 12, true);
+        update_user_meta($user_id, 'bh_recently_viewed_listings', $recent);
+    }
+
+    private static function recently_viewed_listing_ids(int $user_id): array {
+        if ($user_id < 1) {
+            return [];
+        }
+
+        $recent = get_user_meta($user_id, 'bh_recently_viewed_listings', true);
+        if (!is_array($recent)) {
+            return [];
+        }
+
+        $ids = [];
+        foreach ($recent as $listing_id => $viewed_at) {
+            $listing_id = (int) $listing_id;
+            if ($listing_id > 0 && get_post_type($listing_id) === 'at_biz_dir' && get_post_status($listing_id) === 'publish') {
+                $ids[$listing_id] = (int) $viewed_at;
+            }
+        }
+
+        arsort($ids, SORT_NUMERIC);
+        return array_keys($ids);
+    }
+
+    /**
+     * Read Directorist's own bookmark/favourite list.
+     * This keeps Saved Groups linked to the same Save/Bookmark control
+     * already used on Directorist listings.
+     */
+    private static function saved_listing_ids(int $user_id): array {
+        if ($user_id < 1 || !function_exists('directorist_get_user_favorites')) {
+            return [];
+        }
+
+        $saved = directorist_get_user_favorites($user_id);
+        if (!is_array($saved)) {
+            return [];
+        }
+
+        return array_values(array_unique(array_filter(
+            array_map('absint', $saved),
+            static fn($id) => $id > 0 && get_post_type($id) === 'at_biz_dir' && get_post_status($id) === 'publish'
+        )));
+    }
+
 
     public static function handle_visited_listing(): void {
         if (!is_user_logged_in() || empty($_POST['bh_visited_action'])) {
@@ -408,24 +482,46 @@ final class MyHub {
                         <div><span class="bh-my-hub__icon">👥</span><h2>My Groups</h2></div>
                     </div>
 
+                    <?php
+                    $recently_viewed = self::recently_viewed_listing_ids($user->ID);
+                    $saved_groups = self::saved_listing_ids($user->ID);
+                    ?>
                     <div class="bh-my-hub__group-rows">
                         <section class="bh-my-hub__group-row" aria-labelledby="bh-recently-viewed-title">
                             <div class="bh-my-hub__group-row-head">
                                 <div><span class="bh-my-hub__group-icon">🕘</span><h3 id="bh-recently-viewed-title">Recently viewed</h3></div>
-                                <span>Swipe to explore</span>
+                                <span><?php echo $recently_viewed ? esc_html(count($recently_viewed)) . ' viewed' : 'Your latest groups'; ?></span>
                             </div>
                             <div class="bh-my-hub__group-scroll">
-                                <article class="bh-my-hub__group-card">
-                                    <strong>No recently viewed groups yet</strong>
-                                    <p>Groups you look at in the directory will appear here.</p>
-                                </article>
+                                <?php if ($recently_viewed): ?>
+                                    <?php foreach ($recently_viewed as $recent_id): ?>
+                                        <?php
+                                        $recent_post = get_post((int) $recent_id);
+                                        if (!$recent_post || $recent_post->post_status !== 'publish') {
+                                            continue;
+                                        }
+                                        $recent_title = get_the_title($recent_post);
+                                        $recent_url = get_permalink($recent_post);
+                                        ?>
+                                        <article class="bh-my-hub__group-card">
+                                            <strong><?php echo esc_html($recent_title ?: 'Activity'); ?></strong>
+                                            <p>Recently viewed</p>
+                                            <?php if ($recent_url): ?><a href="<?php echo esc_url($recent_url); ?>">View group</a><?php endif; ?>
+                                        </article>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <article class="bh-my-hub__group-card">
+                                        <strong>No recently viewed groups yet</strong>
+                                        <p>Open a group in the directory and it will appear here automatically.</p>
+                                    </article>
+                                <?php endif; ?>
                             </div>
                         </section>
 
                         <section class="bh-my-hub__group-row" aria-labelledby="bh-visited-title">
                             <div class="bh-my-hub__group-row-head">
                                 <div><span class="bh-my-hub__group-icon">📍</span><h3 id="bh-visited-title">Visited</h3></div>
-                                <span><?php echo $visited_listings ? esc_html(count($visited_listings)) . ' visited' : 'Swipe to explore'; ?></span>
+                                <span><?php echo $visited_listings ? esc_html(count($visited_listings)) . ' visited' : 'Your visited groups'; ?></span>
                             </div>
                             <div class="bh-my-hub__group-scroll">
                                 <?php if ($visited_listings): ?>
@@ -441,13 +537,13 @@ final class MyHub {
                                         <article class="bh-my-hub__group-card bh-my-hub__group-card--visited">
                                             <strong><?php echo esc_html($visited_title ?: 'Activity'); ?></strong>
                                             <p>📍 Visited activity</p>
-                                            <?php if ($visited_url): ?><a href="<?php echo esc_url($visited_url); ?>">View activity</a><?php endif; ?>
+                                            <?php if ($visited_url): ?><a href="<?php echo esc_url($visited_url); ?>">View group</a><?php endif; ?>
                                         </article>
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <article class="bh-my-hub__group-card">
                                         <strong>No visited groups yet</strong>
-                                        <p>Mark an activity as visited in the directory and it will appear here.</p>
+                                        <p>Mark a group as visited in the directory and it will appear here.</p>
                                     </article>
                                 <?php endif; ?>
                             </div>
@@ -456,20 +552,38 @@ final class MyHub {
                         <section class="bh-my-hub__group-row" aria-labelledby="bh-saved-groups-title">
                             <div class="bh-my-hub__group-row-head">
                                 <div><span class="bh-my-hub__group-icon">♡</span><h3 id="bh-saved-groups-title">Saved</h3></div>
-                                <span>Swipe to explore</span>
+                                <span><?php echo $saved_groups ? esc_html(count($saved_groups)) . ' saved' : 'Your saved groups'; ?></span>
                             </div>
                             <div class="bh-my-hub__group-scroll">
-                                <article class="bh-my-hub__group-card">
-                                    <strong>No saved groups yet</strong>
-                                    <p>Groups and activities you save will appear here.</p>
-                                </article>
+                                <?php if ($saved_groups): ?>
+                                    <?php foreach ($saved_groups as $saved_id): ?>
+                                        <?php
+                                        $saved_post = get_post((int) $saved_id);
+                                        if (!$saved_post || $saved_post->post_status !== 'publish') {
+                                            continue;
+                                        }
+                                        $saved_title = get_the_title($saved_post);
+                                        $saved_url = get_permalink($saved_post);
+                                        ?>
+                                        <article class="bh-my-hub__group-card">
+                                            <strong><?php echo esc_html($saved_title ?: 'Activity'); ?></strong>
+                                            <p>🔖 Saved group</p>
+                                            <?php if ($saved_url): ?><a href="<?php echo esc_url($saved_url); ?>">View group</a><?php endif; ?>
+                                        </article>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <article class="bh-my-hub__group-card">
+                                        <strong>No saved groups yet</strong>
+                                        <p>Use the Save/Bookmark control on a group and it will appear here.</p>
+                                    </article>
+                                <?php endif; ?>
                             </div>
                         </section>
 
                         <section class="bh-my-hub__group-row" aria-labelledby="bh-suggestions-title">
                             <div class="bh-my-hub__group-row-head">
                                 <div><span class="bh-my-hub__group-icon">✨</span><h3 id="bh-suggestions-title">Suggestions</h3></div>
-                                <span>Swipe to explore</span>
+                                <span>Coming next</span>
                             </div>
                             <div class="bh-my-hub__group-scroll">
                                 <article class="bh-my-hub__group-card">
