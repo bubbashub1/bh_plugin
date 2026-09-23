@@ -38,7 +38,7 @@ final class DirectorySearch {
         // Build the saved URL from the current site request rather than trusting
         // the hidden form URL. This keeps the saved search on this site and
         // preserves the active filters, planner view and selected date.
-        $allowed = ['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_day','bh_price','bh_free_activity','bh_view','bh_date'];
+        $allowed = ['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_saved_location','bh_day','bh_price','bh_free_activity','bh_view','bh_date'];
         $query = [];
         foreach ($allowed as $key) {
             if (isset($_POST[$key])) {
@@ -241,6 +241,7 @@ final class DirectorySearch {
             'bh_category' => 'Category',
             'bh_region' => 'Region',
             'bh_town' => 'Town',
+            'bh_saved_location' => 'Saved location',
             'bh_day' => 'Day',
             'bh_price' => 'Price',
         ];
@@ -356,6 +357,7 @@ final class DirectorySearch {
             'age_range' => isset($_GET['bh_age_range']) ? sanitize_text_field(wp_unslash($_GET['bh_age_range'])) : '',
             'region' => isset($_GET['bh_region']) ? sanitize_title(wp_unslash($_GET['bh_region'])) : '',
             'town' => isset($_GET['bh_town']) ? sanitize_title(wp_unslash($_GET['bh_town'])) : '',
+            'saved_location' => isset($_GET['bh_saved_location']) ? sanitize_title(wp_unslash($_GET['bh_saved_location'])) : '',
             'day' => isset($_GET['bh_day']) ? sanitize_title(wp_unslash($_GET['bh_day'])) : '',
             'price' => isset($_GET['bh_price']) ? sanitize_text_field(wp_unslash($_GET['bh_price'])) : '',
             'free_activity' => isset($_GET['bh_free_activity']) ? sanitize_text_field(wp_unslash($_GET['bh_free_activity'])) : '',
@@ -376,6 +378,7 @@ final class DirectorySearch {
         $categories = self::categories();
         $regions = self::regions();
         $towns = self::towns($values['region']);
+        $saved_locations = is_user_logged_in() ? self::preferred_locations(get_current_user_id()) : [];
         $age_options = DirectoristFields::options('age_range');
         $free_activity_option = DirectoristFields::free_activity_option();
 
@@ -421,6 +424,18 @@ final class DirectorySearch {
                         <?php endforeach; ?>
                     </select>
                 </div>
+
+                <?php if ($saved_locations) : ?>
+                    <div class="bh-directory-search__field">
+                        <label for="bh-saved-location">My Saved Locations</label>
+                        <select id="bh-saved-location" name="bh_saved_location">
+                            <option value="">Any saved location</option>
+                            <?php foreach ($saved_locations as $term) : ?>
+                                <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($values['saved_location'], $term->slug); ?>><?php echo esc_html($term->name); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                <?php endif; ?>
 
                 <?php if ($free_activity_option) : ?>
                     <div class="bh-directory-search__field bh-directory-search__field--checkbox">
@@ -522,6 +537,35 @@ final class DirectorySearch {
         ]);
 
         return is_wp_error($terms) ? [] : $terms;
+    }
+
+    private static function preferred_locations(int $user_id): array {
+        $value = function_exists('get_field') ? get_field('preferred_location', 'user_' . $user_id) : get_user_meta($user_id, 'preferred_location', true);
+        $values = is_array($value) ? $value : [$value];
+        $terms = [];
+
+        foreach ($values as $item) {
+            $term_id = 0;
+            if (is_object($item) && isset($item->term_id)) {
+                $term_id = (int) $item->term_id;
+            } elseif (is_array($item) && isset($item['term_id'])) {
+                $term_id = (int) $item['term_id'];
+            } elseif (is_numeric($item)) {
+                $term_id = (int) $item;
+            } elseif (is_string($item) && $item !== '') {
+                $term = get_term_by('slug', sanitize_title($item), self::LOCATION_TAXONOMY);
+                $term_id = ($term && !is_wp_error($term)) ? (int) $term->term_id : 0;
+            }
+
+            if ($term_id > 0) {
+                $term = get_term($term_id, self::LOCATION_TAXONOMY);
+                if ($term && !is_wp_error($term)) {
+                    $terms[$term->term_id] = $term;
+                }
+            }
+        }
+
+        return array_values($terms);
     }
 
     private static function towns(string $region = ''): array {
