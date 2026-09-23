@@ -441,6 +441,56 @@ final class MyHub {
             self::redirect_saved();
         }
 
+        if ($action === 'save_nap_window') {
+            check_admin_referer('bh_my_hub_save_nap_window', 'bh_my_hub_nonce');
+
+            $child_id = absint($_POST['nap_child_id'] ?? 0);
+            $day = sanitize_key(wp_unslash($_POST['nap_day'] ?? ''));
+            $start = sanitize_text_field(wp_unslash($_POST['nap_start_time'] ?? ''));
+            $end = sanitize_text_field(wp_unslash($_POST['nap_end_time'] ?? ''));
+            $valid_days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+
+            if (
+                self::user_owns_child($child_id, $user_id) &&
+                get_field('child_status', $child_id) === 'born' &&
+                in_array($day, $valid_days, true) &&
+                preg_match('/^(?:[01]\\d|2[0-3]):[0-5]\\d$/', $start) &&
+                preg_match('/^(?:[01]\\d|2[0-3]):[0-5]\\d$/', $end) &&
+                $start < $end
+            ) {
+                $schedule = get_field('field_bubbahub_child_nap_schedule', $child_id);
+                if (!is_array($schedule)) $schedule = [];
+
+                $schedule[] = [
+                    'day_name' => $day,
+                    'enabled' => 1,
+                    'start_time' => $start,
+                    'end_time' => $end,
+                ];
+
+                update_field('field_bubbahub_child_nap_schedule', array_values($schedule), $child_id);
+            }
+
+            self::redirect_planner();
+        }
+
+        if ($action === 'remove_nap_window') {
+            check_admin_referer('bh_my_hub_remove_nap_window', 'bh_my_hub_nonce');
+
+            $child_id = absint($_POST['child_id'] ?? 0);
+            $index = isset($_POST['nap_index']) ? absint($_POST['nap_index']) : -1;
+
+            if (self::user_owns_child($child_id, $user_id) && $index >= 0) {
+                $schedule = get_field('field_bubbahub_child_nap_schedule', $child_id);
+                if (is_array($schedule) && array_key_exists($index, $schedule)) {
+                    unset($schedule[$index]);
+                    update_field('field_bubbahub_child_nap_schedule', array_values($schedule), $child_id);
+                }
+            }
+
+            self::redirect_planner();
+        }
+
         if ($action === 'save_activity') {
             check_admin_referer('bh_my_hub_save_activity', 'bh_my_hub_nonce');
             $id = absint($_POST['listing_id'] ?? 0);
@@ -540,6 +590,103 @@ final class MyHub {
                 <span class="bh-my-hub__count"><?php echo esc_html(count($saved)); ?> saved</span>
             </div>
             <p class="bh-my-hub__muted">Save activities from the directory, then add them to the day you want to visit.</p>
+
+            <div class="bh-my-hub__nap-schedule">
+                <div class="bh-my-hub__card-head">
+                    <div><span class="bh-my-hub__icon">😴</span><h2>Child Nap Schedule</h2></div>
+                    <button type="button" class="bh-my-hub__button bh-my-hub__open-modal" data-bh-modal="nap-window">Add new nap window</button>
+                </div>
+                <p class="bh-my-hub__muted">Add regular nap windows for each child so they are easy to see when planning your family week.</p>
+
+                <?php
+                $nap_children = self::get_children($user_id);
+                $nap_windows = [];
+                foreach ($nap_children as $nap_child) {
+                    $child_id = (int) $nap_child->ID;
+                    $child_name = (string) get_field('field_bubbahub_child_name', $child_id);
+                    $schedule = get_field('field_bubbahub_child_nap_schedule', $child_id);
+                    if (!is_array($schedule)) $schedule = [];
+                    foreach ($schedule as $index => $window) {
+                        if (empty($window['day_name']) || empty($window['start_time']) || empty($window['end_time'])) continue;
+                        $nap_windows[] = [
+                            'child_id' => $child_id,
+                            'child_name' => $child_name ?: 'Child',
+                            'index' => (int) $index,
+                            'day_name' => (string) $window['day_name'],
+                            'start_time' => (string) $window['start_time'],
+                            'end_time' => (string) $window['end_time'],
+                        ];
+                    }
+                }
+                $day_labels = [
+                    'monday'=>'Monday','tuesday'=>'Tuesday','wednesday'=>'Wednesday',
+                    'thursday'=>'Thursday','friday'=>'Friday','saturday'=>'Saturday','sunday'=>'Sunday',
+                ];
+                ?>
+
+                <?php if ($nap_windows): ?>
+                    <div class="bh-my-hub__nap-windows">
+                        <?php foreach ($nap_windows as $window): ?>
+                            <article class="bh-my-hub__nap-window">
+                                <div>
+                                    <strong><?php echo esc_html($window['child_name']); ?></strong>
+                                    <span><?php echo esc_html($day_labels[$window['day_name']] ?? ucfirst($window['day_name'])); ?></span>
+                                    <small><?php echo esc_html($window['start_time'] . '–' . $window['end_time']); ?></small>
+                                </div>
+                                <form method="post">
+                                    <?php wp_nonce_field('bh_my_hub_remove_nap_window', 'bh_my_hub_nonce'); ?>
+                                    <input type="hidden" name="bh_my_hub_action" value="remove_nap_window">
+                                    <input type="hidden" name="child_id" value="<?php echo esc_attr((string) $window['child_id']); ?>">
+                                    <input type="hidden" name="nap_index" value="<?php echo esc_attr((string) $window['index']); ?>">
+                                    <button type="submit">Remove</button>
+                                </form>
+                            </article>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <div class="bh-my-hub__coming">
+                        <strong>No nap windows added yet.</strong>
+                        <p>Add a nap window for a child to keep their usual routine handy.</p>
+                    </div>
+                <?php endif; ?>
+
+                <div class="bh-my-hub__modal" data-bh-modal-panel="nap-window" hidden>
+                    <div class="bh-my-hub__modal-backdrop" data-bh-modal-close></div>
+                    <div class="bh-my-hub__modal-dialog" role="dialog" aria-modal="true">
+                        <button type="button" class="bh-my-hub__modal-close" data-bh-modal-close aria-label="Close">×</button>
+                        <h3>Add new nap window</h3>
+                        <?php if ($nap_children): ?>
+                            <form method="post" class="bh-my-hub__form">
+                                <?php wp_nonce_field('bh_my_hub_save_nap_window', 'bh_my_hub_nonce'); ?>
+                                <input type="hidden" name="bh_my_hub_action" value="save_nap_window">
+                                <div class="bh-my-hub__fields">
+                                    <label>Child
+                                        <select name="nap_child_id" required>
+                                            <option value="">Select child</option>
+                                            <?php foreach ($nap_children as $nap_child): ?>
+                                                <option value="<?php echo esc_attr((string) $nap_child->ID); ?>"><?php echo esc_html((string) get_field('field_bubbahub_child_name', $nap_child->ID) ?: 'Child'); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </label>
+                                    <label>Day
+                                        <select name="nap_day" required>
+                                            <option value="">Select day</option>
+                                            <?php foreach ($day_labels as $day_key => $day_label): ?>
+                                                <option value="<?php echo esc_attr($day_key); ?>"><?php echo esc_html($day_label); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </label>
+                                    <label>Start time<input type="time" name="nap_start_time" required></label>
+                                    <label>End time<input type="time" name="nap_end_time" required></label>
+                                </div>
+                                <button class="bh-my-hub__button" type="submit">Save nap window</button>
+                            </form>
+                        <?php else: ?>
+                            <p class="bh-my-hub__muted">Add a child to your family first, then you can add their nap schedule.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
 
             <?php if ($saved): ?>
                 <div class="bh-my-hub__planner-days">
