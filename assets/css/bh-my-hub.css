@@ -682,3 +682,97 @@ body.bh-modal-open{overflow:hidden}
     min-width:calc(100vw - 55px);
   }
 }
+
+/* 2026 My Hub visual cleanup: keep the lower half as a calm dashboard,
+   not a stack of full-width boxes. */
+#bh-my-hub-groups{
+  padding:24px!important;
+}
+#bh-my-hub-groups>.bh-my-hub__card-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 0 18px;
+  margin:0 0 18px;
+  border-bottom:1px solid var(--bh-border-soft);
+}
+#bh-my-hub-groups>.bh-my-hub__card-head>div{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+#bh-my-hub-groups>.bh-my-hub__card-head h2{margin:0}
+#bh-my-hub-groups .bh-my-hub__group-rows{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:14px!important;
+}
+#bh-my-hub-groups .bh-my-hub__group-row{
+  min-width:0!important;
+  margin:0!important;
+  padding:16px!important;
+  border:1px solid var(--bh-border)!important;
+  border-radius:14px!important;
+  background:#fcfafc!important;
+  box-shadow:none!important;
+}
+#bh-my-hub-groups .bh-my-hub__group-row-head{
+  margin:0 0 12px!important;
+  padding:0!important;
+  border:0!important;
+}
+#bh-my-hub-groups .bh-my-hub__group-row-head h3{
+  font-size:.9rem!important;
+}
+#bh-my-hub-groups .bh-my-hub__group-scroll{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+  overflow:visible!important;
+  padding:0!important;
+}
+#bh-my-hub-groups .bh-my-hub__group-card{
+  width:auto!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:12px!important;
+  border:1px solid var(--bh-border-soft)!important;
+  border-radius:10px!important;
+  background:#fff!important;
+  box-shadow:none!important;
+}
+#bh-my-hub-groups .bh-my-hub__group-card strong{
+  display:-webkit-box!important;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  font-size:.79rem!important;
+}
+#bh-my-hub-groups .bh-my-hub__group-card p{
+  margin:3px 0 7px!important;
+  font-size:.68rem!important;
+}
+#bh-my-hub-groups .bh-my-hub__group-card a{font-size:.69rem!important}
+
+/* Empty states should feel like content, not oversized cards. */
+#bh-my-hub-groups .bh-my-hub__group-scroll>.bh-my-hub__group-card:only-child{
+  grid-column:1/-1;
+  background:transparent!important;
+  border:1px dashed #ddd5dd!important;
+}
+
+/* Keep modal markup completely out of the visual card flow. */
+.bh-my-hub__family-profile>.bh-my-hub__modal,
+.bh-my-hub__family-container>.bh-my-hub__modal{
+  position:fixed!important;
+  inset:0!important;
+  z-index:99999!important;
+}
+
+@media(max-width:900px){
+  #bh-my-hub-groups .bh-my-hub__group-rows{grid-template-columns:1fr!important}
+}
+@media(max-width:520px){
+  #bh-my-hub-groups{padding:18px!important}
+  #bh-my-hub-groups .bh-my-hub__group-scroll{grid-template-columns:1fr!important}
+}
