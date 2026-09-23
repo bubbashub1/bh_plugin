@@ -283,14 +283,14 @@ final class MyHub {
                     <option value="">Auto-calculate from date of birth</option>
                     <?php
                     $age_choices = [
-                        '0-3' => '0–3',
-                        '3-6' => '3–6',
-                        '6-9' => '6–9',
-                        '9-12' => '9–12',
-                        '1-3' => '1–3',
-                        '2-4' => '2–4',
-                        '3-5' => '3–5',
-                        '5-plus' => '5+',
+                        '0-3' => '0–3 months',
+                        '3-6' => '3–6 months',
+                        '6-9' => '6–9 months',
+                        '9-12' => '9–12 months',
+                        '1-3' => '1–3 years',
+                        '2-4' => '2–4 years',
+                        '3-5' => '3–5 years',
+                        '5-plus' => '5+ years',
                         'all' => 'All ages',
                     ];
                     foreach ($age_choices as $value => $label): ?>
