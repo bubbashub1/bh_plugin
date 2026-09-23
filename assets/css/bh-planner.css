@@ -27,7 +27,7 @@
 .bh-planner__day-column{position:relative;border-right:1px solid rgba(0,0,0,.07);background-image:linear-gradient(to bottom,rgba(0,0,0,.07) 1px,transparent 1px),linear-gradient(to bottom,rgba(0,0,0,.035) 1px,transparent 1px);background-size:100% calc(100% / 16),100% calc(100% / 32);background-position:0 0}
 .bh-planner__day-column.is-today{background-color:rgba(250,235,245,.25)}
 .bh-planner__slot-line{display:none}
-.bh-planner__event{position:absolute;left:4px;right:4px;top:var(--bh-event-top);height:var(--bh-event-height);box-sizing:border-box;padding:7px 8px;border-radius:9px;background:rgba(214,174,204,.92);color:inherit;text-decoration:none;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08);z-index:2;display:flex;flex-direction:column;gap:2px}
+.bh-planner__event{position:absolute;left:calc(4px + (var(--bh-event-lane,0) * (100% - 8px) / var(--bh-event-lanes,1)));width:calc((100% - 8px) / var(--bh-event-lanes,1) - 2px);right:auto;top:var(--bh-event-top);height:var(--bh-event-height);box-sizing:border-box;padding:7px 8px;border-radius:9px;background:rgba(214,174,204,.92);color:inherit;text-decoration:none;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08);z-index:2;display:flex;flex-direction:column;gap:2px}
 .bh-planner__event:hover{box-shadow:0 3px 10px rgba(0,0,0,.13);text-decoration:none}
 .bh-planner__event strong{font-size:.78rem;line-height:1.2}
 .bh-planner__event span,.bh-planner__event small{font-size:.68rem;line-height:1.2}
