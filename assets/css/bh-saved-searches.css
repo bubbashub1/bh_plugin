@@ -52,3 +52,5 @@
     .bh-saved-searches-modal__body .bh-directory-search__save-form{align-items:stretch;flex-direction:column}
     .bh-saved-searches-modal__body .bh-directory-search__save-form>*{width:100%;box-sizing:border-box}
 }
+
+.bh-saved-searches__share.is-sharing{opacity:.7;cursor:wait}
