@@ -101,6 +101,8 @@ final class Directory {
                 <h2><?php echo esc_html($atts['title']); ?></h2>
             </header>
 
+            <?php echo DirectorySearch::shortcode(); ?>
+
             <div class="bh-directory__layout">
                 <aside class="bh-directory__filters" aria-label="Directory filters">
                     <details class="bh-directory__filter-drawer">
@@ -110,7 +112,7 @@ final class Directory {
                             <span class="bh-directory__filter-toggle-chevron" aria-hidden="true">⌄</span>
                         </summary>
                         <div class="bh-directory__filter-panel" id="bh-directory-filter-panel">
-                            <?php echo DirectorySearch::shortcode(); ?>
+                            <p class="bh-directory__filter-help">Use the search above to find activities. More filters are available here.</p>
                         </div>
                     </details>
                 </aside>
