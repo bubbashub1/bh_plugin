@@ -224,7 +224,7 @@ final class DirectorySearch {
         return (string) ob_get_clean();
     }
 
-    private static function saved_search_criteria(string $url): array {
+    public static function saved_search_criteria(string $url): array {
         if ($url === '') {
             return [];
         }
