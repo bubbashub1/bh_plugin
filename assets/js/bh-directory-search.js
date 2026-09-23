@@ -306,3 +306,74 @@ function moveMoreFilters(){
 }
 document.addEventListener('DOMContentLoaded',moveMoreFilters);
 }());
+
+(function(){'use strict';
+function closeSearchPopovers(){
+ document.querySelectorAll('.bh-search-popover-panel[data-bh-popover-open="1"]').forEach(function(panel){
+  panel.hidden=true; panel.removeAttribute('data-bh-popover-open');
+ });
+ document.querySelectorAll('.bh-search-popover-trigger[aria-expanded="true"]').forEach(function(btn){btn.setAttribute('aria-expanded','false')});
+ var backdrop=document.querySelector('.bh-search-popover-backdrop'); if(backdrop) backdrop.remove();
+ document.body.classList.remove('bh-search-popover-open');
+}
+function positionPanel(trigger,panel){
+ var r=trigger.getBoundingClientRect(), gap=8;
+ var w=Math.min(560,window.innerWidth-32), left=Math.max(16,Math.min(r.left,window.innerWidth-w-16));
+ var top=r.bottom+gap;
+ if(top+panel.offsetHeight>window.innerHeight-16) top=Math.max(16,r.top-panel.offsetHeight-gap);
+ panel.style.left=left+'px'; panel.style.top=top+'px';
+}
+function openSearchPopover(trigger){
+ var field=trigger.closest('.bh-search-popover-field'); if(!field)return;
+ var key=trigger.getAttribute('data-bh-search-popover');
+ var panel=field.querySelector('[data-bh-popover-panel="'+key+'"]'); if(!panel)return;
+ closeSearchPopovers();
+ if(panel.parentNode!==document.body) document.body.appendChild(panel);
+ var backdrop=document.createElement('div'); backdrop.className='bh-search-popover-backdrop'; backdrop.addEventListener('click',closeSearchPopovers);
+ document.body.appendChild(backdrop);
+ panel.hidden=false; panel.setAttribute('data-bh-popover-open','1');
+ trigger.setAttribute('aria-expanded','true');
+ positionPanel(trigger,panel);
+ document.body.classList.add('bh-search-popover-open');
+ var input=panel.querySelector('[data-bh-search-input]');
+ if(input){input.focus(); input.select();}
+}
+function initSearchPopovers(){
+ document.querySelectorAll('[data-bh-search-popover]').forEach(function(trigger){
+  if(trigger.dataset.bhPopoverBound==='1')return;
+  trigger.dataset.bhPopoverBound='1';
+  trigger.addEventListener('click',function(e){e.preventDefault();openSearchPopover(trigger)});
+ });
+ document.querySelectorAll('[data-bh-choice-for]').forEach(function(choice){
+  if(choice.dataset.bhChoiceBound==='1')return;
+  choice.dataset.bhChoiceBound='1';
+  choice.addEventListener('click',function(){
+   var form=choice.closest('.bh-directory-search__form'); if(!form)return;
+   var field=form.querySelector('#'+choice.getAttribute('data-bh-choice-for')); if(!field)return;
+   field.value=choice.getAttribute('data-value')||'';
+   var trigger=choice.closest('.bh-search-popover-field')?.querySelector('.bh-search-popover-trigger');
+   if(trigger){var value=choice.textContent.trim(); var out=trigger.querySelector('.bh-search-popover-trigger__value'); if(out)out.textContent=value}
+   closeSearchPopovers();
+   submitFilters(form);
+  });
+ });
+ document.querySelectorAll('[data-bh-search-input]').forEach(function(input){
+  if(input.dataset.bhInputBound==='1')return;
+  input.dataset.bhInputBound='1';
+  input.addEventListener('input',function(){
+   var field=input.closest('.bh-search-popover-field'); var hidden=field?field.querySelector('input[name="bh_search"].bh-search-popover-value'):null;
+   if(!hidden)return;
+   hidden.value=input.value;
+   var out=field.querySelector('.bh-search-popover-trigger__value'); if(out)out.textContent=input.value||'Groups, classes, activities…';
+  });
+  input.addEventListener('keydown',function(e){
+   if(e.key==='Enter'){e.preventDefault();var form=input.closest('.bh-directory-search__form');if(form){closeSearchPopovers();submitFilters(form)}}
+  });
+ });
+ document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSearchPopovers()});
+ window.addEventListener('resize',function(){var panel=document.querySelector('.bh-search-popover-panel[data-bh-popover-open="1"]');var trigger=document.querySelector('.bh-search-popover-trigger[aria-expanded="true"]');if(panel&&trigger)positionPanel(trigger,panel)});
+}
+var oldInit=window.BubbaHubInitDirectorySearch;
+window.BubbaHubInitDirectorySearch=function(){if(typeof oldInit==='function')oldInit();initSearchPopovers()};
+document.addEventListener('DOMContentLoaded',initSearchPopovers);
+}());
