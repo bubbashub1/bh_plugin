@@ -88,12 +88,49 @@ final class DirectoryQuery {
         $location_taxonomy = defined('ATBDP_LOCATION') ? ATBDP_LOCATION : 'at_biz_dir-location';
 
         if (!empty($filters['region'])) {
-            $tax_query[] = [
-                'taxonomy' => $location_taxonomy,
-                'field' => 'slug',
-                'terms' => array_map('sanitize_title', (array) $filters['region']),
-                'include_children' => true,
-            ];
+            $region_terms = [];
+            foreach ((array) $filters['region'] as $region) {
+                $term = get_term_by('slug', sanitize_title($region), $location_taxonomy);
+                if ($term && !is_wp_error($term)) {
+                    $region_terms[] = (int) $term->term_id;
+                    $children = get_term_children((int) $term->term_id, $location_taxonomy);
+                    if (!is_wp_error($children)) {
+                        $region_terms = array_merge($region_terms, array_map('intval', $children));
+                    }
+                }
+            }
+            $region_terms = array_values(array_unique(array_filter($region_terms)));
+            if ($region_terms) {
+                $tax_query[] = [
+                    'taxonomy' => $location_taxonomy,
+                    'field' => 'term_id',
+                    'terms' => $region_terms,
+                    'include_children' => true,
+                ];
+            }
+        }
+
+        if (!empty($filters['saved_location'])) {
+            $saved_terms = [];
+            foreach ((array) $filters['saved_location'] as $location) {
+                $term = get_term_by('slug', sanitize_title($location), $location_taxonomy);
+                if ($term && !is_wp_error($term)) {
+                    $saved_terms[] = (int) $term->term_id;
+                    $children = get_term_children((int) $term->term_id, $location_taxonomy);
+                    if (!is_wp_error($children)) {
+                        $saved_terms = array_merge($saved_terms, array_map('intval', $children));
+                    }
+                }
+            }
+            $saved_terms = array_values(array_unique(array_filter($saved_terms)));
+            if ($saved_terms) {
+                $tax_query[] = [
+                    'taxonomy' => $location_taxonomy,
+                    'field' => 'term_id',
+                    'terms' => $saved_terms,
+                    'include_children' => true,
+                ];
+            }
         }
 
         if (!empty($filters['town'])) {
