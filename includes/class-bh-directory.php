@@ -220,6 +220,18 @@ final class Directory {
                                         <span class="bh-directory-card__cta">View activity</span>
                                     </div>
                                 </a>
+                                <?php if (is_user_logged_in()) :
+                                    $bh_saved = get_user_meta(get_current_user_id(), '_bh_saved_activities', true);
+                                    $bh_saved = is_array($bh_saved) ? array_map('absint', $bh_saved) : [];
+                                    $bh_is_saved = in_array((int) get_the_ID(), $bh_saved, true);
+                                ?>
+                                    <form method="post" class="bh-directory-card__save-form">
+                                        <?php wp_nonce_field('bh_my_hub_save_activity', 'bh_my_hub_nonce'); ?>
+                                        <input type="hidden" name="bh_my_hub_action" value="<?php echo esc_attr($bh_is_saved ? 'remove_activity' : 'save_activity'); ?>">
+                                        <input type="hidden" name="listing_id" value="<?php echo esc_attr((string) get_the_ID()); ?>">
+                                        <button type="submit" class="bh-directory-card__save<?php echo $bh_is_saved ? ' is-saved' : ''; ?>"><?php echo $bh_is_saved ? '♥ Saved' : '♡ Save to My Hub'; ?></button>
+                                    </form>
+                                <?php endif; ?>
                             </article>
                         <?php endwhile; ?>
                     </div>
