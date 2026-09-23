@@ -293,3 +293,16 @@ function initSaveSearchModal(){
 window.BubbaHubInitSaveSearchModal=initSaveSearchModal;
 document.addEventListener('DOMContentLoaded',initSaveSearchModal);
 }());
+
+(function(){'use strict';
+function moveMoreFilters(){
+ document.querySelectorAll('.bh-directory').forEach(function(directory){
+  var search=directory.querySelector('.bh-directory__search-top .bh-directory-search');
+  var advanced=search ? search.querySelector('.bh-directory-search__advanced') : null;
+  var panel=directory.querySelector('.bh-directory__filter-panel');
+  if(!advanced||!panel)return;
+  if(advanced.parentNode!==panel){panel.appendChild(advanced)}
+ });
+}
+document.addEventListener('DOMContentLoaded',moveMoreFilters);
+}());
