@@ -198,6 +198,87 @@ final class Planner {
         return $events;
     }
 
+    public static function export_ics(): void {
+        $view = self::view();
+        if (!self::is_calendar_view($view)) {
+            status_header(400);
+            exit;
+        }
+
+        $filters = [
+            'search' => isset($_GET['bh_search']) ? sanitize_text_field(wp_unslash($_GET['bh_search'])) : '',
+            'category' => isset($_GET['bh_category']) ? sanitize_title(wp_unslash($_GET['bh_category'])) : '',
+            'age_range' => isset($_GET['bh_age_range']) ? sanitize_text_field(wp_unslash($_GET['bh_age_range'])) : '',
+            'region' => isset($_GET['bh_region']) ? sanitize_title(wp_unslash($_GET['bh_region'])) : '',
+            'town' => isset($_GET['bh_town']) ? sanitize_title(wp_unslash($_GET['bh_town'])) : '',
+            'day' => isset($_GET['bh_day']) ? sanitize_title(wp_unslash($_GET['bh_day'])) : '',
+            'price' => isset($_GET['bh_price']) ? sanitize_text_field(wp_unslash($_GET['bh_price'])) : '',
+            'free_activity' => isset($_GET['bh_free_activity']) ? sanitize_text_field(wp_unslash($_GET['bh_free_activity'])) : '',
+            'all_results' => true,
+            'paged' => 1,
+        ];
+
+        $query = DirectoryQuery::run($filters);
+        [$start, $end] = self::range($view, self::date());
+        $events = self::events($query, $start, $end);
+
+        $lines = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'PRODID:-//Bubba Hub//Family Activity Calendar//EN',
+            'CALSCALE:GREGORIAN',
+            'METHOD:PUBLISH',
+            'X-WR-CALNAME:Bubba Hub - ' . self::ics_escape(self::title($view, self::date())),
+        ];
+
+        foreach ($events as $event) {
+            $event_start = self::event_datetime($event['date'], $event['start']);
+            $event_end = self::event_datetime($event['date'], $event['end']);
+            if (!$event_start || !$event_end) {
+                continue;
+            }
+
+            $uid = 'bh-' . md5($event['post_id'] . '|' . $event['date'] . '|' . $event['start'] . '|' . $event['end']) . '@bubbahub.co.uk';
+            $lines[] = 'BEGIN:VEVENT';
+            $lines[] = 'UID:' . $uid;
+            $lines[] = 'DTSTAMP:' . gmdate('Ymd\\THis\\Z');
+            $lines[] = 'DTSTART:' . $event_start->setTimezone(new \DateTimeZone('UTC'))->format('Ymd\\THis\\Z');
+            $lines[] = 'DTEND:' . $event_end->setTimezone(new \DateTimeZone('UTC'))->format('Ymd\\THis\\Z');
+            $lines[] = 'SUMMARY:' . self::ics_escape($event['title']);
+            $lines[] = 'DESCRIPTION:' . self::ics_escape($event['url']);
+            $lines[] = 'URL:' . self::ics_escape($event['url']);
+            $lines[] = 'END:VEVENT';
+        }
+
+        $lines[] = 'END:VCALENDAR';
+
+        nocache_headers();
+        header('Content-Type: text/calendar; charset=utf-8');
+        header('Content-Disposition: attachment; filename="bubba-hub-calendar.ics"');
+        echo implode("\r\n", $lines) . "\r\n";
+        exit;
+    }
+
+    private static function event_datetime(string $date, int $minutes): ?\DateTimeImmutable {
+        try {
+            $base = \DateTimeImmutable::createFromFormat('!Y-m-d', $date, wp_timezone());
+            if (!$base) {
+                return null;
+            }
+            return $base->setTime(intdiv($minutes, 60), $minutes % 60);
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    private static function ics_escape(string $value): string {
+        return str_replace(
+            ["\\", ";", ",", "\r", "\n"],
+            ["\\\\", "\\;", "\\,", "", "\\n"],
+            $value
+        );
+    }
+
     public static function render(string $view, \WP_Query $query): string {
         if (!self::is_calendar_view($view)) {
             return '';
