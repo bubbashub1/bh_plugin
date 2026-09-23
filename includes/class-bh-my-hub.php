@@ -8,6 +8,7 @@ final class MyHub {
 
     public static function register(): void {
         add_shortcode('bh_my_hub', [self::class, 'shortcode']);
+        add_shortcode('bh_planner', [self::class, 'planner_shortcode']);
         add_action('init', [self::class, 'handle_forms']);
         add_action('wp_enqueue_scripts', [self::class, 'assets']);
         add_action('wp_footer', [self::class, 'modal_script']);
@@ -37,7 +38,7 @@ final class MyHub {
         if (!$post instanceof \WP_Post) {
             return false;
         }
-        return has_shortcode((string) $post->post_content, 'bh_my_hub');
+        return has_shortcode((string) $post->post_content, 'bh_my_hub') || has_shortcode((string) $post->post_content, 'bh_planner');
     }
 
     public static function shortcode(): string {
@@ -67,7 +68,7 @@ final class MyHub {
             <nav class="bh-my-hub__quick-nav" aria-label="My Bubba Hub">
                 <a href="#bh-my-hub-family" class="bh-my-hub__quick-link bh-my-hub__quick-link--active"><span aria-hidden="true">👨‍👩‍👧</span><strong>My Family</strong><small>Children &amp; bumps</small></a>
                 <a href="#bh-my-hub-groups" class="bh-my-hub__quick-link"><span aria-hidden="true">🔎</span><strong>Find Activities</strong><small>Discover local groups</small></a>
-                <a href="#bh-my-hub-planner" class="bh-my-hub__quick-link"><span aria-hidden="true">📅</span><strong>My Planner</strong><small>Plan your week</small></a>
+                <a href="<?php echo esc_url(self::planner_url()); ?>" class="bh-my-hub__quick-link"><span aria-hidden="true">📅</span><strong>My Planner</strong><small>Plan your week</small></a>
                 <a href="<?php echo esc_url(DirectorySearch::saved_searches_url()); ?>" class="bh-my-hub__quick-link"><span aria-hidden="true">♡</span><strong>Saved Searches</strong><small>Quickly revisit searches</small></a>
             </nav>
 
@@ -255,8 +256,6 @@ final class MyHub {
                     </div>
                 </section>
 
-                <?php echo self::render_planner_section($user->ID); ?>
-
                 <section id="bh-my-hub-saved-searches" class="bh-my-hub__card bh-my-hub__card--wide">
                     <div class="bh-my-hub__saved-searches">
                         <div class="bh-my-hub__saved-searches-head">
@@ -283,6 +282,16 @@ final class MyHub {
         </div>
         <?php
         return (string) ob_get_clean();
+    }
+
+    public static function planner_shortcode(): string {
+        if (!is_user_logged_in()) {
+            $url = function_exists('um_get_core_page') ? um_get_core_page('login') : wp_login_url(get_permalink());
+            return '<div class="bh-my-hub bh-my-hub--login"><h2>My Planner</h2><p>Please log in to access your planner.</p><a class="bh-my-hub__button" href="' . esc_url($url) . '">Log in</a></div>';
+        }
+
+        $user = wp_get_current_user();
+        return '<div class="bh-my-hub bh-my-hub--planner"><div class="bh-my-hub__intro"><div><p class="bh-my-hub__eyebrow">My Bubba Hub</p><h1>My Planner</h1><p>Plan your family week from your saved activities.</p></div><a class="bh-my-hub__account-link" href="' . esc_url(self::my_hub_url()) . '">← My Family</a></div>' . self::render_planner_section($user->ID) . '</div>';
     }
 
     private static function child_fields(int $post_id = 0): void {
@@ -459,7 +468,7 @@ final class MyHub {
                     update_user_meta($user_id, '_bh_saved_activities', array_values(array_unique(array_map('absint', $saved))));
                 }
             }
-            wp_safe_redirect(self::my_hub_url() . '#bh-my-hub-planner');
+            wp_safe_redirect(self::planner_url());
             exit;
         }
 
@@ -482,7 +491,7 @@ final class MyHub {
                 if (!in_array($id, $planner[$date], true)) $planner[$date][] = $id;
                 update_user_meta($user_id, '_bh_planner_items', $planner);
             }
-            self::redirect_saved();
+            self::redirect_planner();
         }
 
         if ($action === 'remove_from_planner') {
@@ -497,7 +506,7 @@ final class MyHub {
                     update_user_meta($user_id, '_bh_planner_items', $planner);
                 }
             }
-            self::redirect_saved();
+            self::redirect_planner();
         }
 
         if ($action === 'delete_bump') {
@@ -900,6 +909,16 @@ final class MyHub {
         }
         echo '</div>';
         return (string) ob_get_clean();
+    }
+
+    private static function redirect_planner(): void {
+        wp_safe_redirect(self::planner_url());
+        exit;
+    }
+
+    private static function planner_url(): string {
+        $page = get_page_by_path('my-hub/planner');
+        return $page instanceof WP_Post ? get_permalink($page) : home_url('/my-hub/planner/');
     }
 
     private static function redirect_saved(): void {
