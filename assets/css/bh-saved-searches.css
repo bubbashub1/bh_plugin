@@ -4,7 +4,7 @@
 .bh-saved-searches h1,.bh-saved-searches h2{margin-top:0}
 .bh-saved-searches__intro h1{margin-bottom:8px}
 .bh-saved-searches__intro p:last-child{margin-bottom:0}
-.bh-saved-searches__back{display:inline-flex;align-items:center;justify-content:center;padding:11px 17px;border:1px solid currentColor;border-radius:10px;text-decoration:none}
+.bh-saved-searches__back{display:inline-flex;align-items:center;justify-content:center;padding:11px 17px;border:1px solid var(--wp--preset--color--contrast,#3b3b3b);border-radius:10px;text-decoration:none;color:var(--wp--preset--color--contrast,#3b3b3b)}
 .bh-saved-searches__notice{margin-bottom:20px;padding:12px 15px;border-radius:10px;background:rgba(0,0,0,.05)}
 .bh-saved-searches__list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 .bh-saved-searches__card{display:flex;flex-direction:column;justify-content:space-between;gap:20px;padding:20px;border-radius:16px;background:rgba(255,255,255,.78);box-shadow:0 4px 20px rgba(0,0,0,.05)}
@@ -15,7 +15,7 @@
 .bh-saved-searches__criteria dd{margin:0}
 .bh-saved-searches__empty-criteria{margin:0;opacity:.7;font-size:.9rem}
 .bh-saved-searches__actions{display:flex;align-items:center;gap:12px;flex:0 0 auto}
-.bh-saved-searches__button{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 16px;border:0;border-radius:10px;background:currentColor;color:#fff;text-decoration:none;cursor:pointer;font:inherit}
+.bh-saved-searches__button{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 16px;border:0;border-radius:10px;background:var(--wp--preset--color--contrast,#3b3b3b);color:var(--wp--preset--color--base,#fff);text-decoration:none!important;cursor:pointer;font:inherit;font-weight:600}
 .bh-saved-searches__delete{margin:0}
 .bh-saved-searches__delete button{border:0;background:none;padding:8px 2px;text-decoration:underline;cursor:pointer;font:inherit}
 .bh-saved-searches__empty{text-align:center;padding:30px 20px;border-radius:16px;background:rgba(0,0,0,.035)}
