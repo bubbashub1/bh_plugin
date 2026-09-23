@@ -24,6 +24,21 @@ final class Planner {
         return in_array($view, self::VIEWS, true);
     }
 
+    private static function current_filter_args(): array {
+        $keys = ['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_day','bh_price','bh_free_activity'];
+        $args = [];
+        foreach ($keys as $key) {
+            if (isset($_GET[$key]) && is_scalar($_GET[$key])) {
+                $value = wp_unslash($_GET[$key]);
+                if ($value !== '') {
+                    $args[$key] = sanitize_text_field($value);
+                }
+            }
+        }
+        return $args;
+    }
+
+
     public static function date(): \DateTimeImmutable {
         $raw = isset($_GET['bh_date']) ? sanitize_text_field(wp_unslash($_GET['bh_date'])) : '';
         $timezone = wp_timezone();
@@ -81,21 +96,21 @@ final class Planner {
             };
         }
 
-        $args = [
-            'bh_view' => $view,
-            'bh_date' => $target->format('Y-m-d'),
-            'bh_page' => false,
-        ];
+        $args = self::current_filter_args();
+        $args['bh_view'] = $view;
+        $args['bh_date'] = $target->format('Y-m-d');
+        $args['bh_page'] = false;
 
         return add_query_arg($args);
     }
 
     public static function view_url(string $view): string {
-        return add_query_arg([
-            'bh_view' => $view,
-            'bh_date' => false,
-            'bh_page' => false,
-        ]);
+        $args = self::current_filter_args();
+        $args['bh_view'] = $view;
+        $args['bh_date'] = false;
+        $args['bh_page'] = false;
+
+        return add_query_arg($args);
     }
 
     public static function events(\WP_Query $query, \DateTimeImmutable $start, \DateTimeImmutable $end): array {
