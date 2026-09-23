@@ -11,6 +11,7 @@ final class MyHub {
         add_shortcode('bh_planner', [self::class, 'planner_shortcode']);
         add_action('init', [self::class, 'handle_forms']);
         add_action('wp_enqueue_scripts', [self::class, 'assets']);
+        add_action('wp_enqueue_scripts', [self::class, 'visited_assets']);
         add_action('wp_footer', [self::class, 'modal_script']);
         // Directorist visited-listing integration (read/write only in Bubba Hub user meta).
         add_action('atbdp_after_listing_tagline', [self::class, 'render_visited_listing_controls'], 20);
@@ -34,6 +35,18 @@ final class MyHub {
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('bh_edit_saved_search'),
         ]);
+    }
+
+    public static function visited_assets(): void {
+        global $post;
+        $load = is_singular('at_biz_dir') || is_post_type_archive('at_biz_dir');
+        if (!$load && $post instanceof \WP_Post) {
+            foreach (['directorist_all_listing','directorist_search_result','directorist_category','directorist_location','directorist_tag'] as $shortcode) {
+                if (has_shortcode((string) $post->post_content, $shortcode)) { $load = true; break; }
+            }
+        }
+        if (!$load) { return; }
+        wp_enqueue_style('bh-visited-listing', BH_PLUGIN_URL . 'assets/css/bh-visited.css', [], BH_PLUGIN_VERSION);
     }
 
     private static function is_my_hub_page(): bool {
