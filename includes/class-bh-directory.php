@@ -107,7 +107,7 @@ final class Directory {
                 <aside class="bh-directory__filters" aria-label="Directory filters">
                     <details class="bh-directory__filter-drawer">
                         <summary class="bh-directory__filter-toggle">
-                            <span class="bh-directory__filter-toggle-icon" aria-hidden="true">⚙</span>
+                            <span class="bh-directory__filter-toggle-icon" aria-hidden="true">☷</span>
                             <span>Filter activities</span>
                             <span class="bh-directory__filter-toggle-chevron" aria-hidden="true">⌄</span>
                         </summary>
