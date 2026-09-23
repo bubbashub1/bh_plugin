@@ -165,12 +165,10 @@ final class MyHub {
                             </form>
                         </div>
                     </div>
-                    </div>
-
-                    <div class="bh-my-hub__family-bumps">
-
                     <?php if ($bumps): ?>
-                        <div class="bh-my-hub__profiles">
+                        <?php if (!$children): ?>
+                            <div class="bh-my-hub__profiles">
+                        <?php endif; ?>
                             <?php foreach ($bumps as $bump): ?>
                                 <?php
                                 $bump_id = (int) $bump->ID;
@@ -228,9 +226,13 @@ final class MyHub {
                                     </div>
                                 </div>
                             <?php endforeach; ?>
-                        </div>
+                        <?php if (!$children): ?>
+                            </div>
+                        <?php endif; ?>
                     <?php else: ?>
-                        <p class="bh-my-hub__muted">Add a bump if you're expecting. You can add more than one for a multiple pregnancy.</p>
+                        <?php if (!$children): ?>
+                            <div class="bh-my-hub__muted">Add a bump if you're expecting. You can add more than one for a multiple pregnancy.</div>
+                        <?php endif; ?>
                     <?php endif; ?>
 
                     <div class="bh-my-hub__modal" data-bh-modal-panel="add-bump" hidden>
