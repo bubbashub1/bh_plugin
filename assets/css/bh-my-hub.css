@@ -253,3 +253,12 @@ body.bh-modal-open{overflow:hidden}
 }
 .bh-my-hub__group-row-head{margin-bottom:10px}
 .bh-my-hub__group-scroll{margin:0}
+
+
+/* Directorist listing: Bubba Hub personal Visited state */
+.bh-visited-listing{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0}
+.bh-visited-listing__form{margin:0}
+.bh-visited-listing__button{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:7px 11px;border:1px solid #6f5aa8;border-radius:999px;background:#fff;color:#6f5aa8;font:inherit;font-size:.78rem;font-weight:700;line-height:1.2;cursor:pointer}
+.bh-visited-listing__button:hover{background:#f8f4fb}
+.bh-visited-listing__button--remove{border-color:rgba(0,0,0,.12);color:inherit;background:transparent;font-weight:600}
+.bh-visited-listing__badge{display:inline-flex;align-items:center;min-height:30px;padding:6px 10px;border-radius:999px;background:#eee8f7;color:#5d4a8f;font-size:.78rem;font-weight:700;line-height:1.2}
