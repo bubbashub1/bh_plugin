@@ -201,6 +201,7 @@ final class DirectorySearch {
                                 <?php if ($url): ?>
                                     <button class="bh-saved-searches__button bh-saved-searches__edit" type="button" data-bh-edit-search="<?php echo esc_attr($search_id); ?>">Edit</button>
                                     <a class="bh-saved-searches__button" href="<?php echo esc_url($url); ?>">Search Again</a>
+                                    <button class="bh-saved-searches__button bh-saved-searches__share" type="button" data-bh-share-url="<?php echo esc_attr($url); ?>" data-bh-share-name="<?php echo esc_attr($name); ?>">Share</button>
                                 <?php endif; ?>
                                 <form method="post" class="bh-saved-searches__delete">
                                     <?php wp_nonce_field('bh_delete_saved_search', 'bh_delete_saved_search_nonce'); ?>
@@ -389,7 +390,6 @@ final class DirectorySearch {
                 <input type="hidden" name="bh_view" value="<?php echo esc_attr(isset($_GET['bh_view']) ? sanitize_key(wp_unslash($_GET['bh_view'])) : ''); ?>">
                 <input type="hidden" name="bh_date" value="<?php echo esc_attr(isset($_GET['bh_date']) ? sanitize_text_field(wp_unslash($_GET['bh_date'])) : ''); ?>">
                 <?php if (isset($_GET['bh_saved_search_path'])) : ?><input type="hidden" name="bh_saved_search_path" value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['bh_saved_search_path']))); ?>"><?php endif; ?>
-                <div class="bh-directory-search__main-heading"><h3>Main Search</h3></div>
                 <div class="bh-directory-search__field bh-directory-search__field--search">
                     <label for="bh-search">Search</label>
                     <input id="bh-search" name="bh_search" type="search" value="<?php echo esc_attr($values['search']); ?>" placeholder="Search activities">
@@ -496,7 +496,7 @@ final class DirectorySearch {
                         <input type="hidden" name="bh_edit_saved_search_id" value="<?php echo esc_attr(isset($_GET['bh_edit_saved_search_id']) ? sanitize_text_field(wp_unslash($_GET['bh_edit_saved_search_id'])) : ''); ?>">
                         <?php if (isset($_GET['bh_saved_search_path'])) : ?><input type="hidden" name="bh_saved_search_path" value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['bh_saved_search_path']))); ?>"><?php endif; ?>
                         <input type="hidden" name="bh_saved_search_url" value="<?php echo esc_attr($save_url); ?>">
-                        <?php foreach (['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_day','bh_price','bh_free_activity','bh_view','bh_date'] as $saved_key) : ?>
+                        <?php foreach (['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_saved_location','bh_day','bh_price','bh_free_activity','bh_view','bh_date'] as $saved_key) : ?>
                             <?php if (isset($_GET[$saved_key])) : ?>
                                 <input type="hidden" name="<?php echo esc_attr($saved_key); ?>" value="<?php echo esc_attr(is_array($_GET[$saved_key]) ? '' : sanitize_text_field(wp_unslash($_GET[$saved_key]))); ?>">
                             <?php endif; ?>
