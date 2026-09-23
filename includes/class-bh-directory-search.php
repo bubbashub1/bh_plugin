@@ -232,6 +232,11 @@ final class DirectorySearch {
         return (string) ob_get_clean();
     }
 
+    private static function my_hub_url(): string {
+        $page = get_page_by_path('my-hub');
+        return $page instanceof \WP_Post ? get_permalink($page) : home_url('/my-hub/');
+    }
+
     private static function categories(): array {
         $terms = get_terms([
             'taxonomy' => 'at_biz_dir-category',
