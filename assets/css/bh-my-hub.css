@@ -164,3 +164,33 @@ body.bh-modal-open{overflow:hidden}
 .bh-my-hub__saved-search-cards>.bh-saved-searches__card,
 .bh-my-hub__saved-search-cards>.bh-my-hub__saved-search-card{flex-basis:calc(100vw - 70px);min-width:calc(100vw - 70px)}
 }
+
+
+/* Smoothly align bump cards with child cards */
+.bh-my-hub__family-panel .bh-my-hub__profiles>.bh-my-hub__bump-profile{
+    min-height:170px;
+    box-sizing:border-box;
+    align-content:start;
+}
+.bh-my-hub__family-panel .bh-my-hub__profiles>.bh-my-hub__bump-profile .bh-my-hub__avatar{
+    grid-column:1;
+    grid-row:1;
+}
+.bh-my-hub__family-panel .bh-my-hub__profiles>.bh-my-hub__bump-profile>strong{
+    grid-column:2;
+    grid-row:1;
+    align-self:center;
+}
+.bh-my-hub__family-panel .bh-my-hub__profiles>.bh-my-hub__bump-profile>span:not(.bh-my-hub__avatar){
+    grid-column:2;
+    grid-row:2;
+    align-self:start;
+}
+.bh-my-hub__family-panel .bh-my-hub__profiles>.bh-my-hub__bump-profile .bh-my-hub__antenatal-tracker{
+    grid-column:1/-1;
+    margin-top:2px;
+}
+.bh-my-hub__family-panel .bh-my-hub__profiles>.bh-my-hub__bump-profile .bh-my-hub__profile-actions{
+    grid-column:1/-1;
+    margin-top:auto;
+}
