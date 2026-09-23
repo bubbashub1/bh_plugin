@@ -27,23 +27,28 @@ final class DirectorySearch {
         check_admin_referer('bh_save_directory_search', 'bh_saved_search_nonce');
 
         $name = sanitize_text_field(wp_unslash($_POST['bh_saved_search_name'] ?? ''));
-        $url = esc_url_raw(wp_unslash($_POST['bh_saved_search_url'] ?? ''));
         if ($name === '') {
             $name = 'Saved search';
         }
-        $url = wp_validate_redirect($url, home_url('/'));
 
+        // Build the saved URL from the current site request rather than trusting
+        // the hidden form URL. This keeps the saved search on this site and
+        // preserves the active filters, planner view and selected date.
         $allowed = ['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_day','bh_price','bh_free_activity','bh_view','bh_date'];
-        $parts = wp_parse_url($url);
         $query = [];
-        if (!empty($parts['query'])) {
-            parse_str($parts['query'], $query);
+        foreach ($allowed as $key) {
+            if (isset($_POST[$key])) {
+                $value = wp_unslash($_POST[$key]);
+                $query[$key] = is_array($value) ? array_map('sanitize_text_field', $value) : sanitize_text_field($value);
+            } elseif (isset($_GET[$key])) {
+                $value = wp_unslash($_GET[$key]);
+                $query[$key] = is_array($value) ? array_map('sanitize_text_field', $value) : sanitize_text_field($value);
+            }
         }
-        $query = array_intersect_key($query, array_flip($allowed));
         $query = array_filter($query, static function ($value): bool {
             return is_array($value) ? !empty($value) : trim((string) $value) !== '';
         });
-        $path = !empty($parts['path']) ? $parts['path'] : '/';
+        $path = wp_parse_url(wp_unslash($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/';
         $saved_url = home_url($path);
         if ($query) {
             $saved_url = add_query_arg($query, $saved_url);
@@ -209,6 +214,11 @@ final class DirectorySearch {
                         <?php wp_nonce_field('bh_save_directory_search', 'bh_saved_search_nonce'); ?>
                         <input type="hidden" name="bh_saved_search_action" value="save">
                         <input type="hidden" name="bh_saved_search_url" value="<?php echo esc_attr($save_url); ?>">
+                        <?php foreach (['bh_search','bh_category','bh_age_range','bh_region','bh_town','bh_day','bh_price','bh_free_activity','bh_view','bh_date'] as $saved_key) : ?>
+                            <?php if (isset($_GET[$saved_key])) : ?>
+                                <input type="hidden" name="<?php echo esc_attr($saved_key); ?>" value="<?php echo esc_attr(is_array($_GET[$saved_key]) ? '' : sanitize_text_field(wp_unslash($_GET[$saved_key]))); ?>">
+                            <?php endif; ?>
+                        <?php endforeach; ?>
                         <input id="bh-saved-search-name" name="bh_saved_search_name" type="text" maxlength="80" placeholder="e.g. Baby groups near me" required>
                         <button type="submit">Save search</button>
                     </form>
