@@ -201,7 +201,7 @@ final class DirectorySearch {
                                 <?php if ($url): ?>
                                     <button class="bh-saved-searches__button bh-saved-searches__edit" type="button" data-bh-edit-search="<?php echo esc_attr($search_id); ?>">Edit</button>
                                     <a class="bh-saved-searches__button" href="<?php echo esc_url($url); ?>">Search Again</a>
-                                    <button class="bh-saved-searches__button bh-saved-searches__share" type="button" data-bh-share-url="<?php echo esc_attr($url); ?>" data-bh-share-name="<?php echo esc_attr($name); ?>">Share</button>
+                                    <button class="bh-saved-searches__button bh-saved-searches__share" type="button" data-bh-share-url="<?php echo esc_attr($url); ?>" data-bh-share-name="<?php echo esc_attr($name); ?>" data-bh-admin-share="<?php echo current_user_can('manage_options') ? '1' : '0'; ?>">Share</button>
                                 <?php endif; ?>
                                 <form method="post" class="bh-saved-searches__delete">
                                     <?php wp_nonce_field('bh_delete_saved_search', 'bh_delete_saved_search_nonce'); ?>
