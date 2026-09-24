@@ -10,6 +10,7 @@ final class MyHub {
         add_shortcode('bh_my_hub', [self::class, 'shortcode']);
         add_shortcode('bh_planner', [self::class, 'planner_shortcode']);
         add_shortcode('bh_advanced_settings', [self::class, 'advanced_settings_shortcode']);
+        add_shortcode('bh_account_settings', [self::class, 'advanced_settings_shortcode']);
         add_action('init', [self::class, 'handle_forms']);
         add_action('init', [self::class, 'handle_advanced_settings']);
         add_action('wp_enqueue_scripts', [self::class, 'assets']);
@@ -1496,6 +1497,21 @@ final class MyHub {
         exit;
     }
 
+    private static function account_settings_url(): string {
+        global $post;
+        if ($post instanceof \WP_Post && has_shortcode((string) $post->post_content, 'bh_account_settings')) return get_permalink($post);
+        $page = get_page_by_path('account-settings');
+        return $page instanceof \WP_Post ? get_permalink($page) : home_url('/account-settings/');
+    }
+
+    private static function ultimate_member_account_url(): string {
+        if (function_exists('um_get_core_page')) {
+            $url = um_get_core_page('account');
+            if ($url) return (string) $url;
+        }
+        return '';
+    }
+
     public static function advanced_settings_shortcode(): string {
         if (!is_user_logged_in()) {
             $url = function_exists('um_get_core_page') ? um_get_core_page('login') : wp_login_url();
@@ -1514,12 +1530,12 @@ final class MyHub {
         $directorist_active = function_exists('directorist_get_user_favorites') || post_type_exists('at_biz_dir');
 
         ob_start(); ?>
-        <div class="bh-my-hub bh-my-hub--settings">
+        <div class="bh-my-hub bh-my-hub--settings bh-my-hub--account-settings">
             <div class="bh-my-hub__intro">
                 <div>
-                    <p class="bh-my-hub__eyebrow">My Bubba Hub</p>
-                    <h1>Advanced Settings</h1>
-                    <p>Manage your profile, family preferences and how your Bubba Hub account connects with the directory.</p>
+                    <p class="bh-my-hub__eyebrow">Your Account</p>
+                    <h1>Account Settings</h1>
+                    <p>One place for your Bubba Hub, family, directory and account settings.</p>
                 </div>
                 <a class="bh-my-hub__account-link" href="<?php echo esc_url(self::my_hub_url()); ?>">Back to My Hub</a>
             </div>
@@ -1574,7 +1590,7 @@ final class MyHub {
 
                 <section class="bh-my-hub__settings-card">
                     <div class="bh-my-hub__settings-heading">
-                        <span class="bh-my-hub__icon" aria-hidden="true">🔔</span>
+                        <span class="bh-my-hub__icon" aria-hidden="true">🔐</span>
                         <div><h2>Notifications</h2><p>Control general Bubba Hub email updates. More notification types can be added here later.</p></div>
                     </div>
                     <label class="bh-my-hub__setting-switch">
@@ -1586,26 +1602,33 @@ final class MyHub {
                 <section class="bh-my-hub__settings-card bh-my-hub__settings-card--directorist">
                     <div class="bh-my-hub__settings-heading">
                         <span class="bh-my-hub__icon" aria-hidden="true">🔎</span>
-                        <div><h2>Directorist Profile</h2><p>One account, shared identity. Your Bubba Hub profile uses your WordPress user account, which keeps it compatible with Directorist.</p></div>
+                        <div><h2>Directory Profile</h2><p>Your identity is shared across Bubba Hub and Directorist through the same WordPress account. Directory-specific fields can be added here as we build them.</p></div>
                     </div>
                     <div class="bh-my-hub__integration-status">
                         <span class="bh-my-hub__integration-dot <?php echo $directorist_active ? 'is-connected' : ''; ?>" aria-hidden="true"></span>
                         <div>
-                            <strong><?php echo $directorist_active ? 'Directorist detected' : 'Directorist not detected'; ?></strong>
-                            <p><?php echo $directorist_active ? 'Your name, display name, bio and website are saved to the shared WordPress account used by Directorist.' : 'You can still use Bubba Hub settings. Directorist-specific features will become available when Directorist is active.'; ?></p>
+                            <strong><?php echo $directorist_active ? 'Directorist connected' : 'Directory features available when enabled'; ?></strong>
+                            <p>Basic profile details above are saved to the shared account, so they do not need to be maintained separately in Bubba Hub.</p>
                         </div>
                     </div>
-                    <?php if ($directorist_active): ?>
-                        <div class="bh-my-hub__settings-links">
+                    <div class="bh-my-hub__settings-links">
+                        <?php if ($directorist_active): ?>
                             <a class="bh-my-hub__button bh-my-hub__button--outline" href="<?php echo esc_url(get_author_posts_url($user->ID)); ?>">View public profile</a>
-                        </div>
-                    <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
                 </section>
 
-                <section class="bh-my-hub__settings-card">
+                <section class="bh-my-hub__settings-card bh-my-hub__settings-card--account">
                     <div class="bh-my-hub__settings-heading">
-                        <span class="bh-my-hub__icon" aria-hidden="true">⚙️</span>
-                        <div><h2>Account</h2><p>Core account information. Password and login security should continue to be managed by WordPress or your membership system.</p></div>
+                        <span class="bh-my-hub__icon" aria-hidden="true">🛡️</span>
+                        <div><h2>Account & Security</h2><p>Account-wide controls belong here for every Bubba Hub user type. Ultimate Member remains the owner of login/security actions where it provides them.</p></div>
+                    </div>
+                    <div class="bh-my-hub__account-actions">
+                        <?php $um_account_url = self::ultimate_member_account_url(); ?>
+                        <?php if ($um_account_url): ?>
+                            <a class="bh-my-hub__account-action" href="<?php echo esc_url($um_account_url); ?>"><strong>Ultimate Member account</strong><span>Manage password, security and any Ultimate Member-specific account fields.</span></a>
+                        <?php endif; ?>
+                        <a class="bh-my-hub__account-action" href="<?php echo esc_url(self::my_hub_url()); ?>"><strong>My Hub</strong><span>Return to your family, planner, saved searches and directory activity.</span></a>
                     </div>
                     <dl class="bh-my-hub__account-details">
                         <div><dt>Email</dt><dd><?php echo esc_html($user->user_email); ?></dd></div>
