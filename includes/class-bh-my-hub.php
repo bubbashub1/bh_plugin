@@ -60,7 +60,7 @@ final class MyHub {
         if (!$post instanceof \WP_Post) {
             return false;
         }
-        return has_shortcode((string) $post->post_content, 'bh_my_hub') || has_shortcode((string) $post->post_content, 'bh_planner') || has_shortcode((string) $post->post_content, 'bh_advanced_settings');
+        return has_shortcode((string) $post->post_content, 'bh_my_hub') || has_shortcode((string) $post->post_content, 'bh_planner') || has_shortcode((string) $post->post_content, 'bh_advanced_settings') || has_shortcode((string) $post->post_content, 'bh_account_settings');
     }
 
     /**
@@ -709,7 +709,7 @@ final class MyHub {
         }
 
         $user = wp_get_current_user();
-        return '<div class="bh-planner"><div class="bh-my-hub__intro"><div><p class="bh-my-hub__eyebrow">My Bubba Hub</p><h1>My Planner</h1><p>Plan your family week from your saved activities.</p></div><a class="bh-my-hub__account-link" href="' . esc_url(self::my_hub_url()) . '">← My Family</a></div>' . self::render_planner_section($user->ID) . '</div>';
+        return self::render_planner_section($user->ID);
     }
 
     private static function child_fields(int $post_id = 0): void {
@@ -1463,6 +1463,12 @@ final class MyHub {
         ];
         update_user_meta($user_id, '_bh_advanced_settings', $settings);
 
+        $valid_planner_days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+        $hidden_planner_days = isset($_POST['planner_hidden_days']) && is_array($_POST['planner_hidden_days'])
+            ? array_values(array_intersect($valid_planner_days, array_map('sanitize_key', wp_unslash($_POST['planner_hidden_days']))))
+            : [];
+        update_user_meta($user_id, '_bh_planner_preferences', ['hidden_days' => $hidden_planner_days]);
+
         $redirect = wp_get_referer() ?: self::my_hub_url();
         wp_safe_redirect(add_query_arg('bh_settings_saved', '1', remove_query_arg('bh_settings_saved', $redirect)));
         exit;
@@ -1497,6 +1503,14 @@ final class MyHub {
         $directory_visibility = ($settings['directory_visibility'] ?? 'public') === 'public';
         $email_updates = ($settings['email_updates'] ?? 'yes') === 'yes';
         $family_personalisation = ($settings['family_personalisation'] ?? 'yes') === 'yes';
+        $planner_preferences = get_user_meta($user->ID, '_bh_planner_preferences', true);
+        $hidden_planner_days = is_array($planner_preferences) && !empty($planner_preferences['hidden_days'])
+            ? array_values(array_intersect(['monday','tuesday','wednesday','thursday','friday','saturday','sunday'], array_map('sanitize_key', (array) $planner_preferences['hidden_days'])))
+            : [];
+        $planner_days = [
+            'monday' => 'Monday', 'tuesday' => 'Tuesday', 'wednesday' => 'Wednesday',
+            'thursday' => 'Thursday', 'friday' => 'Friday', 'saturday' => 'Saturday', 'sunday' => 'Sunday',
+        ];
 
         $directorist_active = function_exists('directorist_get_user_favorites') || post_type_exists('at_biz_dir');
 
@@ -1519,6 +1533,7 @@ final class MyHub {
                 <button type="button" class="bh-my-hub__settings-tab is-active" role="tab" aria-selected="true" aria-controls="bh-settings-panel-profile" data-bh-settings-tab="profile" id="bh-settings-tab-profile">Profile</button>
                 <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-family" data-bh-settings-tab="family" id="bh-settings-tab-family">Family Hub</button>
                 <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-privacy" data-bh-settings-tab="privacy" id="bh-settings-tab-privacy">Privacy</button>
+                <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-planner" data-bh-settings-tab="planner" id="bh-settings-tab-planner">My Planner</button>
                 <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-notifications" data-bh-settings-tab="notifications" id="bh-settings-tab-notifications">Notifications</button>
                 <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-directory" data-bh-settings-tab="directory" id="bh-settings-tab-directory">Directory</button>
                 <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-account" data-bh-settings-tab="account" id="bh-settings-tab-account">Account & Security</button>
@@ -1551,6 +1566,22 @@ final class MyHub {
                         <input type="checkbox" name="family_personalisation" value="1" <?php checked($family_personalisation); ?>>
                         <span><strong>Family personalisation</strong><small>Use your family details to personalise My Hub, planning and family-related features.</small></span>
                     </label>
+                </section>
+
+                <section id="bh-settings-panel-planner" class="bh-my-hub__settings-card bh-my-hub__settings-panel" data-bh-settings-panel="planner" role="tabpanel" aria-labelledby="bh-settings-tab-planner" hidden>
+                    <div class="bh-my-hub__settings-heading">
+                        <span class="bh-my-hub__icon" aria-hidden="true">🗓️</span>
+                        <div><h2>My Planner Preferences</h2><p>Choose which days appear in your weekly planner. Hiding a day does not delete any activities planned for it.</p></div>
+                    </div>
+                    <div class="bh-my-hub__planner-preference-days">
+                        <?php foreach ($planner_days as $day_key => $day_label): ?>
+                            <label class="bh-my-hub__setting-switch">
+                                <input type="checkbox" name="planner_hidden_days[]" value="<?php echo esc_attr($day_key); ?>" <?php checked(in_array($day_key, $hidden_planner_days, true)); ?>>
+                                <span><strong>Hide <?php echo esc_html($day_label); ?></strong><small>Remove this day from the Planner view only.</small></span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                    <p class="bh-my-hub__settings-help">Tip: hide weekends if you mainly use Bubba Hub for weekday groups.</p>
                 </section>
 
                 <section id="bh-settings-panel-privacy" class="bh-my-hub__settings-card bh-my-hub__settings-panel" data-bh-settings-panel="privacy" role="tabpanel" aria-labelledby="bh-settings-tab-privacy" hidden>
