@@ -1424,63 +1424,68 @@ body.bh-modal-open{overflow:hidden}
 }
 
 
-/* Family Hub horizontal child-card rail */
-#bh-my-hub-family > .bh-my-hub__profiles{
+/* Family Hub child-card horizontal rail
+ * Children live in their own container so they stay in one row and scroll
+ * horizontally without pulling expected-baby cards into the same rail.
+ */
+.bh-my-hub #bh-my-hub-family > .bh-my-hub__profiles--children{
   display:flex!important;
-  flex-wrap:nowrap!important;
+  flex-flow:row nowrap!important;
   align-items:stretch!important;
+  justify-content:flex-start!important;
   gap:16px!important;
   width:100%!important;
+  max-width:100%!important;
+  margin:0!important;
+  padding:2px 2px 14px!important;
   overflow-x:auto!important;
   overflow-y:hidden!important;
-  padding:2px 2px 12px!important;
-  margin:0!important;
   -webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;
+  touch-action:pan-x;
   scroll-snap-type:x proximity;
   scrollbar-width:thin;
+  scrollbar-gutter:stable;
+  grid-template-columns:none!important;
 }
 
-#bh-my-hub-family > .bh-my-hub__profiles > .bh-my-hub__family-profile-card{
+.bh-my-hub #bh-my-hub-family > .bh-my-hub__profiles--children > .bh-my-hub__family-profile-card{
+  display:flex!important;
   flex:0 0 300px!important;
   width:300px!important;
-  max-width:300px!important;
   min-width:300px!important;
+  max-width:300px!important;
   scroll-snap-align:start;
 }
 
-#bh-my-hub-family > .bh-my-hub__profiles > .bh-my-hub__family-profile-card--child,
-#bh-my-hub-family > .bh-my-hub__profiles > .bh-my-hub__family-profile--child{
-  flex:0 0 300px!important;
-  width:300px!important;
-  min-width:300px!important;
+/* Keep bump cards in the normal Family Hub layout. */
+.bh-my-hub #bh-my-hub-family > .bh-my-hub__profiles--bumps{
+  margin-top:16px!important;
 }
 
 @media(max-width:760px){
-  #bh-my-hub-family > .bh-my-hub__profiles{
+  .bh-my-hub #bh-my-hub-family > .bh-my-hub__profiles--children{
     display:flex!important;
-    flex-wrap:nowrap!important;
+    flex-flow:row nowrap!important;
+    gap:13px!important;
     overflow-x:auto!important;
     overflow-y:hidden!important;
-    gap:13px!important;
+    padding-bottom:13px!important;
   }
 
-  #bh-my-hub-family > .bh-my-hub__profiles > .bh-my-hub__family-profile-card,
-  #bh-my-hub-family > .bh-my-hub__profiles > .bh-my-hub__family-profile--child,
-  #bh-my-hub-family > .bh-my-hub__profiles > .bh-my-hub__family-profile--bump{
+  .bh-my-hub #bh-my-hub-family > .bh-my-hub__profiles--children > .bh-my-hub__family-profile-card{
     flex:0 0 280px!important;
     width:280px!important;
-    max-width:280px!important;
     min-width:280px!important;
+    max-width:280px!important;
   }
 }
 
 @media(max-width:520px){
-  #bh-my-hub-family > .bh-my-hub__profiles > .bh-my-hub__family-profile-card,
-  #bh-my-hub-family > .bh-my-hub__profiles > .bh-my-hub__family-profile--child,
-  #bh-my-hub-family > .bh-my-hub__profiles > .bh-my-hub__family-profile--bump{
-    flex-basis:270px!important;
+  .bh-my-hub #bh-my-hub-family > .bh-my-hub__profiles--children > .bh-my-hub__family-profile-card{
+    flex:0 0 270px!important;
     width:270px!important;
-    max-width:270px!important;
     min-width:270px!important;
+    max-width:270px!important;
   }
 }
