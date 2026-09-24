@@ -1545,12 +1545,12 @@ final class MyHub {
             <?php endif; ?>
 
             <nav class="bh-my-hub__settings-tabs" role="tablist" aria-label="Account settings sections">
-                <button type="button" class="bh-my-hub__settings-tab is-active" role="tab" aria-selected="true" aria-controls="bh-settings-panel-profile" data-bh-settings-tab="profile" id="bh-settings-tab-profile">Profile<//button>
-                <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-family" data-bh-settings-tab="family" id="bh-settings-tab-family">Family Hub<//button>
-                <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-privacy" data-bh-settings-tab="privacy" id="bh-settings-tab-privacy">Privacy<//button>
-                <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-notifications" data-bh-settings-tab="notifications" id="bh-settings-tab-notifications">Notifications<//button>
-                <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-directory" data-bh-settings-tab="directory" id="bh-settings-tab-directory">Directory<//button>
-                <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-account" data-bh-settings-tab="account" id="bh-settings-tab-account">Account & Security<//button>
+                <button type="button" class="bh-my-hub__settings-tab is-active" role="tab" aria-selected="true" aria-controls="bh-settings-panel-profile" data-bh-settings-tab="profile" id="bh-settings-tab-profile">Profile</button>
+                <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-family" data-bh-settings-tab="family" id="bh-settings-tab-family">Family Hub</button>
+                <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-privacy" data-bh-settings-tab="privacy" id="bh-settings-tab-privacy">Privacy</button>
+                <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-notifications" data-bh-settings-tab="notifications" id="bh-settings-tab-notifications">Notifications</button>
+                <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-directory" data-bh-settings-tab="directory" id="bh-settings-tab-directory">Directory</button>
+                <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-account" data-bh-settings-tab="account" id="bh-settings-tab-account">Account & Security</button>
             </nav>
 
             <form method="post" class="bh-my-hub__settings-form">
