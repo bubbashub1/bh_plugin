@@ -1590,9 +1590,9 @@ body.bh-modal-open{overflow:hidden}
 /* Account Settings: inherit the active WordPress theme. */
 .bh-my-hub--settings{max-width:100%}
 .bh-my-hub--account-settings .bh-my-hub__intro{display:flex;align-items:flex-start;justify-content:space-between;gap:1.5rem}
-.bh-my-hub__settings-tabs{display:flex;gap:.25rem;overflow-x:auto;margin:1.5rem 0;padding:0;border-bottom:1px solid currentColor}
-.bh-my-hub__settings-tab{appearance:none;border:0;border-bottom:2px solid transparent;background:transparent;color:inherit;padding:.75rem 1rem;font:inherit;cursor:pointer;white-space:nowrap}
-.bh-my-hub__settings-tab.is-active{border-bottom-color:currentColor}
+.bh-my-hub__settings-tabs{display:flex;flex-direction:column;align-items:stretch;gap:0;width:min(100%,16rem);margin:1.5rem 0;padding:0;border-right:1px solid currentColor}
+.bh-my-hub__settings-tab{appearance:none;border:0;border-right:2px solid transparent;background:transparent;color:inherit;padding:.75rem 1rem;font:inherit;cursor:pointer;text-align:left}
+.bh-my-hub__settings-tab.is-active{border-right-color:currentColor}
 .bh-my-hub__settings-tab:focus-visible{outline:2px solid currentColor;outline-offset:2px}
 .bh-my-hub__settings-panel[hidden]{display:none!important}
 .bh-my-hub__settings-form{display:block}
@@ -1610,6 +1610,7 @@ body.bh-modal-open{overflow:hidden}
 .bh-my-hub__integration-dot{width:.6rem;height:.6rem;flex:0 0 .6rem;margin-top:.4rem;border-radius:50%;background:currentColor}
 .bh-my-hub__integration-status p{margin:.25rem 0 0}
 .bh-my-hub__settings-links{display:flex;gap:.75rem;margin-top:1rem}
+.bh-my-hub__settings-tabs + .bh-my-hub__settings-panel{margin-top:0}
 .bh-my-hub__account-details{margin:1rem 0;display:grid;gap:0}
 .bh-my-hub__account-details div{display:flex;justify-content:space-between;gap:1rem;padding:.75rem 0;border-top:1px solid currentColor}
 .bh-my-hub__account-details dt{font-weight:700}
@@ -1620,6 +1621,9 @@ body.bh-modal-open{overflow:hidden}
 .bh-my-hub__account-action span{font-size:.9em}
 @media(max-width:760px){
   .bh-my-hub--account-settings .bh-my-hub__intro{display:block}
+  .bh-my-hub__settings-tabs{width:100%;border-right:0;border-bottom:1px solid currentColor}
+  .bh-my-hub__settings-tab{border-right:0;border-bottom:2px solid transparent}
+  .bh-my-hub__settings-tab.is-active{border-bottom-color:currentColor}
   .bh-my-hub__account-actions{grid-template-columns:1fr}
   .bh-my-hub__settings-actions{flex-direction:column;align-items:stretch}
   .bh-my-hub__settings-links{flex-direction:column;align-items:stretch}
