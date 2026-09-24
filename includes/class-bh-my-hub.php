@@ -268,7 +268,26 @@ final class MyHub {
         }
         $rendered[$listing_id] = true;
 
-        $visited = self::has_visited_listing(get_current_user_id(), $listing_id);
+        $user_id = get_current_user_id();
+        $visited = self::has_visited_listing($user_id, $listing_id);
+        $planner = self::planner_items($user_id);
+        $planned_dates = [];
+        foreach ($planner as $date => $items) {
+            if (in_array($listing_id, array_map('absint', (array) $items), true)) {
+                $planned_dates[] = $date;
+            }
+        }
+        sort($planned_dates);
+        $today = current_datetime()->setTime(0, 0);
+        $week_start = $today->modify('monday this week');
+        $week_days = [];
+        for ($i = 0; $i < 7; $i++) {
+            $day = $week_start->modify('+' . $i . ' days');
+            $week_days[] = [
+                'date' => $day->format('Y-m-d'),
+                'label' => wp_date('D j M', $day->getTimestamp(), wp_timezone()),
+            ];
+        }
         ?>
         <div class="bh-visited-listing" data-bh-visited-listing="<?php echo esc_attr((string) $listing_id); ?>">
             <?php if ($visited): ?>
@@ -287,10 +306,49 @@ final class MyHub {
                     <button type="submit" class="bh-visited-listing__button">📍 Mark as Visited</button>
                 </form>
             <?php endif; ?>
+
+            <div class="bh-planner-listing-action">
+                <?php if ($planned_dates): ?>
+                    <button type="button" class="bh-visited-listing__button bh-visited-listing__button--planned" data-bh-planner-toggle="<?php echo esc_attr((string) $listing_id); ?>">✓ In Planner</button>
+                <?php else: ?>
+                    <button type="button" class="bh-visited-listing__button" data-bh-planner-toggle="<?php echo esc_attr((string) $listing_id); ?>">🗓 Add to Planner</button>
+                <?php endif; ?>
+                <div class="bh-planner-listing-popover" data-bh-planner-popover="<?php echo esc_attr((string) $listing_id); ?>" hidden>
+                    <div class="bh-planner-listing-popover__head">
+                        <strong><?php echo $planned_dates ? 'In your planner' : 'Add to your planner'; ?></strong>
+                        <button type="button" class="bh-planner-listing-popover__close" data-bh-planner-close aria-label="Close">×</button>
+                    </div>
+                    <?php if ($planned_dates): ?>
+                        <p>Planned for <?php echo esc_html(implode(', ', array_map(static fn($date) => wp_date('D j M', strtotime($date), wp_timezone()), $planned_dates))); ?>.</p>
+                    <?php endif; ?>
+                    <div class="bh-planner-listing-popover__days">
+                        <?php foreach ($week_days as $day): ?>
+                            <form method="post">
+                                <?php wp_nonce_field('bh_my_hub_add_to_planner', 'bh_my_hub_nonce'); ?>
+                                <input type="hidden" name="bh_my_hub_action" value="add_to_planner">
+                                <input type="hidden" name="listing_id" value="<?php echo esc_attr((string) $listing_id); ?>">
+                                <input type="hidden" name="planner_date" value="<?php echo esc_attr($day['date']); ?>">
+                                <button type="submit" class="<?php echo in_array($day['date'], $planned_dates, true) ? 'is-planned' : ''; ?>">
+                                    <span><?php echo esc_html($day['label']); ?></span>
+                                    <?php if (in_array($day['date'], $planned_dates, true)): ?><small>✓ Planned</small><?php else: ?><small>Add</small><?php endif; ?>
+                                </button>
+                            </form>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php if ($planned_dates): ?>
+                        <form method="post" class="bh-planner-listing-popover__remove">
+                            <?php wp_nonce_field('bh_my_hub_remove_from_planner', 'bh_my_hub_nonce'); ?>
+                            <input type="hidden" name="bh_my_hub_action" value="remove_from_planner">
+                            <input type="hidden" name="listing_id" value="<?php echo esc_attr((string) $listing_id); ?>">
+                            <input type="hidden" name="planner_date" value="<?php echo esc_attr($planned_dates[0]); ?>">
+                            <button type="submit">Remove from planner</button>
+                        </form>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
         <?php
     }
-
 
     public static function shortcode(): string {
         if (!is_user_logged_in()) {
@@ -859,7 +917,7 @@ final class MyHub {
             check_admin_referer('bh_my_hub_add_to_planner', 'bh_my_hub_nonce');
             $id = absint($_POST['listing_id'] ?? 0);
             $date = sanitize_text_field(wp_unslash($_POST['planner_date'] ?? ''));
-            if ($id && self::valid_planner_date($date) && in_array($id, self::saved_activities($user_id), true)) {
+            if ($id && get_post_type($id) === 'at_biz_dir' && get_post_status($id) === 'publish' && self::valid_planner_date($date)) {
                 $planner = self::planner_items($user_id);
                 $planner[$date] = isset($planner[$date]) && is_array($planner[$date]) ? $planner[$date] : [];
                 if (!in_array($id, $planner[$date], true)) $planner[$date][] = $id;
