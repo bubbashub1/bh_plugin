@@ -341,6 +341,14 @@ final class MyHub {
         </div>
 
         <div class="bh-my-hub__family-actions">
+            <div class="bh-my-hub__family-view-toggle" role="group" aria-label="Family view">
+                <?php if ($children): ?>
+                    <button type="button" class="bh-my-hub__family-view-button is-active" data-bh-family-view="children" aria-pressed="true">My Children</button>
+                <?php endif; ?>
+                <?php if ($bumps): ?>
+                    <button type="button" class="bh-my-hub__family-view-button<?php echo $children ? '' : ' is-active'; ?>" data-bh-family-view="bumps" aria-pressed="<?php echo $children ? 'false' : 'true'; ?>">My Bumps</button>
+                <?php endif; ?>
+            </div>
             <button type="button" class="bh-my-hub__button bh-my-hub__open-modal" data-bh-modal="child">+ Add child</button>
             <button type="button" class="bh-my-hub__button bh-my-hub__button--outline bh-my-hub__open-modal" data-bh-modal="add-bump">+ Add bump</button>
         </div>
@@ -348,7 +356,7 @@ final class MyHub {
 
     <?php if ($children || $bumps): ?>
         <?php if ($children): ?>
-            <div class="bh-my-hub__profiles bh-my-hub__profiles--children" aria-label="Children">
+            <div class="bh-my-hub__profiles bh-my-hub__profiles--children" data-bh-family-view-panel="children" aria-label="Children">
             <?php foreach ($children as $child): ?>
                 <?php
                 $id = (int) $child->ID;
@@ -405,7 +413,7 @@ final class MyHub {
         <?php endif; ?>
 
         <?php if ($bumps): ?>
-            <div class="bh-my-hub__profiles bh-my-hub__profiles--bumps" aria-label="Expected babies">
+            <div class="bh-my-hub__profiles bh-my-hub__profiles--bumps<?php echo $children ? ' bh-my-hub__family-view-hidden' : ''; ?>" data-bh-family-view-panel="bumps" aria-label="Expected babies">
             <?php foreach ($bumps as $bump): ?>
                 <?php
                 $bump_id = (int) $bump->ID;
@@ -1449,6 +1457,22 @@ final class MyHub {
                     if(panel){panel.hidden=true;document.body.classList.remove('bh-modal-open');}
                 });
             });
+            document.querySelectorAll('[data-bh-family-view]').forEach(function(button){
+                button.addEventListener('click',function(){
+                    var family=button.closest('#bh-my-hub-family');
+                    if(!family){return;}
+                    var view=button.getAttribute('data-bh-family-view');
+                    family.querySelectorAll('[data-bh-family-view]').forEach(function(toggle){
+                        var active=toggle.getAttribute('data-bh-family-view')===view;
+                        toggle.classList.toggle('is-active',active);
+                        toggle.setAttribute('aria-pressed',active?'true':'false');
+                    });
+                    family.querySelectorAll('[data-bh-family-view-panel]').forEach(function(panel){
+                        panel.classList.toggle('bh-my-hub__family-view-hidden',panel.getAttribute('data-bh-family-view-panel')!==view);
+                    });
+                });
+            });
+
             document.addEventListener('keydown',function(event){
                 if(event.key==='Escape'){
                     document.querySelectorAll('.bh-my-hub__modal:not([hidden])').forEach(function(panel){panel.hidden=true;});
