@@ -9,7 +9,9 @@ final class MyHub {
     public static function register(): void {
         add_shortcode('bh_my_hub', [self::class, 'shortcode']);
         add_shortcode('bh_planner', [self::class, 'planner_shortcode']);
+        add_shortcode('bh_advanced_settings', [self::class, 'advanced_settings_shortcode']);
         add_action('init', [self::class, 'handle_forms']);
+        add_action('init', [self::class, 'handle_advanced_settings']);
         add_action('wp_enqueue_scripts', [self::class, 'assets']);
         add_action('wp_enqueue_scripts', [self::class, 'visited_assets']);
         add_action('wp_footer', [self::class, 'modal_script']);
@@ -57,7 +59,7 @@ final class MyHub {
         if (!$post instanceof \WP_Post) {
             return false;
         }
-        return has_shortcode((string) $post->post_content, 'bh_my_hub') || has_shortcode((string) $post->post_content, 'bh_planner');
+        return has_shortcode((string) $post->post_content, 'bh_my_hub') || has_shortcode((string) $post->post_content, 'bh_planner') || has_shortcode((string) $post->post_content, 'bh_advanced_settings');
     }
 
     /**
@@ -1438,6 +1440,187 @@ final class MyHub {
         if($post instanceof \WP_Post && has_shortcode((string)$post->post_content,'bh_my_hub'))return get_permalink($post);
         $page=get_page_by_path('my-hub');
         return $page instanceof \WP_Post ? get_permalink($page) : home_url('/');
+    }
+
+
+    public static function handle_advanced_settings(): void {
+        if (!is_user_logged_in() || empty($_POST['bh_advanced_settings_action'])) {
+            return;
+        }
+
+        $action = sanitize_key(wp_unslash($_POST['bh_advanced_settings_action']));
+        if ('save' !== $action) {
+            return;
+        }
+
+        if (empty($_POST['bh_advanced_settings_nonce']) || !wp_verify_nonce(
+            sanitize_text_field(wp_unslash($_POST['bh_advanced_settings_nonce'])),
+            'bh_advanced_settings_save'
+        )) {
+            return;
+        }
+
+        $user_id = get_current_user_id();
+        $first_name = sanitize_text_field(wp_unslash($_POST['first_name'] ?? ''));
+        $last_name = sanitize_text_field(wp_unslash($_POST['last_name'] ?? ''));
+        $display_name = sanitize_text_field(wp_unslash($_POST['display_name'] ?? ''));
+        $description = sanitize_textarea_field(wp_unslash($_POST['description'] ?? ''));
+        $website = esc_url_raw(wp_unslash($_POST['website'] ?? ''));
+
+        if (!$display_name) {
+            $display_name = trim($first_name . ' ' . $last_name);
+        }
+        if (!$display_name) {
+            $display_name = (string) wp_get_current_user()->user_login;
+        }
+
+        wp_update_user([
+            'ID' => $user_id,
+            'first_name' => $first_name,
+            'last_name' => $last_name,
+            'display_name' => $display_name,
+            'description' => $description,
+            'user_url' => $website,
+        ]);
+
+        $settings = [
+            'profile_visibility' => !empty($_POST['profile_visibility']) ? 'public' : 'private',
+            'directory_visibility' => !empty($_POST['directory_visibility']) ? 'public' : 'private',
+            'email_updates' => !empty($_POST['email_updates']) ? 'yes' : 'no',
+            'family_personalisation' => !empty($_POST['family_personalisation']) ? 'yes' : 'no',
+        ];
+        update_user_meta($user_id, '_bh_advanced_settings', $settings);
+
+        $redirect = wp_get_referer() ?: self::my_hub_url();
+        wp_safe_redirect(add_query_arg('bh_settings_saved', '1', remove_query_arg('bh_settings_saved', $redirect)));
+        exit;
+    }
+
+    public static function advanced_settings_shortcode(): string {
+        if (!is_user_logged_in()) {
+            $url = function_exists('um_get_core_page') ? um_get_core_page('login') : wp_login_url();
+            return '<div class="bh-my-hub bh-my-hub--login"><h2>My Bubba Hub settings</h2><p>Please log in to manage your settings.</p><a class="bh-my-hub__button" href="' . esc_url($url) . '">Log in</a></div>';
+        }
+
+        $user = wp_get_current_user();
+        $settings = get_user_meta($user->ID, '_bh_advanced_settings', true);
+        if (!is_array($settings)) $settings = [];
+
+        $profile_visibility = ($settings['profile_visibility'] ?? 'private') === 'public';
+        $directory_visibility = ($settings['directory_visibility'] ?? 'public') === 'public';
+        $email_updates = ($settings['email_updates'] ?? 'yes') === 'yes';
+        $family_personalisation = ($settings['family_personalisation'] ?? 'yes') === 'yes';
+
+        $directorist_active = function_exists('directorist_get_user_favorites') || post_type_exists('at_biz_dir');
+
+        ob_start(); ?>
+        <div class="bh-my-hub bh-my-hub--settings">
+            <div class="bh-my-hub__intro">
+                <div>
+                    <p class="bh-my-hub__eyebrow">My Bubba Hub</p>
+                    <h1>Advanced Settings</h1>
+                    <p>Manage your profile, family preferences and how your Bubba Hub account connects with the directory.</p>
+                </div>
+                <a class="bh-my-hub__account-link" href="<?php echo esc_url(self::my_hub_url()); ?>">Back to My Hub</a>
+            </div>
+
+            <?php if (isset($_GET['bh_settings_saved'])): ?>
+                <div class="bh-my-hub__notice" role="status">Your settings have been saved.</div>
+            <?php endif; ?>
+
+            <form method="post" class="bh-my-hub__settings-form">
+                <?php wp_nonce_field('bh_advanced_settings_save', 'bh_advanced_settings_nonce'); ?>
+                <input type="hidden" name="bh_advanced_settings_action" value="save">
+
+                <section class="bh-my-hub__settings-card">
+                    <div class="bh-my-hub__settings-heading">
+                        <span class="bh-my-hub__icon" aria-hidden="true">👤</span>
+                        <div><h2>Profile</h2><p>This is your shared WordPress account profile. Directorist can use the same account for your directory activity.</p></div>
+                    </div>
+                    <div class="bh-my-hub__fields bh-my-hub__settings-fields">
+                        <label>First name<input type="text" name="first_name" value="<?php echo esc_attr($user->first_name); ?>" autocomplete="given-name"></label>
+                        <label>Last name<input type="text" name="last_name" value="<?php echo esc_attr($user->last_name); ?>" autocomplete="family-name"></label>
+                        <label class="bh-my-hub__settings-field--full">Display name<input type="text" name="display_name" value="<?php echo esc_attr($user->display_name); ?>" autocomplete="name"></label>
+                        <label class="bh-my-hub__settings-field--full">Website<input type="url" name="website" value="<?php echo esc_attr($user->user_url); ?>" placeholder="https://"></label>
+                        <label class="bh-my-hub__settings-field--full">About you<textarea name="description" rows="5" placeholder="A short introduction for your profile"><?php echo esc_textarea($user->description); ?></textarea></label>
+                    </div>
+                </section>
+
+                <section class="bh-my-hub__settings-card">
+                    <div class="bh-my-hub__settings-heading">
+                        <span class="bh-my-hub__icon" aria-hidden="true">👨‍👩‍👧</span>
+                        <div><h2>Family Hub</h2><p>Choose how much of your Bubba Hub experience is personalised around your family.</p></div>
+                    </div>
+                    <label class="bh-my-hub__setting-switch">
+                        <input type="checkbox" name="family_personalisation" value="1" <?php checked($family_personalisation); ?>>
+                        <span><strong>Family personalisation</strong><small>Use your family details to personalise My Hub, planning and family-related features.</small></span>
+                    </label>
+                </section>
+
+                <section class="bh-my-hub__settings-card">
+                    <div class="bh-my-hub__settings-heading">
+                        <span class="bh-my-hub__icon" aria-hidden="true">🔒</span>
+                        <div><h2>Privacy</h2><p>These controls are stored with your Bubba Hub account and are ready for future profile features.</p></div>
+                    </div>
+                    <label class="bh-my-hub__setting-switch">
+                        <input type="checkbox" name="profile_visibility" value="1" <?php checked($profile_visibility); ?>>
+                        <span><strong>Make my profile visible</strong><small>Allow your member profile to be shown where Bubba Hub supports member profiles.</small></span>
+                    </label>
+                    <label class="bh-my-hub__setting-switch">
+                        <input type="checkbox" name="directory_visibility" value="1" <?php checked($directory_visibility); ?>>
+                        <span><strong>Show me in directory profile features</strong><small>Keep your account available for Directorist-connected profile features.</small></span>
+                    </label>
+                </section>
+
+                <section class="bh-my-hub__settings-card">
+                    <div class="bh-my-hub__settings-heading">
+                        <span class="bh-my-hub__icon" aria-hidden="true">🔔</span>
+                        <div><h2>Notifications</h2><p>Control general Bubba Hub email updates. More notification types can be added here later.</p></div>
+                    </div>
+                    <label class="bh-my-hub__setting-switch">
+                        <input type="checkbox" name="email_updates" value="1" <?php checked($email_updates); ?>>
+                        <span><strong>Email updates</strong><small>Receive useful Bubba Hub updates and account notifications.</small></span>
+                    </label>
+                </section>
+
+                <section class="bh-my-hub__settings-card bh-my-hub__settings-card--directorist">
+                    <div class="bh-my-hub__settings-heading">
+                        <span class="bh-my-hub__icon" aria-hidden="true">🔎</span>
+                        <div><h2>Directorist Profile</h2><p>One account, shared identity. Your Bubba Hub profile uses your WordPress user account, which keeps it compatible with Directorist.</p></div>
+                    </div>
+                    <div class="bh-my-hub__integration-status">
+                        <span class="bh-my-hub__integration-dot <?php echo $directorist_active ? 'is-connected' : ''; ?>" aria-hidden="true"></span>
+                        <div>
+                            <strong><?php echo $directorist_active ? 'Directorist detected' : 'Directorist not detected'; ?></strong>
+                            <p><?php echo $directorist_active ? 'Your name, display name, bio and website are saved to the shared WordPress account used by Directorist.' : 'You can still use Bubba Hub settings. Directorist-specific features will become available when Directorist is active.'; ?></p>
+                        </div>
+                    </div>
+                    <?php if ($directorist_active): ?>
+                        <div class="bh-my-hub__settings-links">
+                            <a class="bh-my-hub__button bh-my-hub__button--outline" href="<?php echo esc_url(get_author_posts_url($user->ID)); ?>">View public profile</a>
+                        </div>
+                    <?php endif; ?>
+                </section>
+
+                <section class="bh-my-hub__settings-card">
+                    <div class="bh-my-hub__settings-heading">
+                        <span class="bh-my-hub__icon" aria-hidden="true">⚙️</span>
+                        <div><h2>Account</h2><p>Core account information. Password and login security should continue to be managed by WordPress or your membership system.</p></div>
+                    </div>
+                    <dl class="bh-my-hub__account-details">
+                        <div><dt>Email</dt><dd><?php echo esc_html($user->user_email); ?></dd></div>
+                        <div><dt>Username</dt><dd><?php echo esc_html($user->user_login); ?></dd></div>
+                    </dl>
+                </section>
+
+                <div class="bh-my-hub__settings-actions">
+                    <button class="bh-my-hub__button" type="submit">Save settings</button>
+                    <a class="bh-my-hub__button bh-my-hub__button--outline" href="<?php echo esc_url(self::my_hub_url()); ?>">Cancel</a>
+                </div>
+            </form>
+        </div>
+        <?php
+        return (string) ob_get_clean();
     }
 
     public static function modal_script(): void {
