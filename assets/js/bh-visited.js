@@ -1,14 +1,28 @@
 (function () {
     function positionVisitedControls() {
         document.querySelectorAll('.bh-visited-listing').forEach(function (visited) {
-            var candidates = document.querySelectorAll('a, button');
+            var scope = visited.parentElement;
             var bookmark = null;
-            candidates.forEach(function (el) {
-                var text = (el.textContent || '').trim();
-                if (!bookmark && /^bookmark$/i.test(text)) bookmark = el;
-            });
+            var levels = 0;
+
+            while (scope && levels < 7 && !bookmark) {
+                var candidates = scope.querySelectorAll('a, button, [role="button"]');
+                candidates.forEach(function (el) {
+                    if (bookmark || el === visited || visited.contains(el)) return;
+                    var text = (el.textContent || '').trim();
+                    var label = (el.getAttribute('aria-label') || '') + ' ' + (el.getAttribute('title') || '');
+                    if (/^bookmark$/i.test(text) || /bookmark/i.test(label)) bookmark = el;
+                });
+                if (!bookmark) {
+                    scope = scope.parentElement;
+                    levels++;
+                }
+            }
+
             if (!bookmark || !bookmark.parentElement) return;
-            if (visited.parentElement !== bookmark.parentElement) bookmark.parentElement.appendChild(visited);
+            if (visited.parentElement !== bookmark.parentElement) {
+                bookmark.parentElement.appendChild(visited);
+            }
         });
     }
 
