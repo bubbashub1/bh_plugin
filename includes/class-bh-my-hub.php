@@ -338,9 +338,8 @@ final class MyHub {
                     <?php if ($planned_dates): ?>
                         <form method="post" class="bh-planner-listing-popover__remove">
                             <?php wp_nonce_field('bh_my_hub_remove_from_planner', 'bh_my_hub_nonce'); ?>
-                            <input type="hidden" name="bh_my_hub_action" value="remove_from_planner">
+                            <input type="hidden" name="bh_my_hub_action" value="remove_activity_from_planner">
                             <input type="hidden" name="listing_id" value="<?php echo esc_attr((string) $listing_id); ?>">
-                            <input type="hidden" name="planner_date" value="<?php echo esc_attr($planned_dates[0]); ?>">
                             <button type="submit">Remove from planner</button>
                         </form>
                     <?php endif; ?>
@@ -939,6 +938,15 @@ final class MyHub {
                 }
             }
             self::redirect_planner();
+        }
+
+        if ($action === 'remove_activity_from_planner') {
+            check_admin_referer('bh_my_hub_remove_activity_from_planner', 'bh_my_hub_nonce');
+            $id = absint($_POST['listing_id'] ?? 0);
+            if ($id) self::remove_activity_from_planner($user_id, $id);
+            $redirect = wp_get_referer() ?: self::planner_url();
+            wp_safe_redirect($redirect);
+            exit;
         }
 
         if ($action === 'delete_bump') {
