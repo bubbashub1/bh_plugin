@@ -1544,11 +1544,20 @@ final class MyHub {
                 <div class="bh-my-hub__notice" role="status">Your settings have been saved.</div>
             <?php endif; ?>
 
+            <nav class="bh-my-hub__settings-tabs" role="tablist" aria-label="Account settings sections">
+                <button type="button" class="bh-my-hub__settings-tab is-active" role="tab" aria-selected="true" aria-controls="bh-settings-panel-profile" data-bh-settings-tab="profile" id="bh-settings-tab-profile">Profile<//button>
+                <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-family" data-bh-settings-tab="family" id="bh-settings-tab-family">Family Hub<//button>
+                <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-privacy" data-bh-settings-tab="privacy" id="bh-settings-tab-privacy">Privacy<//button>
+                <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-notifications" data-bh-settings-tab="notifications" id="bh-settings-tab-notifications">Notifications<//button>
+                <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-directory" data-bh-settings-tab="directory" id="bh-settings-tab-directory">Directory<//button>
+                <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-account" data-bh-settings-tab="account" id="bh-settings-tab-account">Account & Security<//button>
+            </nav>
+
             <form method="post" class="bh-my-hub__settings-form">
                 <?php wp_nonce_field('bh_advanced_settings_save', 'bh_advanced_settings_nonce'); ?>
                 <input type="hidden" name="bh_advanced_settings_action" value="save">
 
-                <section class="bh-my-hub__settings-card">
+                <section id="bh-settings-panel-profile" class="bh-my-hub__settings-card bh-my-hub__settings-panel" data-bh-settings-panel="profile" role="tabpanel" aria-labelledby="bh-settings-tab-profile">
                     <div class="bh-my-hub__settings-heading">
                         <span class="bh-my-hub__icon" aria-hidden="true">👤</span>
                         <div><h2>Profile</h2><p>This is your shared WordPress account profile. Directorist can use the same account for your directory activity.</p></div>
@@ -1562,7 +1571,7 @@ final class MyHub {
                     </div>
                 </section>
 
-                <section class="bh-my-hub__settings-card">
+                <section id="bh-settings-panel-family" class="bh-my-hub__settings-card bh-my-hub__settings-panel" data-bh-settings-panel="family" role="tabpanel" aria-labelledby="bh-settings-tab-family" hidden>
                     <div class="bh-my-hub__settings-heading">
                         <span class="bh-my-hub__icon" aria-hidden="true">👨‍👩‍👧</span>
                         <div><h2>Family Hub</h2><p>Choose how much of your Bubba Hub experience is personalised around your family.</p></div>
@@ -1573,7 +1582,7 @@ final class MyHub {
                     </label>
                 </section>
 
-                <section class="bh-my-hub__settings-card">
+                <section id="bh-settings-panel-privacy" class="bh-my-hub__settings-card bh-my-hub__settings-panel" data-bh-settings-panel="privacy" role="tabpanel" aria-labelledby="bh-settings-tab-privacy" hidden>
                     <div class="bh-my-hub__settings-heading">
                         <span class="bh-my-hub__icon" aria-hidden="true">🔒</span>
                         <div><h2>Privacy</h2><p>These controls are stored with your Bubba Hub account and are ready for future profile features.</p></div>
@@ -1588,7 +1597,7 @@ final class MyHub {
                     </label>
                 </section>
 
-                <section class="bh-my-hub__settings-card">
+                <section id="bh-settings-panel-notifications" class="bh-my-hub__settings-card bh-my-hub__settings-panel" data-bh-settings-panel="notifications" role="tabpanel" aria-labelledby="bh-settings-tab-notifications" hidden>
                     <div class="bh-my-hub__settings-heading">
                         <span class="bh-my-hub__icon" aria-hidden="true">🔐</span>
                         <div><h2>Notifications</h2><p>Control general Bubba Hub email updates. More notification types can be added here later.</p></div>
@@ -1599,7 +1608,7 @@ final class MyHub {
                     </label>
                 </section>
 
-                <section class="bh-my-hub__settings-card bh-my-hub__settings-card--directorist">
+                <section id="bh-settings-panel-directory" class="bh-my-hub__settings-card bh-my-hub__settings-card--directorist bh-my-hub__settings-panel" data-bh-settings-panel="directory" role="tabpanel" aria-labelledby="bh-settings-tab-directory" hidden>
                     <div class="bh-my-hub__settings-heading">
                         <span class="bh-my-hub__icon" aria-hidden="true">🔎</span>
                         <div><h2>Directory Profile</h2><p>Your identity is shared across Bubba Hub and Directorist through the same WordPress account. Directory-specific fields can be added here as we build them.</p></div>
@@ -1618,7 +1627,7 @@ final class MyHub {
                     </div>
                 </section>
 
-                <section class="bh-my-hub__settings-card bh-my-hub__settings-card--account">
+                <section id="bh-settings-panel-account" class="bh-my-hub__settings-card bh-my-hub__settings-card--account bh-my-hub__settings-panel" data-bh-settings-panel="account" role="tabpanel" aria-labelledby="bh-settings-tab-account" hidden>
                     <div class="bh-my-hub__settings-heading">
                         <span class="bh-my-hub__icon" aria-hidden="true">🛡️</span>
                         <div><h2>Account & Security</h2><p>Account-wide controls belong here for every Bubba Hub user type. Ultimate Member remains the owner of login/security actions where it provides them.</p></div>
@@ -1663,6 +1672,46 @@ final class MyHub {
                     if(panel){panel.hidden=true;document.body.classList.remove('bh-modal-open');}
                 });
             });
+            var accountTabs=document.querySelectorAll('[data-bh-settings-tab]');
+            var accountPanels=document.querySelectorAll('[data-bh-settings-panel]');
+            function activateAccountTab(tabName, updateHash){
+                if(!accountTabs.length){return;}
+                var valid=false;
+                accountTabs.forEach(function(tab){
+                    var active=tab.getAttribute('data-bh-settings-tab')===tabName;
+                    if(active){valid=true;}
+                    tab.classList.toggle('is-active',active);
+                    tab.setAttribute('aria-selected',active?'true':'false');
+                    tab.setAttribute('tabindex',active?'0':'-1');
+                });
+                accountPanels.forEach(function(panel){
+                    var active=panel.getAttribute('data-bh-settings-panel')===tabName;
+                    panel.hidden=!active;
+                });
+                if(valid && updateHash){
+                    history.replaceState(null,'','#'+encodeURIComponent(tabName));
+                }
+            }
+            if(accountTabs.length){
+                var initialTab=decodeURIComponent(window.location.hash.replace('#','')) || 'profile';
+                activateAccountTab(initialTab,false);
+                accountTabs.forEach(function(tab){
+                    tab.addEventListener('click',function(){activateAccountTab(tab.getAttribute('data-bh-settings-tab'),true);});
+                    tab.addEventListener('keydown',function(event){
+                        if(event.key!=='ArrowRight' && event.key!=='ArrowLeft'){return;}
+                        event.preventDefault();
+                        var tabs=Array.prototype.slice.call(accountTabs);
+                        var index=tabs.indexOf(tab);
+                        var next=event.key==='ArrowRight' ? (index+1)%tabs.length : (index-1+tabs.length)%tabs.length;
+                        tabs[next].focus();
+                        activateAccountTab(tabs[next].getAttribute('data-bh-settings-tab'),true);
+                    });
+                });
+                window.addEventListener('hashchange',function(){
+                    activateAccountTab(decodeURIComponent(window.location.hash.replace('#','')) || 'profile',false);
+                });
+            }
+
             document.querySelectorAll('[data-bh-family-view]').forEach(function(button){
                 button.addEventListener('click',function(){
                     var family=button.closest('#bh-my-hub-family');
