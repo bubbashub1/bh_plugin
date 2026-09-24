@@ -29,10 +29,10 @@ final class MyHub {
         }
 
         wp_enqueue_style(
-            'bh-my-hub',
-            BH_PLUGIN_URL . 'assets/css/bh-my-hub.css',
+            'bh-frontend',
+            BH_PLUGIN_URL . 'assets/css/bh-frontend.css',
             [],
-            BH_PLUGIN_VERSION . '-my-hub-' . substr(md5_file(BH_PLUGIN_DIR . 'assets/css/bh-my-hub.css'), 0, 10)
+            BH_PLUGIN_VERSION . '-frontend-' . substr(md5_file(BH_PLUGIN_DIR . 'assets/css/bh-frontend.css'), 0, 10)
         );
         wp_enqueue_style('bh-saved-searches', BH_PLUGIN_URL . 'assets/css/bh-saved-searches.css', [], BH_PLUGIN_VERSION);
         wp_enqueue_script('bh-saved-searches', BH_PLUGIN_URL . 'assets/js/bh-saved-searches.js', [], BH_PLUGIN_VERSION, true);
@@ -648,11 +648,11 @@ final class MyHub {
     public static function planner_shortcode(): string {
         if (!is_user_logged_in()) {
             $url = function_exists('um_get_core_page') ? um_get_core_page('login') : wp_login_url(get_permalink());
-            return '<div class="bh-my-hub bh-my-hub--login"><h2>My Planner</h2><p>Please log in to access your planner.</p><a class="bh-my-hub__button" href="' . esc_url($url) . '">Log in</a></div>';
+            return '<div class="bh-planner bh-planner--login"><h2>My Planner</h2><p>Please log in to access your planner.</p><a class="bh-my-hub__button" href="' . esc_url($url) . '">Log in</a></div>';
         }
 
         $user = wp_get_current_user();
-        return '<div class="bh-my-hub bh-my-hub--planner"><div class="bh-my-hub__intro"><div><p class="bh-my-hub__eyebrow">My Bubba Hub</p><h1>My Planner</h1><p>Plan your family week from your saved activities.</p></div><a class="bh-my-hub__account-link" href="' . esc_url(self::my_hub_url()) . '">← My Family</a></div>' . self::render_planner_section($user->ID) . '</div>';
+        return '<div class="bh-planner"><div class="bh-my-hub__intro"><div><p class="bh-my-hub__eyebrow">My Bubba Hub</p><h1>My Planner</h1><p>Plan your family week from your saved activities.</p></div><a class="bh-my-hub__account-link" href="' . esc_url(self::my_hub_url()) . '">← My Family</a></div>' . self::render_planner_section($user->ID) . '</div>';
     }
 
     private static function child_fields(int $post_id = 0): void {
