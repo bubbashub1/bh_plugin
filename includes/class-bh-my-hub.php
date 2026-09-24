@@ -347,7 +347,8 @@ final class MyHub {
     </div>
 
     <?php if ($children || $bumps): ?>
-        <div class="bh-my-hub__profiles">
+        <?php if ($children): ?>
+            <div class="bh-my-hub__profiles bh-my-hub__profiles--children" aria-label="Children">
             <?php foreach ($children as $child): ?>
                 <?php
                 $id = (int) $child->ID;
@@ -400,7 +401,11 @@ final class MyHub {
                     </div>
                 </article>
             <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
 
+        <?php if ($bumps): ?>
+            <div class="bh-my-hub__profiles bh-my-hub__profiles--bumps" aria-label="Expected babies">
             <?php foreach ($bumps as $bump): ?>
                 <?php
                 $bump_id = (int) $bump->ID;
@@ -458,7 +463,8 @@ final class MyHub {
                     </div>
                 </article>
             <?php endforeach; ?>
-        </div>
+            </div>
+        <?php endif; ?>
     <?php else: ?>
         <div class="bh-my-hub__family-empty">
             <span aria-hidden="true">👨‍👩‍👧</span>
