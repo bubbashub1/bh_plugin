@@ -10,3 +10,20 @@
 .bh-visited-listing{margin:0;display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
 .bh-visited-listing__form{display:inline-flex;margin:0}
 .bh-visited-listing__button{white-space:nowrap}
+
+.bh-planner-listing-action{position:relative;display:inline-flex}
+.bh-visited-listing__button--planned{background:#eaf3ef;color:#496d65;border-color:#c9ddd7}
+.bh-planner-listing-popover{position:absolute;top:calc(100% + 9px);right:0;z-index:10050;width:min(320px,calc(100vw - 32px));padding:13px;border:1px solid #e7dfdc;border-radius:16px;background:#fff;box-shadow:0 18px 45px rgba(64,58,61,.16)}
+.bh-planner-listing-popover[hidden]{display:none}
+.bh-planner-listing-popover__head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:5px;color:#403a3d;font-size:.8rem}
+.bh-planner-listing-popover__close{width:26px;height:26px;border:0;border-radius:50%;background:#f4f0ed;color:#756d72;cursor:pointer}
+.bh-planner-listing-popover>p{margin:0 0 9px;color:#756d72;font-size:.7rem}
+.bh-planner-listing-popover__days{display:grid;gap:6px}
+.bh-planner-listing-popover__days form{margin:0}
+.bh-planner-listing-popover__days button{display:flex;width:100%;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid #e7dfdc;border-radius:10px;background:#fbf8f4;color:#403a3d;font:inherit;font-size:.72rem;cursor:pointer;text-align:left}
+.bh-planner-listing-popover__days button:hover,.bh-planner-listing-popover__days button.is-planned{border-color:#c9ddd7;background:#eaf3ef;color:#496d65}
+.bh-planner-listing-popover__days small{font-size:.62rem;font-weight:800;color:#756d72}
+.bh-planner-listing-popover__remove{margin-top:9px;padding-top:9px;border-top:1px solid #e7dfdc}
+.bh-planner-listing-popover__remove form{margin:0}
+.bh-planner-listing-popover__remove button{border:0;background:none;color:#9a686f;font:inherit;font-size:.68rem;font-weight:800;cursor:pointer}
+@media(max-width:680px){.bh-planner-listing-popover{position:fixed;top:auto;right:16px;bottom:16px;left:16px;width:auto}}

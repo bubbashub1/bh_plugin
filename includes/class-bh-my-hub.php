@@ -29,10 +29,10 @@ final class MyHub {
         }
 
         wp_enqueue_style(
-            'bh-my-hub',
-            BH_PLUGIN_URL . 'assets/css/bh-my-hub.css',
+            'bh-frontend',
+            BH_PLUGIN_URL . 'assets/css/bh-frontend.css',
             [],
-            BH_PLUGIN_VERSION . '-my-hub-' . substr(md5_file(BH_PLUGIN_DIR . 'assets/css/bh-my-hub.css'), 0, 10)
+            BH_PLUGIN_VERSION . '-frontend-' . substr(md5_file(BH_PLUGIN_DIR . 'assets/css/bh-frontend.css'), 0, 10)
         );
         wp_enqueue_style('bh-saved-searches', BH_PLUGIN_URL . 'assets/css/bh-saved-searches.css', [], BH_PLUGIN_VERSION);
         wp_enqueue_script('bh-saved-searches', BH_PLUGIN_URL . 'assets/js/bh-saved-searches.js', [], BH_PLUGIN_VERSION, true);
@@ -60,7 +60,7 @@ final class MyHub {
         if (!$post instanceof \WP_Post) {
             return false;
         }
-        return has_shortcode((string) $post->post_content, 'bh_my_hub') || has_shortcode((string) $post->post_content, 'bh_planner') || has_shortcode((string) $post->post_content, 'bh_advanced_settings');
+        return has_shortcode((string) $post->post_content, 'bh_my_hub') || has_shortcode((string) $post->post_content, 'bh_planner') || has_shortcode((string) $post->post_content, 'bh_advanced_settings') || has_shortcode((string) $post->post_content, 'bh_account_settings');
     }
 
     /**
@@ -268,7 +268,26 @@ final class MyHub {
         }
         $rendered[$listing_id] = true;
 
-        $visited = self::has_visited_listing(get_current_user_id(), $listing_id);
+        $user_id = get_current_user_id();
+        $visited = self::has_visited_listing($user_id, $listing_id);
+        $planner = self::planner_items($user_id);
+        $planned_dates = [];
+        foreach ($planner as $date => $items) {
+            if (in_array($listing_id, array_map('absint', (array) $items), true)) {
+                $planned_dates[] = $date;
+            }
+        }
+        sort($planned_dates);
+        $today = current_datetime()->setTime(0, 0);
+        $week_start = $today->modify('monday this week');
+        $week_days = [];
+        for ($i = 0; $i < 7; $i++) {
+            $day = $week_start->modify('+' . $i . ' days');
+            $week_days[] = [
+                'date' => $day->format('Y-m-d'),
+                'label' => wp_date('D j M', $day->getTimestamp(), wp_timezone()),
+            ];
+        }
         ?>
         <div class="bh-visited-listing" data-bh-visited-listing="<?php echo esc_attr((string) $listing_id); ?>">
             <?php if ($visited): ?>
@@ -287,10 +306,48 @@ final class MyHub {
                     <button type="submit" class="bh-visited-listing__button">📍 Mark as Visited</button>
                 </form>
             <?php endif; ?>
+
+            <div class="bh-planner-listing-action">
+                <?php if ($planned_dates): ?>
+                    <button type="button" class="bh-visited-listing__button bh-visited-listing__button--planned" data-bh-planner-toggle="<?php echo esc_attr((string) $listing_id); ?>">✓ In Planner</button>
+                <?php else: ?>
+                    <button type="button" class="bh-visited-listing__button" data-bh-planner-toggle="<?php echo esc_attr((string) $listing_id); ?>">🗓 Add to Planner</button>
+                <?php endif; ?>
+                <div class="bh-planner-listing-popover" data-bh-planner-popover="<?php echo esc_attr((string) $listing_id); ?>" hidden>
+                    <div class="bh-planner-listing-popover__head">
+                        <strong><?php echo $planned_dates ? 'In your planner' : 'Add to your planner'; ?></strong>
+                        <button type="button" class="bh-planner-listing-popover__close" data-bh-planner-close aria-label="Close">×</button>
+                    </div>
+                    <?php if ($planned_dates): ?>
+                        <p>Planned for <?php echo esc_html(implode(', ', array_map(static fn($date) => wp_date('D j M', strtotime($date), wp_timezone()), $planned_dates))); ?>.</p>
+                    <?php endif; ?>
+                    <div class="bh-planner-listing-popover__days">
+                        <?php foreach ($week_days as $day): ?>
+                            <form method="post">
+                                <?php wp_nonce_field('bh_my_hub_add_to_planner', 'bh_my_hub_nonce'); ?>
+                                <input type="hidden" name="bh_my_hub_action" value="add_to_planner">
+                                <input type="hidden" name="listing_id" value="<?php echo esc_attr((string) $listing_id); ?>">
+                                <input type="hidden" name="planner_date" value="<?php echo esc_attr($day['date']); ?>">
+                                <button type="submit" class="<?php echo in_array($day['date'], $planned_dates, true) ? 'is-planned' : ''; ?>">
+                                    <span><?php echo esc_html($day['label']); ?></span>
+                                    <?php if (in_array($day['date'], $planned_dates, true)): ?><small>✓ Planned</small><?php else: ?><small>Add</small><?php endif; ?>
+                                </button>
+                            </form>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php if ($planned_dates): ?>
+                        <form method="post" class="bh-planner-listing-popover__remove">
+                            <?php wp_nonce_field('bh_my_hub_remove_from_planner', 'bh_my_hub_nonce'); ?>
+                            <input type="hidden" name="bh_my_hub_action" value="remove_activity_from_planner">
+                            <input type="hidden" name="listing_id" value="<?php echo esc_attr((string) $listing_id); ?>">
+                            <button type="submit">Remove from planner</button>
+                        </form>
+                    <?php endif; ?>
+                </div>
+            </div>
         </div>
         <?php
     }
-
 
     public static function shortcode(): string {
         if (!is_user_logged_in()) {
@@ -648,11 +705,11 @@ final class MyHub {
     public static function planner_shortcode(): string {
         if (!is_user_logged_in()) {
             $url = function_exists('um_get_core_page') ? um_get_core_page('login') : wp_login_url(get_permalink());
-            return '<div class="bh-my-hub bh-my-hub--login"><h2>My Planner</h2><p>Please log in to access your planner.</p><a class="bh-my-hub__button" href="' . esc_url($url) . '">Log in</a></div>';
+            return '<div class="bh-planner bh-planner--login"><h2>My Planner</h2><p>Please log in to access your planner.</p><a class="bh-my-hub__button" href="' . esc_url($url) . '">Log in</a></div>';
         }
 
         $user = wp_get_current_user();
-        return '<div class="bh-my-hub bh-my-hub--planner"><div class="bh-my-hub__intro"><div><p class="bh-my-hub__eyebrow">My Bubba Hub</p><h1>My Planner</h1><p>Plan your family week from your saved activities.</p></div><a class="bh-my-hub__account-link" href="' . esc_url(self::my_hub_url()) . '">← My Family</a></div>' . self::render_planner_section($user->ID) . '</div>';
+        return self::render_planner_section($user->ID);
     }
 
     private static function child_fields(int $post_id = 0): void {
@@ -859,7 +916,7 @@ final class MyHub {
             check_admin_referer('bh_my_hub_add_to_planner', 'bh_my_hub_nonce');
             $id = absint($_POST['listing_id'] ?? 0);
             $date = sanitize_text_field(wp_unslash($_POST['planner_date'] ?? ''));
-            if ($id && self::valid_planner_date($date) && in_array($id, self::saved_activities($user_id), true)) {
+            if ($id && get_post_type($id) === 'at_biz_dir' && get_post_status($id) === 'publish' && self::valid_planner_date($date)) {
                 $planner = self::planner_items($user_id);
                 $planner[$date] = isset($planner[$date]) && is_array($planner[$date]) ? $planner[$date] : [];
                 if (!in_array($id, $planner[$date], true)) $planner[$date][] = $id;
@@ -881,6 +938,15 @@ final class MyHub {
                 }
             }
             self::redirect_planner();
+        }
+
+        if ($action === 'remove_activity_from_planner') {
+            check_admin_referer('bh_my_hub_remove_activity_from_planner', 'bh_my_hub_nonce');
+            $id = absint($_POST['listing_id'] ?? 0);
+            if ($id) self::remove_activity_from_planner($user_id, $id);
+            $redirect = wp_get_referer() ?: self::planner_url();
+            wp_safe_redirect($redirect);
+            exit;
         }
 
         if ($action === 'delete_bump') {
@@ -917,198 +983,103 @@ final class MyHub {
     }
 
     private static function render_planner_section(int $user_id): string {
-        $saved = self::saved_activities($user_id);
         $planner = self::planner_items($user_id);
-        $today = current_datetime()->setTime(0, 0);
-        $week_start = $today->modify('monday this week');
+        $preferences = get_user_meta($user_id, '_bh_planner_preferences', true);
+        $hidden_days = is_array($preferences) && !empty($preferences['hidden_days']) ? array_map('sanitize_key', (array) $preferences['hidden_days']) : [];
+        $requested_week = isset($_GET['planner_week']) ? sanitize_text_field(wp_unslash($_GET['planner_week'])) : '';
+        $anchor = self::valid_planner_date($requested_week) ? new \DateTimeImmutable($requested_week, wp_timezone()) : current_datetime();
+        $week_start = $anchor->setTime(0, 0)->modify('monday this week');
         $days = [];
-        for ($i = 0; $i < 7; $i++) $days[] = $week_start->modify('+' . $i . ' days');
+        $day_keys = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+        foreach ($day_keys as $i => $day_key) {
+            $day = $week_start->modify('+' . $i . ' days');
+            $days[] = [
+                'key' => $day_key,
+                'date' => $day->format('Y-m-d'),
+                'day' => $day,
+            ];
+        }
+        $visible_days = array_values(array_filter($days, static fn($day) => !in_array($day['key'], $hidden_days, true)));
+        if (!$visible_days) $visible_days = $days;
+
+        $previous = $week_start->modify('-7 days')->format('Y-m-d');
+        $next = $week_start->modify('+7 days')->format('Y-m-d');
+        $range_label = wp_date('j M', $week_start->getTimestamp(), wp_timezone()) . ' – ' . wp_date('j M Y', $week_start->modify('+6 days')->getTimestamp(), wp_timezone());
+        $planned_count = 0;
+        foreach ($planner as $items) $planned_count += count((array) $items);
 
         ob_start(); ?>
-        <section id="bh-my-hub-planner" class="bh-my-hub__card bh-my-hub__card--wide">
-            <div class="bh-my-hub__card-head">
-                <div><span class="bh-my-hub__icon">📅</span><h2>My Planner</h2></div>
-                <span class="bh-my-hub__count"><?php echo esc_html(count($saved)); ?> saved</span>
-            </div>
-            <p class="bh-my-hub__muted">Save activities from the directory, then add them to the day you want to visit.</p>
-
-            <div class="bh-my-hub__nap-schedule">
-                <div class="bh-my-hub__card-head">
-                    <div><span class="bh-my-hub__icon">😴</span><h2>Child Nap Schedule</h2></div>
-                    <button type="button" class="bh-my-hub__button bh-my-hub__open-modal" data-bh-modal="nap-window">Add new nap window</button>
+        <section id="bh-planner" class="bh-planner">
+            <div class="bh-planner__intro">
+                <div>
+                    <p class="bh-planner__eyebrow">My week</p>
+                    <h1>My Planner</h1>
+                    <p>Turn the activities you find on Bubba Hub into your family's plan for the week.</p>
                 </div>
-                <p class="bh-my-hub__muted">Add regular nap windows for each child so they are easy to see when planning your family week.</p>
-
-                <?php
-                $nap_children = self::get_children($user_id);
-                $nap_windows = [];
-                foreach ($nap_children as $nap_child) {
-                    $child_id = (int) $nap_child->ID;
-                    $child_name = (string) get_field('field_bubbahub_child_name', $child_id);
-                    $schedule = get_field('field_bubbahub_child_nap_schedule', $child_id);
-                    if (!is_array($schedule)) $schedule = [];
-                    foreach ($schedule as $index => $window) {
-                        if (empty($window['day_name']) || empty($window['start_time']) || empty($window['end_time'])) continue;
-                        $nap_windows[] = [
-                            'child_id' => $child_id,
-                            'child_name' => $child_name ?: 'Child',
-                            'index' => (int) $index,
-                            'day_name' => (string) $window['day_name'],
-                            'start_time' => (string) $window['start_time'],
-                            'end_time' => (string) $window['end_time'],
-                        ];
-                    }
-                }
-                $day_labels = [
-                    'monday'=>'Monday','tuesday'=>'Tuesday','wednesday'=>'Wednesday',
-                    'thursday'=>'Thursday','friday'=>'Friday','saturday'=>'Saturday','sunday'=>'Sunday',
-                ];
-                ?>
-
-                <?php if ($nap_windows): ?>
-                    <div class="bh-my-hub__nap-windows">
-                        <?php foreach ($nap_windows as $window): ?>
-                            <article class="bh-my-hub__nap-window">
-                                <div>
-                                    <strong><?php echo esc_html($window['child_name']); ?></strong>
-                                    <span><?php echo esc_html($day_labels[$window['day_name']] ?? ucfirst($window['day_name'])); ?></span>
-                                    <small><?php echo esc_html($window['start_time'] . '–' . $window['end_time']); ?></small>
-                                </div>
-                                <div class="bh-my-hub__nap-window-actions">
-                                    <button type="button" class="bh-my-hub__edit-link bh-my-hub__open-modal" data-bh-modal="edit-nap-<?php echo esc_attr((string) $window['child_id'] . '-' . (string) $window['index']); ?>">Edit</button>
-                                    <form method="post">
-                                        <?php wp_nonce_field('bh_my_hub_remove_nap_window', 'bh_my_hub_nonce'); ?>
-                                        <input type="hidden" name="bh_my_hub_action" value="remove_nap_window">
-                                        <input type="hidden" name="child_id" value="<?php echo esc_attr((string) $window['child_id']); ?>">
-                                        <input type="hidden" name="nap_index" value="<?php echo esc_attr((string) $window['index']); ?>">
-                                        <button type="submit">Remove</button>
-                                    </form>
-                                </div>
-                                <div class="bh-my-hub__modal" data-bh-modal-panel="edit-nap-<?php echo esc_attr((string) $window['child_id'] . '-' . (string) $window['index']); ?>" hidden>
-                                    <div class="bh-my-hub__modal-backdrop" data-bh-modal-close></div>
-                                    <div class="bh-my-hub__modal-dialog" role="dialog" aria-modal="true">
-                                        <button type="button" class="bh-my-hub__modal-close" data-bh-modal-close aria-label="Close">×</button>
-                                        <h3>Edit nap window</h3>
-                                        <form method="post" class="bh-my-hub__form">
-                                            <?php wp_nonce_field('bh_my_hub_edit_nap_window', 'bh_my_hub_nonce'); ?>
-                                            <input type="hidden" name="bh_my_hub_action" value="edit_nap_window">
-                                            <input type="hidden" name="nap_child_id" value="<?php echo esc_attr((string) $window['child_id']); ?>">
-                                            <input type="hidden" name="nap_index" value="<?php echo esc_attr((string) $window['index']); ?>">
-                                            <div class="bh-my-hub__fields">
-                                                <label>Child
-                                                    <select name="nap_child_id_display" disabled>
-                                                        <option selected><?php echo esc_html($window['child_name']); ?></option>
-                                                    </select>
-                                                </label>
-                                                <label>Day
-                                                    <select name="nap_day" required>
-                                                        <?php foreach ($day_labels as $day_key => $day_label): ?>
-                                                            <option value="<?php echo esc_attr($day_key); ?>" <?php selected($window['day_name'], $day_key); ?>><?php echo esc_html($day_label); ?></option>
-                                                        <?php endforeach; ?>
-                                                    </select>
-                                                </label>
-                                                <label>Start time<input type="time" name="nap_start_time" value="<?php echo esc_attr($window['start_time']); ?>" required></label>
-                                                <label>End time<input type="time" name="nap_end_time" value="<?php echo esc_attr($window['end_time']); ?>" required></label>
-                                            </div>
-                                            <button class="bh-my-hub__button" type="submit">Save changes</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </article>
-                        <?php endforeach; ?>
-                    </div>
-                <?php else: ?>
-                    <div class="bh-my-hub__coming">
-                        <strong>No nap windows added yet.</strong>
-                        <p>Add a nap window for a child to keep their usual routine handy.</p>
-                    </div>
-                <?php endif; ?>
-
-                <div class="bh-my-hub__modal" data-bh-modal-panel="nap-window" hidden>
-                    <div class="bh-my-hub__modal-backdrop" data-bh-modal-close></div>
-                    <div class="bh-my-hub__modal-dialog" role="dialog" aria-modal="true">
-                        <button type="button" class="bh-my-hub__modal-close" data-bh-modal-close aria-label="Close">×</button>
-                        <h3>Add new nap window</h3>
-                        <?php if ($nap_children): ?>
-                            <form method="post" class="bh-my-hub__form">
-                                <?php wp_nonce_field('bh_my_hub_save_nap_window', 'bh_my_hub_nonce'); ?>
-                                <input type="hidden" name="bh_my_hub_action" value="save_nap_window">
-                                <div class="bh-my-hub__fields">
-                                    <label>Child
-                                        <select name="nap_child_id" required>
-                                            <option value="">Select child</option>
-                                            <?php foreach ($nap_children as $nap_child): ?>
-                                                <option value="<?php echo esc_attr((string) $nap_child->ID); ?>"><?php echo esc_html((string) get_field('field_bubbahub_child_name', $nap_child->ID) ?: 'Child'); ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </label>
-                                    <label>Day
-                                        <select name="nap_day" required>
-                                            <option value="">Select day</option>
-                                            <?php foreach ($day_labels as $day_key => $day_label): ?>
-                                                <option value="<?php echo esc_attr($day_key); ?>"><?php echo esc_html($day_label); ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </label>
-                                    <label>Start time<input type="time" name="nap_start_time" required></label>
-                                    <label>End time<input type="time" name="nap_end_time" required></label>
-                                </div>
-                                <button class="bh-my-hub__button" type="submit">Save nap window</button>
-                            </form>
-                        <?php else: ?>
-                            <p class="bh-my-hub__muted">Add a child to your family first, then you can add their nap schedule.</p>
-                        <?php endif; ?>
-                    </div>
-                </div>
+                <a class="bh-planner__find" href="<?php echo esc_url(home_url('/directory/')); ?>">Find activities</a>
             </div>
 
-            <?php if ($saved): ?>
-                <div class="bh-my-hub__planner-days">
-                    <?php foreach ($days as $day): $date_key = $day->format('Y-m-d'); ?>
-                        <div class="bh-my-hub__planner-day">
-                            <div class="bh-my-hub__planner-day-head">
-                                <strong><?php echo esc_html(wp_date('D', $day->getTimestamp(), wp_timezone())); ?></strong>
-                                <span><?php echo esc_html(wp_date('j M', $day->getTimestamp(), wp_timezone())); ?></span>
-                            </div>
-                            <?php foreach ((array) ($planner[$date_key] ?? []) as $listing_id):
-                                $post = get_post(absint($listing_id));
-                                if (!$post || $post->post_status !== 'publish') continue;
+            <div class="bh-planner__toolbar">
+                <a class="bh-planner__week-link" href="<?php echo esc_url(add_query_arg('planner_week', $previous, self::planner_url())); ?>" aria-label="Previous week">‹</a>
+                <div class="bh-planner__week-title">
+                    <strong><?php echo esc_html($range_label); ?></strong>
+                    <a href="<?php echo esc_url(remove_query_arg('planner_week', self::planner_url())); ?>">This week</a>
+                </div>
+                <a class="bh-planner__week-link" href="<?php echo esc_url(add_query_arg('planner_week', $next, self::planner_url())); ?>" aria-label="Next week">›</a>
+            </div>
+
+            <?php if ($planned_count === 0): ?>
+                <div class="bh-planner__empty">
+                    <span aria-hidden="true">🗓️</span>
+                    <h2>Your week is ready to fill</h2>
+                    <p>When you find a group or class you want to go to, tap <strong>Add to Planner</strong> on its Directorist listing and choose the day.</p>
+                    <a class="bh-planner__find" href="<?php echo esc_url(home_url('/directory/')); ?>">Browse activities</a>
+                </div>
+            <?php endif; ?>
+
+            <div class="bh-planner__days" style="--bh-planner-day-count:<?php echo esc_attr((string) count($visible_days)); ?>">
+                <?php foreach ($visible_days as $day): $date_key = $day['date']; ?>
+                    <article class="bh-planner__day">
+                        <header class="bh-planner__day-head">
+                            <span><?php echo esc_html(wp_date('D', $day['day']->getTimestamp(), wp_timezone())); ?></span>
+                            <strong><?php echo esc_html(wp_date('j', $day['day']->getTimestamp(), wp_timezone())); ?></strong>
+                            <small><?php echo esc_html(wp_date('M', $day['day']->getTimestamp(), wp_timezone())); ?></small>
+                        </header>
+
+                        <div class="bh-planner__day-body">
+                            <?php
+                            $items = array_values(array_unique(array_map('absint', (array) ($planner[$date_key] ?? []))));
+                            foreach ($items as $listing_id):
+                                $post = get_post($listing_id);
+                                if (!$post || $post->post_type !== 'at_biz_dir' || $post->post_status !== 'publish') continue;
                                 ?>
-                                <article class="bh-my-hub__planner-item">
-                                    <a href="<?php echo esc_url(get_permalink($post)); ?>"><strong><?php echo esc_html(get_the_title($post)); ?></strong></a>
+                                <article class="bh-planner__item">
+                                    <div class="bh-planner__item-main">
+                                        <a href="<?php echo esc_url(get_permalink($post)); ?>"><?php echo esc_html(get_the_title($post)); ?></a>
+                                        <span><?php echo esc_html(self::listing_location_label($listing_id)); ?></span>
+                                    </div>
                                     <form method="post">
                                         <?php wp_nonce_field('bh_my_hub_remove_from_planner', 'bh_my_hub_nonce'); ?>
                                         <input type="hidden" name="bh_my_hub_action" value="remove_from_planner">
-                                        <input type="hidden" name="listing_id" value="<?php echo esc_attr((string) $post->ID); ?>">
+                                        <input type="hidden" name="listing_id" value="<?php echo esc_attr((string) $listing_id); ?>">
                                         <input type="hidden" name="planner_date" value="<?php echo esc_attr($date_key); ?>">
-                                        <button type="submit">Remove</button>
+                                        <button type="submit" aria-label="Remove <?php echo esc_attr(get_the_title($post)); ?> from planner">×</button>
                                     </form>
                                 </article>
                             <?php endforeach; ?>
-                            <?php if (empty($planner[$date_key])): ?>
-                                <span class="bh-my-hub__planner-empty">Nothing planned</span>
+
+                            <?php if (empty($items)): ?>
+                                <p class="bh-planner__nothing">Nothing planned</p>
                             <?php endif; ?>
-                            <?php foreach ($saved as $listing_id):
-                                $post = get_post($listing_id);
-                                if (!$post || $post->post_status !== 'publish' || in_array($listing_id, (array) ($planner[$date_key] ?? []), true)) continue;
-                                ?>
-                                <form method="post" class="bh-my-hub__planner-add">
-                                    <?php wp_nonce_field('bh_my_hub_add_to_planner', 'bh_my_hub_nonce'); ?>
-                                    <input type="hidden" name="bh_my_hub_action" value="add_to_planner">
-                                    <input type="hidden" name="listing_id" value="<?php echo esc_attr((string) $listing_id); ?>">
-                                    <input type="hidden" name="planner_date" value="<?php echo esc_attr($date_key); ?>">
-                                    <button type="submit">+ <?php echo esc_html(get_the_title($post)); ?></button>
-                                </form>
-                            <?php endforeach; ?>
                         </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <div class="bh-my-hub__coming">
-                    <strong>Start building your family week.</strong>
-                    <p>Save an activity from the directory and it will appear here ready to add to your planner.</p>
-                </div>
-            <?php endif; ?>
+                    </article>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="bh-planner__hint">
+                <span aria-hidden="true">💡</span>
+                <p><strong>Planning is personal.</strong> The directory calendar shows what's available; My Planner only shows the activities you've chosen.</p>
+            </div>
         </section>
         <?php return (string) ob_get_clean();
     }
@@ -1492,6 +1463,12 @@ final class MyHub {
         ];
         update_user_meta($user_id, '_bh_advanced_settings', $settings);
 
+        $valid_planner_days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+        $hidden_planner_days = isset($_POST['planner_hidden_days']) && is_array($_POST['planner_hidden_days'])
+            ? array_values(array_intersect($valid_planner_days, array_map('sanitize_key', wp_unslash($_POST['planner_hidden_days']))))
+            : [];
+        update_user_meta($user_id, '_bh_planner_preferences', ['hidden_days' => $hidden_planner_days]);
+
         $redirect = wp_get_referer() ?: self::my_hub_url();
         wp_safe_redirect(add_query_arg('bh_settings_saved', '1', remove_query_arg('bh_settings_saved', $redirect)));
         exit;
@@ -1526,6 +1503,14 @@ final class MyHub {
         $directory_visibility = ($settings['directory_visibility'] ?? 'public') === 'public';
         $email_updates = ($settings['email_updates'] ?? 'yes') === 'yes';
         $family_personalisation = ($settings['family_personalisation'] ?? 'yes') === 'yes';
+        $planner_preferences = get_user_meta($user->ID, '_bh_planner_preferences', true);
+        $hidden_planner_days = is_array($planner_preferences) && !empty($planner_preferences['hidden_days'])
+            ? array_values(array_intersect(['monday','tuesday','wednesday','thursday','friday','saturday','sunday'], array_map('sanitize_key', (array) $planner_preferences['hidden_days'])))
+            : [];
+        $planner_days = [
+            'monday' => 'Monday', 'tuesday' => 'Tuesday', 'wednesday' => 'Wednesday',
+            'thursday' => 'Thursday', 'friday' => 'Friday', 'saturday' => 'Saturday', 'sunday' => 'Sunday',
+        ];
 
         $directorist_active = function_exists('directorist_get_user_favorites') || post_type_exists('at_biz_dir');
 
@@ -1548,6 +1533,7 @@ final class MyHub {
                 <button type="button" class="bh-my-hub__settings-tab is-active" role="tab" aria-selected="true" aria-controls="bh-settings-panel-profile" data-bh-settings-tab="profile" id="bh-settings-tab-profile">Profile</button>
                 <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-family" data-bh-settings-tab="family" id="bh-settings-tab-family">Family Hub</button>
                 <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-privacy" data-bh-settings-tab="privacy" id="bh-settings-tab-privacy">Privacy</button>
+                <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-planner" data-bh-settings-tab="planner" id="bh-settings-tab-planner">My Planner</button>
                 <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-notifications" data-bh-settings-tab="notifications" id="bh-settings-tab-notifications">Notifications</button>
                 <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-directory" data-bh-settings-tab="directory" id="bh-settings-tab-directory">Directory</button>
                 <button type="button" class="bh-my-hub__settings-tab" role="tab" aria-selected="false" aria-controls="bh-settings-panel-account" data-bh-settings-tab="account" id="bh-settings-tab-account">Account & Security</button>
@@ -1580,6 +1566,22 @@ final class MyHub {
                         <input type="checkbox" name="family_personalisation" value="1" <?php checked($family_personalisation); ?>>
                         <span><strong>Family personalisation</strong><small>Use your family details to personalise My Hub, planning and family-related features.</small></span>
                     </label>
+                </section>
+
+                <section id="bh-settings-panel-planner" class="bh-my-hub__settings-card bh-my-hub__settings-panel" data-bh-settings-panel="planner" role="tabpanel" aria-labelledby="bh-settings-tab-planner" hidden>
+                    <div class="bh-my-hub__settings-heading">
+                        <span class="bh-my-hub__icon" aria-hidden="true">🗓️</span>
+                        <div><h2>My Planner Preferences</h2><p>Choose which days appear in your weekly planner. Hiding a day does not delete any activities planned for it.</p></div>
+                    </div>
+                    <div class="bh-my-hub__planner-preference-days">
+                        <?php foreach ($planner_days as $day_key => $day_label): ?>
+                            <label class="bh-my-hub__setting-switch">
+                                <input type="checkbox" name="planner_hidden_days[]" value="<?php echo esc_attr($day_key); ?>" <?php checked(in_array($day_key, $hidden_planner_days, true)); ?>>
+                                <span><strong>Hide <?php echo esc_html($day_label); ?></strong><small>Remove this day from the Planner view only.</small></span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                    <p class="bh-my-hub__settings-help">Tip: hide weekends if you mainly use Bubba Hub for weekday groups.</p>
                 </section>
 
                 <section id="bh-settings-panel-privacy" class="bh-my-hub__settings-card bh-my-hub__settings-panel" data-bh-settings-panel="privacy" role="tabpanel" aria-labelledby="bh-settings-tab-privacy" hidden>
