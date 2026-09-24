@@ -1458,6 +1458,43 @@ body.bh-modal-open{overflow:hidden}
   scroll-snap-align:start;
 }
 
+/* Keep bump cards fully contained inside the Family Hub panel. */
+.bh-my-hub #bh-my-hub-family > .bh-my-hub__profiles--bumps{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  margin-top:16px!important;
+}
+
+.bh-my-hub #bh-my-hub-family > .bh-my-hub__profiles--bumps > .bh-my-hub__family-profile-card{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+
+@media(max-width:760px){
+  .bh-my-hub #bh-my-hub-family > .bh-my-hub__profiles--bumps{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    gap:13px!important;
+    overflow:hidden!important;
+  }
+
+  .bh-my-hub #bh-my-hub-family > .bh-my-hub__profiles--bumps > .bh-my-hub__family-profile-card{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    margin:0!important;
+  }
+}
+
 /* Keep bump cards in the normal Family Hub layout. */
 .bh-my-hub #bh-my-hub-family > .bh-my-hub__profiles--bumps{
   margin-top:16px!important;
