@@ -1500,8 +1500,8 @@ final class MyHub {
     private static function account_settings_url(): string {
         global $post;
         if ($post instanceof \WP_Post && has_shortcode((string) $post->post_content, 'bh_account_settings')) return get_permalink($post);
-        $page = get_page_by_path('account-settings');
-        return $page instanceof \WP_Post ? get_permalink($page) : home_url('/account-settings/');
+        $page = get_page_by_path('account');
+        return $page instanceof \WP_Post ? get_permalink($page) : home_url('/account/');
     }
 
     private static function ultimate_member_account_url(): string {
