@@ -1489,3 +1489,62 @@ body.bh-modal-open{overflow:hidden}
     max-width:270px!important;
   }
 }
+
+
+/* Family Hub: switch between children and expected-baby views. */
+.bh-my-hub .bh-my-hub__family-view-toggle{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:4px;
+  margin-right:auto;
+  border:1px solid rgba(79,116,112,.22);
+  border-radius:999px;
+  background:rgba(244,238,224,.7);
+}
+
+.bh-my-hub .bh-my-hub__family-view-button{
+  appearance:none;
+  border:0;
+  border-radius:999px;
+  background:transparent;
+  color:#5f6968;
+  padding:8px 14px;
+  font:inherit;
+  font-weight:700;
+  line-height:1;
+  cursor:pointer;
+  white-space:nowrap;
+}
+
+.bh-my-hub .bh-my-hub__family-view-button.is-active{
+  background:#fffdf8;
+  color:#315e5a;
+  box-shadow:0 2px 8px rgba(58,47,39,.08);
+}
+
+.bh-my-hub .bh-my-hub__family-view-button:focus-visible{
+  outline:2px solid #315e5a;
+  outline-offset:2px;
+}
+
+.bh-my-hub .bh-my-hub__family-view-hidden{
+  display:none!important;
+}
+
+@media(max-width:760px){
+  .bh-my-hub .bh-my-hub__family-actions{
+    align-items:stretch!important;
+  }
+
+  .bh-my-hub .bh-my-hub__family-view-toggle{
+    width:100%;
+    margin-right:0;
+    justify-content:center;
+  }
+
+  .bh-my-hub .bh-my-hub__family-view-button{
+    flex:1 1 0;
+    min-width:0;
+  }
+}
